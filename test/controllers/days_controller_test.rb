@@ -51,6 +51,38 @@ class DaysControllerTest < ActionDispatch::IntegrationTest
     assert_equal "pending", event.occurrence_on(Date.new(2026, 3, 23)).status, "the series' other days are as they were"
   end
 
+  test "a series that ends reads back as ending on its last day, however the end was given" do
+    sign_in profiles(:alice)
+    event = events(:water_the_plants) # Mondays from 2026-03-02
+
+    patch event_day_path(event, "2026-03-02"), as: :turbo_stream, params: {
+      task: { title: event.title, apply_to: "series" },
+      event: { frequency: "weekly", interval: 1, week_days: %w[monday], ends_by: "after_times", ends_after_times: "3" }
+    }
+    get edit_event_day_path(event, "2026-03-09"), as: :turbo_stream
+
+    assert_select "select[name='event[ends_by]'] option[selected][value=on_date]"
+    assert_select "input[type=date][name='event[ends]'][value='2026-03-16']"
+    assert_select "input[name='event[ends_after_days]']:not([value])"
+  end
+
+  test "an end that can't be is said under the end's field, drawn again as it was typed" do
+    sign_in profiles(:alice)
+    event = events(:water_the_plants)
+
+    patch event_day_path(event, "2026-03-16"), as: :turbo_stream, params: {
+      task: { title: event.title, apply_to: "series" },
+      event: { frequency: "weekly", interval: 1, week_days: %w[monday], ends_by: "on_date", ends: "2026-02-01" }
+    }
+
+    assert_response :unprocessable_content
+    assert_select "#event_ends_error", text: /can't end before its first day/
+    assert_select "#event_ends[aria-invalid=true]"
+    assert_select "select[name='event[ends_by]'] option[selected][value=on_date]"
+    assert_select "#event_ends[value='2026-02-01']"
+    assert_nil Events::RecurrenceRule.describe(event.reload.rrule)[:ends]
+  end
+
   test "a dose nothing was stored about offers whether it was taken, when, and why not" do
     get edit_event_day_path(@event, "2026-10-03", time: "20:00"), as: :turbo_stream
 

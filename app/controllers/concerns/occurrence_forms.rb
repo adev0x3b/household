@@ -38,19 +38,22 @@ module OccurrenceForms
     render turbo_stream: [ close_modal, toast(:success, notice(key)) ]
   end
 
-  # The form again, with what was wrong in it.
+  # The form again, with what was wrong in it. The end is drawn as it was
+  # sent: an end the series was refused never reached it, and its error is
+  # said under the field it was typed in.
   def shown_again(occurrence)
-    render turbo_stream: redraw_modal(form_of(occurrence)), status: :unprocessable_content
+    ends_sent = form_params[:event].slice(*Events::SeriesEnd::PARAMS)
+    render turbo_stream: redraw_modal(form_of(occurrence, ends_sent: ends_sent)), status: :unprocessable_content
   end
 
   # The kind's form (Views::Occurrences::Forms) for the viewer, with their
   # own "remind me" rows on the series, and the owner's housemates for a
   # form that offers them (a payment's other side).
-  def form_of(occurrence)
+  def form_of(occurrence, ends_sent: {})
     owner = occurrence.event.profile || current_profile
     Views::Occurrences::Forms.for(occurrence.event.class).new(
       occurrence: occurrence, url: form_url(occurrence), current_profile: current_profile,
-      reminders: reminders_of(occurrence), housemates: owner.housemates.order(:username)
+      reminders: reminders_of(occurrence), housemates: owner.housemates.order(:username), ends_sent: ends_sent
     )
   end
 

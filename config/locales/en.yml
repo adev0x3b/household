@@ -2971,6 +2971,18 @@ en:
       weekly: "Weekly"
       monthly: "Monthly"
       yearly: "Yearly"
+    ends:
+      label: "Ends"
+      kinds:
+        never: "Never"
+        on_date: "On a day"
+        after_days: "After a number of days"
+        after_times: "After a number of times"
+      day_label: "Last day"
+      days_label: "Days"
+      days_help: "Counted from the first day, that day included: 15 days from the 1st end on the 15th."
+      times_label: "Times"
+      times_help: "Each day it happens counts once, however many times of the day it has."
 
   page_controls:
     more: "More actions"
@@ -3676,6 +3688,9 @@ en:
           attributes:
             rrule:
               never_happens: "has no day to come"
+              day_missing: "needs the day it ends"
+              before_start: "can't end before its first day"
+              count_out_of_range: "must end after a whole number of days or times, from 1 to 999"
         occurrence:
           attributes:
             lab_test_result_entries:

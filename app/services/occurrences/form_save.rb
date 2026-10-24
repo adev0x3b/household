@@ -146,6 +146,10 @@ module Occurrences
 
       assign_fields!(series_scope? ? series_changes : attributes.except(:status, *STATUS_DETAILS))
       invalid = [ record, event, target_details ].reject(&:valid?)
+      if (ends_error = series_shape.error(event))
+        event.errors.add(:rrule, ends_error)
+        invalid |= [ event ]
+      end
       (invalid - [ record ]).each { |part| record.errors.merge!(part.errors) }
       invalid.empty?
     end
@@ -226,11 +230,12 @@ module Occurrences
       broadcast { Calendar::Refresh.call(*@continuation.audience) } if @continuation
     end
 
-    # The series: its shape, and the universal fields when they go to it. A
-    # rule the form's fields can't make is the form's error.
+    # The series: its shape, and the universal fields when they go to it. An
+    # end the form's fields can't give is the form's error.
     def save_series!
       series_shape.apply_to(event)
-      raise(ActiveRecord::RecordInvalid, event.tap { _1.errors.add(:rrule, :invalid) }) unless series_shape.valid?
+      ends_error = series_shape.error(event)
+      raise(ActiveRecord::RecordInvalid, event.tap { _1.errors.add(:rrule, ends_error) }) if ends_error
 
       changes = series_changes if series_scope?
       assign_fields!(changes) if changes

@@ -94,6 +94,7 @@ module Demo
       at(ago(158)) { hay_fever_drops }
       at(ago(120)) { metformin_tablets }
       at(ago(40)) { antibiotic_course }
+      at(ago(5)) { tonsillitis_course }
       at(ago(100)) { physiotherapy }
       [ 151, 122, 97, 71, 44, 29, 13 ].each { |days| at(ago(days)) { painkiller } }
     end
@@ -134,7 +135,8 @@ module Demo
         needles: supply(sam, "Needles 23G", :consumable, "pieces", low: 6),
         eye_drops: supply(robin, "Antihistamine eye drops", :medication, "ml", low: nil, pao_days: 28),
         metformin: supply(sam, "Metformin 500 mg", :medication, "tablets", low: 10),
-        amoxicillin: supply(robin, "Amoxicillin 1 g", :medication, "tablets", low: nil)
+        amoxicillin: supply(robin, "Amoxicillin 1 g", :medication, "tablets", low: nil),
+        co_amoxiclav: supply(alex, "Amoxicillin and clavulanic acid 875/125 mg", :medication, "tablets", low: nil)
       }
       @restocks = [
         { supply: @supplies[:levo50], pack: 50, price: 3.8, below: 6, therapy: @therapies[:thyroid], during: ago(171)..ago(DOSE_RAISED + 12) },
@@ -274,6 +276,16 @@ module Demo
       course = dose(robin, "Amoxicillin 1 g", :pill, 1, "g", { amoxicillin: 1 }, pill_count: 1,
                                                                                  recurrence: { frequency: "daily", ends: ago(34), slots: %w[06:00 14:00 22:00] })
       follow(course, done: 0.95, skipped: 0.05, late: 0, apart: true)
+    end
+
+    # Twice a day for two weeks, entered as ending after 15 days: the doctor
+    # counted the day it was prescribed. Still under way, so its last day is
+    # ahead, and tonight's tablet is still to take.
+    def tonsillitis_course
+      buy(@supplies[:co_amoxiclav], 30, 11.9)
+      course = dose(alex, "Amoxicillin and clavulanic acid 875/125 mg", :pill, 875, "mg", { co_amoxiclav: 1 }, pill_count: 1,
+                                                                                                               recurrence: { frequency: "daily", ends: Date.current + 14, slots: %w[08:00 20:00] })
+      follow(course, done: 0.95, skipped: 0, late: 0.1, apart: true, force: { [ today, "08:00" ] => :done, [ today, "20:00" ] => :missed })
     end
 
     # Six weekly sessions for Sam's shoulder, paid one at a time; one called off.
