@@ -125,8 +125,10 @@ export class FloatingMenu {
     )
   }
 
+  // An entry hidden on its own or with the part of the menu it is in
+  // can't take the focus.
   #firstEntry() {
-    return [...this.#menu.querySelectorAll("a[href], button")].find((entry) => !entry.hidden)
+    return [...this.#menu.querySelectorAll("a[href], button")].find((entry) => !entry.closest("[hidden]"))
   }
 }
 

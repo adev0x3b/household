@@ -35,6 +35,30 @@ class DaysControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Water the plants", event.reload.title
   end
 
+  test "a day nothing was stored about offers its status, and skipping it from the form stores it skipped" do
+    sign_in profiles(:alice)
+    event = events(:water_the_plants)
+
+    get edit_event_day_path(event, "2026-03-16"), as: :turbo_stream
+    assert_select "select[name='task[status]']" do
+      assert_select "option[selected][value=pending]"
+      assert_select "option", Task.allowed_statuses.size
+    end
+
+    patch event_day_path(event, "2026-03-16"), as: :turbo_stream, params: { task: { title: "Water the plants", status: "skipped" } }
+
+    assert_predicate event.occurrences.find_by!(date: Date.new(2026, 3, 16)), :skipped?
+    assert_equal "pending", event.occurrence_on(Date.new(2026, 3, 23)).status, "the series' other days are as they were"
+  end
+
+  test "a dose nothing was stored about offers whether it was taken, when, and why not" do
+    get edit_event_day_path(@event, "2026-10-03", time: "20:00"), as: :turbo_stream
+
+    assert_select "select[name='medication[status]']"
+    assert_select "select[name='medication[skipped_reason]']"
+    assert_select "input[name='medication[completed_at]']"
+  end
+
   test "a dose is named by its time, and a day without one is the dose still to take" do
     get edit_event_day_path(@event, "2026-10-03", time: "20:00"), as: :turbo_stream
     assert_select "form[action=?]", event_day_path(@event, "2026-10-03", time: "20:00")
@@ -47,7 +71,7 @@ class DaysControllerTest < ActionDispatch::IntegrationTest
 
   test "deleting one dose of a day leaves the day's other doses and the other days" do
     get calendar_path(month: 10, year: 2026)
-    assert_select "#day_2026-10-03 .item-menu__button[data-card-menu-url-param=?]", event_day_path(@event, "2026-10-03", time: "20:00")
+    assert_select "#day_2026-10-03 .item-menu__button[data-card-menu-delete-url-param=?]", event_day_path(@event, "2026-10-03", time: "20:00")
 
     delete event_day_path(@event, "2026-10-03", time: "20:00"), params: { scope: "occurrence" }, as: :turbo_stream
 

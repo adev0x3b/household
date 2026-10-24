@@ -2,8 +2,8 @@
 
 # A dose: the medication, its kind (an injection's area and side), what it
 # uses from the supply cupboard, notes, how it repeats and at what times of
-# the day, the therapy it belongs to and — once saved — whether it was
-# taken, when, or why not.
+# the day, the therapy it belongs to and, for a day of a series that
+# exists, whether it was taken, when, or why not.
 class Views::Medications::Modals::Form < Views::Occurrences::Form
   private
 
@@ -27,7 +27,7 @@ class Views::Medications::Modals::Form < Views::Occurrences::Form
     # failed still carries the ones the form sent.
     render Views::Medications::DoseTimesFields.new(event: event)
     render_collection_picker
-    return unless @occurrence.persisted?
+    return unless editing?
 
     render_status_field(f, data: { medication_form_target: "status", action: "change->medication-form#syncStatus" })
     render_skipped_reason_field(f)

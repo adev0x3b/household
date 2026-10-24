@@ -2,8 +2,8 @@
 
 # A meal's day: cooked at home from recipes, or eaten out / ordered in with
 # a name and its cost (meal_form_controller.js shows the fields that apply);
-# which meal of the day, how it repeats and — once saved — whether it was
-# eaten.
+# which meal of the day, how it repeats and, for a day of a series that
+# exists, whether it was eaten.
 class Views::Meals::Modals::Form < Views::Occurrences::Form
   private
 

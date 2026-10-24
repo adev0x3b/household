@@ -79,11 +79,15 @@ Rails.application.routes.draw do
 
     # A day of any series, saved or not yet, named by its series and date and,
     # for a series taken several times a day, its time (`?time=`): its form,
-    # its deletion (one dose of it, the day, or `scope=series`) and whether it
-    # is done, a resource of its own that a press puts there or takes away.
+    # its deletion (one dose of it, the day, or `scope=series`), whether it
+    # is done, a resource of its own that a press puts there or takes away,
+    # and its status, set in one press that says which.
     resources :events, only: [] do
       resources :days, only: %i[edit update destroy], param: :date do
-        member { resource :completion, only: %i[create destroy], controller: "day_completions", as: :day_completion }
+        member do
+          resource :completion, only: %i[create destroy], controller: "day_completions", as: :day_completion
+          resource :status, only: :update, controller: "day_statuses", as: :day_status
+        end
       end
       concerns :shareable, type: "Event"
     end

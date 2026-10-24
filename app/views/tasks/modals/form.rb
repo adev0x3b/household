@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# A task's day: what to do, its priority, how it repeats, and — once saved —
-# where it stands.
+# A task's day: what to do, its priority, how it repeats, and, for a day
+# of a series that exists, where it stands.
 class Views::Tasks::Modals::Form < Views::Occurrences::Form
   private
 
