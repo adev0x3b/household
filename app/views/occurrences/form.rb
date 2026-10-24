@@ -146,9 +146,12 @@ class Views::Occurrences::Form < Views::Base
 
   def form_errors = @form_errors ||= Forms::Errors.new(@occurrence)
 
-  # Where the day is in its lifecycle, once saved: the statuses its kind allows.
+  # Where the day is in its lifecycle: the statuses its kind allows. Every
+  # day of a series that exists has one, stored or not yet, since a day
+  # gets its row when its status is first changed; a new series starts
+  # pending.
   def render_status_field(f, data: {})
-    return unless @occurrence.persisted?
+    return unless editing?
 
     render Components::Field.new(label: t("#{i18n_scope}.form.status_label"), control_id: "#{param_key}_status", select: true) do
       f.select :status, status_options, {}, data: data

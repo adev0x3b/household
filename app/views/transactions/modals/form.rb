@@ -2,8 +2,8 @@
 
 # Money on a day: what for, how much and which way, its category, who it
 # was paid to or by (a name, or a housemate — then they read it too, as an
-# income), how it was paid, how it repeats and — once saved — whether it
-# is paid. What it is about (a lab report's day: "Add a cost") travels in
+# income), how it was paid, how it repeats and, for a day of a series
+# that exists, whether it is paid. What it is about (a lab report's day: "Add a cost") travels in
 # hidden fields.
 class Views::Transactions::Modals::Form < Views::Occurrences::Form
   private
