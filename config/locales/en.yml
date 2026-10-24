@@ -86,6 +86,10 @@ en:
       notices:
         occurrence: "Day deleted."
         series: "Whole series deleted."
+        status:
+          skipped: "Day skipped."
+          cancelled: "Day cancelled."
+          pending: "Day set back to pending."
     navigation:
       month: "Month"
       year: "Year"
@@ -2141,6 +2145,14 @@ en:
       ask_delete_series: "Ask %{name} to delete the series"
       ask_delete_occurrence_confirm: "Ask %{name} to delete this day?"
       ask_delete_series_confirm: "Ask %{name} to delete every day of this series?"
+      status:
+        skipped: "Skip this day"
+        cancelled: "Cancel this day"
+        pending: "Set back to pending"
+      ask_status:
+        skipped: "Ask %{name} to skip this day"
+        cancelled: "Ask %{name} to cancel this day"
+        pending: "Ask %{name} to set this day back to pending"
     notices:
       requested: "Invited %{name} to link."
       accepted: "You and %{name} are linked."

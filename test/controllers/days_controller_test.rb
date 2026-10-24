@@ -71,7 +71,7 @@ class DaysControllerTest < ActionDispatch::IntegrationTest
 
   test "deleting one dose of a day leaves the day's other doses and the other days" do
     get calendar_path(month: 10, year: 2026)
-    assert_select "#day_2026-10-03 .item-menu__button[data-card-menu-url-param=?]", event_day_path(@event, "2026-10-03", time: "20:00")
+    assert_select "#day_2026-10-03 .item-menu__button[data-card-menu-delete-url-param=?]", event_day_path(@event, "2026-10-03", time: "20:00")
 
     delete event_day_path(@event, "2026-10-03", time: "20:00"), params: { scope: "occurrence" }, as: :turbo_stream
 

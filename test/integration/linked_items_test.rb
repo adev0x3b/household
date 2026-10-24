@@ -31,7 +31,9 @@ class LinkedItemsTest < ActionDispatch::IntegrationTest
 
     get calendar_path(month: 3, year: 2026)
     assert_select "#day_2026-03-02 .task-card .task-card__toggle.is-locked"
-    assert_select "#day_2026-03-02 .task-card .item-menu__button", 0
+    assert_select "#day_2026-03-02 .task-card", text: /Buy groceries/ do
+      assert_select ".item-menu__button", 0, "nothing to change the status of, nothing to delete"
+    end
 
     get edit_event_day_path(@task.event, @task.date), as: :turbo_stream
     assert_response :success
@@ -237,7 +239,7 @@ class LinkedItemsTest < ActionDispatch::IntegrationTest
     sign_in @alice
 
     get calendar_path(month: 3, year: 2026)
-    assert_select "#day_2026-03-02 .task-card .item-menu__button[data-card-menu-url-param=?]:not([data-card-menu-owner-param])",
+    assert_select "#day_2026-03-02 .task-card .item-menu__button[data-card-menu-delete-url-param=?]:not([data-card-menu-delete-owner-param])",
                   event_day_path(@task.event, "2026-03-02")
 
     delete event_day_path(@task.event, "2026-03-02"), params: { scope: "occurrence" }, as: :turbo_stream

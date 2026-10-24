@@ -61,6 +61,29 @@ class CalendarTest < ApplicationSystemTestCase
     within("#day_2027-03-15") { assert_text "Bins" }
   end
 
+  test "a card's more skips one day of a series, and sets it back to pending" do
+    weekly_event(profile: profiles(:alice), type: "Task", starts_on: Date.new(2027, 3, 1), title: "Bins")
+    visit calendar_path(month: 3, year: 2027)
+    assert_eventually("the calendar listens to its month", within: 5) { CalendarWatch.months_for(profiles(:alice).id).include?("2027-03") }
+
+    within("#day_2027-03-08 .task-card", text: "Bins") { click_on I18n.t("links.cards.more") }
+    within("#card_menu") do
+      assert_no_button I18n.t("links.cards.status.pending")
+      click_on I18n.t("links.cards.status.skipped")
+    end
+
+    assert_text I18n.t("calendar.occurrences.notices.status.skipped")
+    within("#day_2027-03-08 .task-card", text: "Bins") { assert_text I18n.t("tasks.status.skipped") }
+    within("#day_2027-03-15 .task-card", text: "Bins") { assert_no_text I18n.t("tasks.status.skipped") }
+
+    within("#day_2027-03-08 .task-card", text: "Bins") { click_on I18n.t("links.cards.more") }
+    assert_accessible "a skipped day's menu, open"
+    within("#card_menu") { click_on I18n.t("links.cards.status.pending") }
+
+    within("#day_2027-03-08 .task-card", text: "Bins") { assert_no_text I18n.t("tasks.status.skipped") }
+    assert_predicate Event.find_by!(title: "Bins").occurrence_on(Date.new(2027, 3, 8)), :pending?
+  end
+
   test "a change to one day stays on it; a change to the whole series reaches every day not changed on its own" do
     weekly_event(profile: profiles(:alice), type: "Task", starts_on: Date.new(2027, 3, 1), title: "Bins")
     visit calendar_path(month: 3, year: 2027)

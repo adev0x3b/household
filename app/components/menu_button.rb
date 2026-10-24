@@ -6,7 +6,7 @@
 # and whether that menu is open; `data:` wires it to whichever opens it.
 #
 #   render Components::MenuButton.new(label: t("books.card.more"), controls: Views::Calendar::CardMenu::ID,
-#                                     data: Views::Calendar::CardMenu.opener_data(url: day_path(day), repeats: true))
+#                                     data: Views::Calendar::CardMenu.opener_data(repeats: true, delete_url: day_path(day)))
 class Components::MenuButton < Components::Base
   # controls: the id of the menu it opens, where that menu isn't beside it.
   def initialize(label:, data:, controls: nil, button_class: "item-action")

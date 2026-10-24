@@ -131,6 +131,10 @@ it:
       notices:
         occurrence: "Giorno eliminato."
         series: "Intera serie eliminata."
+        status:
+          skipped: "Giorno saltato."
+          cancelled: "Giorno annullato."
+          pending: "Giorno rimesso in attesa."
     navigation:
       month: "Mese"
       year: "Anno"
@@ -2340,6 +2344,14 @@ it:
       ask_delete_series: "Chiedi a %{name} di eliminare la serie"
       ask_delete_occurrence_confirm: "Chiedere a %{name} di eliminare questo giorno?"
       ask_delete_series_confirm: "Chiedere a %{name} di eliminare ogni giorno di questa serie?"
+      status:
+        skipped: "Salta questo giorno"
+        cancelled: "Annulla questo giorno"
+        pending: "Rimetti in attesa"
+      ask_status:
+        skipped: "Chiedi a %{name} di saltare questo giorno"
+        cancelled: "Chiedi a %{name} di annullare questo giorno"
+        pending: "Chiedi a %{name} di rimettere in attesa questo giorno"
     notices:
       requested: "Hai invitato %{name} a collegarvi."
       accepted: "Tu e %{name} siete collegati."

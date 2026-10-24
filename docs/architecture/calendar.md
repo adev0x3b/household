@@ -80,7 +80,9 @@ Every kind's days have the same five statuses: pending, in progress, completed, 
 
 Each runs the kind's hooks. Cancelling a day also cancels its unpaid costs, and reopening it restores them. `change_status!` and `mark_completed!` read whether the day is done from its row, under the row's lock, before deciding whether to give back what completing it took: a page, the assistant or "resolve" may hold a copy read before a housemate took the dose. A copy of a day nobody had saved may be stale too. If a housemate saved that slot meanwhile, the copy becomes their row, so two first presses on one day don't both insert it.
 
-**A press says which state it wants, never "the other one".** A card's circle puts the day's completion there (POST) or takes it away (DELETE), as a grocery item's row does its check, and `mark_completed!` reads the day again under its row's lock and does nothing when it already is as asked. A second tap, two housemates pressing at once, or a page that was out of date would otherwise undo each other, and each completion moves stock.
+**A press says which state it wants, never "the other one".** A card's circle puts the day's completion there (POST) or takes it away (DELETE), as a grocery item's row does its check, and `mark_completed!` reads the day again under its row's lock and does nothing when it already is as asked. A second tap, two housemates pressing at once, or a page that was out of date would otherwise undo each other, and each completion moves stock. The card's "more" menu sets the other statuses the same way: one PATCH of the day's status (`DayStatusesController`) says which, skipped, cancelled or back to pending. It is the status field of the day's form sent alone, so it is saved, and held for the owner's OK, exactly as the form is.
+
+Every day of a series that exists offers its status on its form, stored or not yet: a day gets its row the first time its status changes.
 
 ## Sections are computed, never stored
 

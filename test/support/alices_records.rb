@@ -11,7 +11,7 @@ module AlicesRecords
   def route_value(controller, part)
     key = "#{controller}##{part}"
     case key
-    when "days#date", "day_completions#date" then @day.iso8601
+    when "days#date", "day_completions#date", "day_statuses#date" then @day.iso8601
     when "link_grants#event_type" then "Task"
     when "assistant/settings#provider" then "anthropic"
     when "assistant/evals/scenarios#name" then "appointments"
