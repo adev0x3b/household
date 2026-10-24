@@ -2973,16 +2973,17 @@ en:
       yearly: "Yearly"
     ends:
       label: "Ends"
-      kinds:
-        never: "Never"
-        on_date: "On a day"
-        after_days: "After a number of days"
-        after_times: "After a number of times"
+      never: "Never"
+      on_date: "On a day"
       day_label: "Last day"
-      days_label: "Days"
-      days_help: "Counted from the first day, that day included: 15 days from the 1st end on the 15th."
-      times_label: "Times"
-      times_help: "Each day it happens counts once, however many times of the day it has."
+      days:
+        choice: "After a number of days"
+        label: "For how many days"
+        help: "Counted from the first day, that day included: 15 days from the 1st end on the 15th."
+      times:
+        choice: "After a number of times"
+        label: "How many times"
+        help: "Each day it happens counts once, however many times of the day it has."
 
   page_controls:
     more: "More actions"

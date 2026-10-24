@@ -169,12 +169,13 @@ class MedicationsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { Event.count } do
       post medications_path, as: :turbo_stream, params: {
         medication: { title: "Amoxicillin", date: "2026-09-24", details_attributes: { kind: "pill" } },
-        event: { frequency: "daily", interval: 1, ends_by: "after_days", ends_after_days: "0" }
+        event: { frequency: "daily", interval: 1, ends_by: "after_count", ends_after: "0" }
       }
     end
 
-    assert_select "select[name='event[ends_by]'] option[selected][value=after_days]"
-    assert_select "#event_ends_after_days[value='0'][aria-invalid=true]"
+    assert_select "select[name='event[ends_by]'] option[selected][value=after_count]"
+    assert_select "#event_ends_after_days[value='0'][aria-invalid=true]", 1, "a daily course counts days"
+    assert_select "select[name='event[ends_by]'] option[value=after_count]", text: "After a number of days"
     assert_select "#event_ends_after_days_error", text: /from 1 to 999/
   end
 

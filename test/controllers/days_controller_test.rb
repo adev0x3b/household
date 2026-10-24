@@ -57,13 +57,13 @@ class DaysControllerTest < ActionDispatch::IntegrationTest
 
     patch event_day_path(event, "2026-03-02"), as: :turbo_stream, params: {
       task: { title: event.title, apply_to: "series" },
-      event: { frequency: "weekly", interval: 1, week_days: %w[monday], ends_by: "after_times", ends_after_times: "3" }
+      event: { frequency: "weekly", interval: 1, week_days: %w[monday], ends_by: "after_count", ends_after: "3" }
     }
     get edit_event_day_path(event, "2026-03-09"), as: :turbo_stream
 
     assert_select "select[name='event[ends_by]'] option[selected][value=on_date]"
     assert_select "input[type=date][name='event[ends]'][value='2026-03-16']"
-    assert_select "input[name='event[ends_after_days]']:not([value])"
+    assert_select "input[name='event[ends_after]']:not([value])"
   end
 
   test "an end that can't be is said under the end's field, drawn again as it was typed" do

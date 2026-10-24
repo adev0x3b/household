@@ -424,7 +424,7 @@ class Occurrences::FormSaveTest < ActiveSupport::TestCase
   test "a course of fifteen days twice a day ends on its fifteenth day, both doses of it included" do
     save = form("Medication", { medication: { title: "Amoxicillin", date: "2026-11-01", details_attributes: { kind: "pill" } },
                                 event: { frequency: "daily", slots: %w[08:00 20:00], slots_submitted: "1",
-                                         ends_by: "after_days", ends_after_days: "15" } })
+                                         ends_by: "after_count", ends_after: "15" } })
 
     assert save.save
     event = save.event.reload
@@ -434,7 +434,7 @@ class Occurrences::FormSaveTest < ActiveSupport::TestCase
 
   test "a number of times counts the days the series falls on" do
     save = form("Task", { task: { title: "Physio", date: "2026-11-02" },
-                          event: { frequency: "weekly", week_days: %w[monday thursday], ends_by: "after_times", ends_after_times: "4" } })
+                          event: { frequency: "weekly", week_days: %w[monday thursday], ends_by: "after_count", ends_after: "4" } })
 
     assert save.save
     assert_equal [ Date.new(2026, 11, 2), Date.new(2026, 11, 5), Date.new(2026, 11, 9), Date.new(2026, 11, 12) ],
@@ -445,7 +445,7 @@ class Occurrences::FormSaveTest < ActiveSupport::TestCase
     early = form("Task", { task: { title: "Physio", date: "2026-11-02" },
                            event: { frequency: "daily", ends_by: "on_date", ends: "2026-11-01" } })
     none = form("Task", { task: { title: "Physio", date: "2026-11-02" },
-                          event: { frequency: "daily", ends_by: "after_days", ends_after_days: "0" } })
+                          event: { frequency: "daily", ends_by: "after_count", ends_after: "0" } })
 
     assert_no_difference "Event.count" do
       assert_not early.save
@@ -456,7 +456,7 @@ class Occurrences::FormSaveTest < ActiveSupport::TestCase
   end
 
   test "a one-off has no end, whatever the end's fields say" do
-    save = form("Task", { task: { title: "Mow", date: "2026-11-02" }, event: { frequency: "none", ends_by: "after_days", ends_after_days: "" } })
+    save = form("Task", { task: { title: "Mow", date: "2026-11-02" }, event: { frequency: "none", ends_by: "after_count", ends_after: "" } })
 
     assert save.save
     assert_nil save.event.reload.rrule
@@ -468,7 +468,7 @@ class Occurrences::FormSaveTest < ActiveSupport::TestCase
     day = event.occurrence_on(Date.new(2026, 3, 23))
 
     assert form("Task", { task: { title: event.title, apply_to: "series" },
-                          event: { frequency: "weekly", interval: "1", week_days: [ "monday" ], ends_by: "after_times", ends_after_times: "5" } },
+                          event: { frequency: "weekly", interval: "1", week_days: [ "monday" ], ends_by: "after_count", ends_after: "5" } },
                 record: day).save
 
     assert_equal Date.new(2026, 3, 30), Events::RecurrenceRule.describe(event.reload.rrule)[:ends]

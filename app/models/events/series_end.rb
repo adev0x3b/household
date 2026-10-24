@@ -2,11 +2,11 @@
 
 module Events
   # When a repeating series stops, as its form says it: never, on a day,
-  # after a number of days, or after a number of the days it happens on.
+  # or after a number of the days it happens on.
   # Each way gives the series' last day, which its rule keeps as its end,
   # so a series reads back as ending on that day however it was said.
   #
-  #   Events::SeriesEnd.from(ends_by: "after_days", ends_after_days: "15")
+  #   Events::SeriesEnd.from(ends_by: "after_count", ends_after: "15")
   #     .last_day(starts_on: Date.new(2026, 11, 1), rrule: "FREQ=DAILY")
   #   # => Sun, 15 Nov 2026
   module SeriesEnd
@@ -15,9 +15,9 @@ module Events
     MOST = 999
 
     # What a form sends about the end: the way it chose, and each way's field.
-    PARAMS = %i[ends_by ends ends_after_days ends_after_times].freeze
+    PARAMS = %i[ends_by ends ends_after].freeze
 
-    def self.kinds = [ Never, OnDate, AfterDays, AfterTimes ]
+    def self.kinds = [ Never, OnDate, AfterCount ]
 
     # The end a form's fields describe. A form from before the choice
     # existed sends only the day it ends, or nothing.
@@ -64,11 +64,18 @@ module Events
       end
     end
 
-    # A count of the form's: a whole number from one to MOST.
-    class Count
+    # The days the series falls on, each counted once however many times
+    # of the day it has: twice a day for ten days is ten. On a series that
+    # happens every day that is a number of days, its first counted, so
+    # fifteen from the first of the month end on the fifteenth.
+    class AfterCount
+      def self.key = "after_count"
+
       def initialize(params)
-        @value = params[self.class.param].to_s
+        @value = params[:ends_after].to_s
       end
+
+      def last_day(starts_on:, rrule:) = Events::Schedule.new(starts_on, rrule).dates_after(starts_on.prev_day, count).last
 
       def error(**)
         :count_out_of_range unless count&.between?(1, MOST)
@@ -77,24 +84,6 @@ module Events
       private
 
       def count = Integer(@value, 10, exception: false)
-    end
-
-    # Counted from the first day, that day included: fifteen days from the
-    # first of the month end on the fifteenth.
-    class AfterDays < Count
-      def self.key = "after_days"
-      def self.param = :ends_after_days
-
-      def last_day(starts_on:, **) = starts_on + (count - 1)
-    end
-
-    # The days the series falls on, each counted once however many times
-    # of the day it has: twice a day for ten days is ten.
-    class AfterTimes < Count
-      def self.key = "after_times"
-      def self.param = :ends_after_times
-
-      def last_day(starts_on:, rrule:) = Events::Schedule.new(starts_on, rrule).dates_after(starts_on.prev_day, count).last
     end
   end
 end

@@ -66,7 +66,8 @@ class Views::Occurrences::EventFields < Views::Base
         min: "1",
         max: "365",
         class: "input is-medium",
-        placeholder: t("event_fields.interval_placeholder")
+        placeholder: t("event_fields.interval_placeholder"),
+        data: { recurrence_fields_target: "interval", action: "input->recurrence-fields#toggle" }
       )
     end
   end
@@ -95,7 +96,9 @@ class Views::Occurrences::EventFields < Views::Base
   end
 
   # The way it stops, then the one field that way asks for, shown and sent
-  # alone (recurrence_fields_controller.js).
+  # alone (recurrence_fields_controller.js). A count is of the days the
+  # series happens, which on a series of every day are its days: it is
+  # worded so, since "times" there reads as doses.
   def render_ends
     render Components::Field.new(label: t("event_fields.ends.label"), control_id: "event_ends_by", select: true) do
       select(
@@ -103,15 +106,21 @@ class Views::Occurrences::EventFields < Views::Base
         name: "event[ends_by]",
         data: { recurrence_fields_target: "endsBy", action: "change->recurrence-fields#toggle" }
       ) do
-        Events::SeriesEnd.kinds.each do |kind|
-          option(value: kind.key, selected: kind.key == ends_by) { t("event_fields.ends.kinds.#{kind.key}") }
+        end_choice(Events::SeriesEnd::Never) { t("event_fields.ends.never") }
+        end_choice(Events::SeriesEnd::OnDate) { t("event_fields.ends.on_date") }
+        end_choice(Events::SeriesEnd::AfterCount, data: { recurrence_fields_target: "endsCount",
+                                                          days: t("event_fields.ends.days.choice"),
+                                                          times: t("event_fields.ends.times.choice") }) do
+          t("event_fields.ends.#{counted_in}.choice")
         end
       end
     end
     render_end_day
-    render_end_count(Events::SeriesEnd::AfterDays, label: t("event_fields.ends.days_label"), help: t("event_fields.ends.days_help"))
-    render_end_count(Events::SeriesEnd::AfterTimes, label: t("event_fields.ends.times_label"), help: t("event_fields.ends.times_help"))
+    render_end_count("days")
+    render_end_count("times")
   end
+
+  def end_choice(kind, data: {}, &) = option(value: kind.key, selected: kind.key == ends_by, data: data, &)
 
   def render_end_day
     render Components::Field.new(label: t("event_fields.ends.day_label"), control_id: "event_ends", required: true,
@@ -121,14 +130,21 @@ class Views::Occurrences::EventFields < Views::Base
     end
   end
 
-  def render_end_count(kind, label:, help:)
-    render Components::Field.new(label: label, control_id: "event_#{kind.param}", required: true, help: help,
-                                 errors: @ends_errors, data: end_value_data(kind)) do |field|
-      input(type: "number", id: "event_#{kind.param}", name: "event[#{kind.param}]", value: @ends_sent[kind.param], min: "1",
+  # The count in days or in times: both send `ends_after`, and only the
+  # one the repeat asks for is shown and sent.
+  def render_end_count(unit)
+    render Components::Field.new(label: t("event_fields.ends.#{unit}.label"), control_id: "event_ends_after_#{unit}", required: true,
+                                 help: t("event_fields.ends.#{unit}.help"), errors: @ends_errors,
+                                 data: end_value_data(Events::SeriesEnd::AfterCount).merge(counts: unit)) do |field|
+      input(type: "number", id: "event_ends_after_#{unit}", name: "event[ends_after]", value: @ends_sent[:ends_after], min: "1",
             max: Events::SeriesEnd::MOST.to_s, step: "1", inputmode: "numeric", required: true,
             class: "input is-medium", aria: field.aria)
     end
   end
+
+  # What a count counts as the series repeats now; the controller follows
+  # the fields as they change.
+  def counted_in = @rule.frequency == "daily" && @rule.interval == 1 ? "days" : "times"
 
   # How the series ends: as it was sent, else as its rule reads.
   def ends_by = @ends_sent[:ends_by].presence || Events::SeriesEnd.kind_of(@rule).key

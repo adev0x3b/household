@@ -3172,16 +3172,17 @@ it:
       yearly: "Annuale"
     ends:
       label: "Termina"
-      kinds:
-        never: "Mai"
-        on_date: "In un giorno"
-        after_days: "Dopo un numero di giorni"
-        after_times: "Dopo un numero di volte"
+      never: "Mai"
+      on_date: "In un giorno"
       day_label: "Ultimo giorno"
-      days_label: "Giorni"
-      days_help: "Contati dal primo giorno, compreso: 15 giorni dall'1 finiscono il 15."
-      times_label: "Volte"
-      times_help: "Ogni giorno in cui capita conta una volta, per quanti orari abbia."
+      days:
+        choice: "Dopo un numero di giorni"
+        label: "Per quanti giorni"
+        help: "Contati dal primo giorno, compreso: 15 giorni dall'1 finiscono il 15."
+      times:
+        choice: "Dopo un numero di volte"
+        label: "Quante volte"
+        help: "Ogni giorno in cui capita conta una volta, per quanti orari abbia."
 
   page_controls:
     more: "Altre azioni"

@@ -41,9 +41,9 @@ class CalendarTest < ApplicationSystemTestCase
       fill_in "task[title]", with: "Gargle with salt water"
       assert_no_field I18n.t("event_fields.ends.label")
       select I18n.t("event_fields.frequencies.daily"), from: I18n.t("event_fields.frequency_label")
-      select I18n.t("event_fields.ends.kinds.after_days"), from: I18n.t("event_fields.ends.label")
-      assert_no_field I18n.t("event_fields.ends.times_label")
-      fill_in I18n.t("event_fields.ends.days_label"), with: "3"
+      select I18n.t("event_fields.ends.days.choice"), from: I18n.t("event_fields.ends.label")
+      assert_no_field I18n.t("event_fields.ends.times.label")
+      fill_in I18n.t("event_fields.ends.days.label"), with: "3"
       assert_accessible "a new series ending after a number of days"
       click_on I18n.t("tasks.form.create")
     end
