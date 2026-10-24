@@ -3170,6 +3170,19 @@ it:
       weekly: "Settimanale"
       monthly: "Mensile"
       yearly: "Annuale"
+    ends:
+      label: "Termina"
+      never: "Mai"
+      on_date: "In un giorno"
+      day_label: "Ultimo giorno"
+      days:
+        choice: "Dopo un numero di giorni"
+        label: "Per quanti giorni"
+        help: "Contati dal primo giorno, compreso: 15 giorni dall'1 finiscono il 15."
+      times:
+        choice: "Dopo un numero di volte"
+        label: "Quante volte"
+        help: "Ogni giorno in cui capita conta una volta, per quanti orari abbia."
 
   page_controls:
     more: "Altre azioni"
@@ -3879,6 +3892,9 @@ it:
           attributes:
             rrule:
               never_happens: "non ha giorni a venire"
+              day_missing: "ha bisogno del giorno in cui finisce"
+              before_start: "non può finire prima del suo primo giorno"
+              count_out_of_range: "deve finire dopo un numero intero di giorni o di volte, da 1 a 999"
         occurrence:
           attributes:
             lab_test_result_entries:

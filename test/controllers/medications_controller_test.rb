@@ -154,7 +154,7 @@ class MedicationsControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name='event[collection_id]'] option[selected][value=?]", collections(:b12).id.to_s
   end
 
-  test "an end that isn't a date is the form's error, and nothing is saved" do
+  test "an end that isn't a date asks for the day it ends, and nothing is saved" do
     assert_no_difference -> { Event.count } do
       post medications_path, as: :turbo_stream, params: {
         medication: { title: "Amoxicillin", date: "2026-09-24", details_attributes: { kind: "pill" } },
@@ -162,7 +162,21 @@ class MedicationsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_form_error "Repeats is invalid"
+    assert_form_error "Repeats needs the day it ends"
+  end
+
+  test "a new course of no days is refused, and its form keeps the count it was given" do
+    assert_no_difference -> { Event.count } do
+      post medications_path, as: :turbo_stream, params: {
+        medication: { title: "Amoxicillin", date: "2026-09-24", details_attributes: { kind: "pill" } },
+        event: { frequency: "daily", interval: 1, ends_by: "after_count", ends_after: "0" }
+      }
+    end
+
+    assert_select "select[name='event[ends_by]'] option[selected][value=after_count]"
+    assert_select "#event_ends_after_days[value='0'][aria-invalid=true]", 1, "a daily course counts days"
+    assert_select "select[name='event[ends_by]'] option[value=after_count]", text: "After a number of days"
+    assert_select "#event_ends_after_days_error", text: /from 1 to 999/
   end
 
   test "a new injection without its side marks the side, though the form was rebuilt from what was sent" do

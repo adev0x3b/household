@@ -7,6 +7,12 @@
 // focus shows on it since the box itself is hidden.
 
 .event-fields {
+  // The end's fields after the one shown are hidden, so the one shown is
+  // never the last child Bulma leaves without its gap.
+  .field {
+    margin-bottom: 0.75rem;
+  }
+
   &__days {
     display: flex;
     flex-wrap: wrap;

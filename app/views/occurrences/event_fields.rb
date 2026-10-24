@@ -1,15 +1,21 @@
 # frozen_string_literal: true
 
 # How a series repeats, on its form: how often, every how many, on which
-# days of the week. The fields are the ones Events::RecurrenceRule builds
-# a rule from, and it reads the series' rule back into them.
+# days of the week, and when it stops. The fields are the ones
+# Events::RecurrenceRule builds a rule from, and it reads the series' rule
+# back into them; an end given as a count reads back as the day it falls on.
 class Views::Occurrences::EventFields < Views::Base
   # What the form offers: not repeating, then every way a rule can.
   FREQUENCIES = [ "none", *Events::RecurrenceRule::FREQUENCIES ].freeze
 
-  # event: the series, or nil for a new one.
-  def initialize(event: nil)
+  # event: the series, or nil for a new one. ends_sent: the end's fields as
+  # a refused form sent them, shown in place of the series' own.
+  # ends_errors: what the server refused in the rule, said under whichever
+  # of the end's fields is shown, since the end is what a person can set wrong.
+  def initialize(event: nil, ends_sent: {}, ends_errors: [])
     @rule = Events::RecurrenceRule.fields(event&.rrule)
+    @ends_sent = ends_sent.to_h.with_indifferent_access
+    @ends_errors = ends_errors
   end
 
   def view_template
@@ -17,8 +23,6 @@ class Views::Occurrences::EventFields < Views::Base
       class: "event-fields",
       data: { controller: "recurrence-fields" }
     ) do
-      # The day it stops repeating has no field yet: kept as it is.
-      input(type: "hidden", name: "event[ends]", value: @rule.ends.iso8601) if @rule.ends
       render_frequency_field
       render_details
     end
@@ -47,6 +51,7 @@ class Views::Occurrences::EventFields < Views::Base
     div(data: { recurrence_fields_target: "details" }) do
       render_interval_field
       render_weekly_days
+      render_ends
     end
   end
 
@@ -61,7 +66,8 @@ class Views::Occurrences::EventFields < Views::Base
         min: "1",
         max: "365",
         class: "input is-medium",
-        placeholder: t("event_fields.interval_placeholder")
+        placeholder: t("event_fields.interval_placeholder"),
+        data: { recurrence_fields_target: "interval", action: "input->recurrence-fields#toggle" }
       )
     end
   end
@@ -88,4 +94,60 @@ class Views::Occurrences::EventFields < Views::Base
       end
     end
   end
+
+  # The way it stops, then the one field that way asks for, shown and sent
+  # alone (recurrence_fields_controller.js). A count is of the days the
+  # series happens, which on a series of every day are its days: it is
+  # worded so, since "times" there reads as doses.
+  def render_ends
+    render Components::Field.new(label: t("event_fields.ends.label"), control_id: "event_ends_by", select: true) do
+      select(
+        id: "event_ends_by",
+        name: "event[ends_by]",
+        data: { recurrence_fields_target: "endsBy", action: "change->recurrence-fields#toggle" }
+      ) do
+        end_choice(Events::SeriesEnd::Never) { t("event_fields.ends.never") }
+        end_choice(Events::SeriesEnd::OnDate) { t("event_fields.ends.on_date") }
+        end_choice(Events::SeriesEnd::AfterCount, data: { recurrence_fields_target: "endsCount",
+                                                          days: t("event_fields.ends.days.choice"),
+                                                          times: t("event_fields.ends.times.choice") }) do
+          t("event_fields.ends.#{counted_in}.choice")
+        end
+      end
+    end
+    render_end_day
+    render_end_count("days")
+    render_end_count("times")
+  end
+
+  def end_choice(kind, data: {}, &) = option(value: kind.key, selected: kind.key == ends_by, data: data, &)
+
+  def render_end_day
+    render Components::Field.new(label: t("event_fields.ends.day_label"), control_id: "event_ends", required: true,
+                                 errors: @ends_errors, data: end_value_data(Events::SeriesEnd::OnDate)) do |field|
+      input(type: "date", id: "event_ends", name: "event[ends]", value: @ends_sent.fetch(:ends) { @rule.ends&.iso8601 }, required: true,
+            class: "input is-medium", aria: field.aria)
+    end
+  end
+
+  # The count in days or in times: both send `ends_after`, and only the
+  # one the repeat asks for is shown and sent.
+  def render_end_count(unit)
+    render Components::Field.new(label: t("event_fields.ends.#{unit}.label"), control_id: "event_ends_after_#{unit}", required: true,
+                                 help: t("event_fields.ends.#{unit}.help"), errors: @ends_errors,
+                                 data: end_value_data(Events::SeriesEnd::AfterCount).merge(counts: unit)) do |field|
+      input(type: "number", id: "event_ends_after_#{unit}", name: "event[ends_after]", value: @ends_sent[:ends_after], min: "1",
+            max: Events::SeriesEnd::MOST.to_s, step: "1", inputmode: "numeric", required: true,
+            class: "input is-medium", aria: field.aria)
+    end
+  end
+
+  # What a count counts as the series repeats now; the controller follows
+  # the fields as they change.
+  def counted_in = @rule.frequency == "daily" && @rule.interval == 1 ? "days" : "times"
+
+  # How the series ends: as it was sent, else as its rule reads.
+  def ends_by = @ends_sent[:ends_by].presence || Events::SeriesEnd.kind_of(@rule).key
+
+  def end_value_data(kind) = { recurrence_fields_target: "endsValue", ends_by: kind.key }
 end

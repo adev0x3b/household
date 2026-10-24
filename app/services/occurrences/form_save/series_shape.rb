@@ -5,7 +5,7 @@ module Occurrences
     # The series' side of a form, under `event`: its rule, its collection,
     # its times of the day and the submitter's "Remind me" rows.
     class SeriesShape
-      PARAMS = [ :frequency, :interval, :ends, :collection_id, :reminders_submitted, :slots_submitted,
+      PARAMS = [ :frequency, :interval, *Events::SeriesEnd::PARAMS, :collection_id, :reminders_submitted, :slots_submitted,
                  { week_days: [], reminders: %i[amount unit], slots: [] } ].freeze
 
       def initialize(params, actor:)
@@ -21,22 +21,24 @@ module Occurrences
       # The times of the day sent, nil when the form has none.
       def slots = (Array(@params[:slots]).compact_blank if slots_submitted?)
 
-      # The rule the fields make, nil for a one-off. Fields that can't make
-      # one leave the shape invalid, which fails the save as the form's
-      # error rather than the series'.
-      def rule
-        return @rule if defined?(@rule)
+      # The rule the fields make for the series, nil for a one-off. Its end
+      # is a day, however the form said it, so a count is counted from the
+      # series' first day. An end the fields can't give (#error says why)
+      # is left off.
+      def rule(event)
+        pattern = Events::RecurrenceRule.build(frequency: frequency, interval: @params[:interval], week_days: @params[:week_days])
+        return pattern if pattern.nil? || event.starts_on.nil? || error(event)
 
-        @rule = Events::RecurrenceRule.build(frequency: frequency, interval: @params[:interval],
-                                             week_days: @params[:week_days], ends: @params[:ends])
-      rescue Events::RecurrenceRule::Invalid
-        @invalid = true
-        @rule = nil
+        last_day = series_end.last_day(starts_on: event.starts_on, rrule: pattern)
+        last_day ? Events::RecurrenceRule.build(**Events::RecurrenceRule.describe(pattern), ends: last_day) : pattern
       end
 
-      def valid?
-        rule
-        !@invalid
+      # What is wrong with the end the form gives a repeating series, nil
+      # when nothing is. A one-off has no end, whatever its hidden fields say.
+      def error(event)
+        return unless submitted? && Events::RecurrenceRule::FREQUENCIES.include?(frequency.to_s)
+
+        series_end.error(starts_on: event.starts_on)
       end
 
       # Gives the series its collection when the form carried it or the
@@ -47,7 +49,7 @@ module Occurrences
         return unless submitted? || event.new_record?
 
         if event.new_record?
-          event.rrule = rule
+          event.rrule = rule(event)
           event.assign_slots(slots) if slots
         end
         event.collection_id = collection_id_for(event) if @params.key?(:collection_id) || event.new_record?
@@ -57,11 +59,11 @@ module Occurrences
       def reschedules?(event) = event.persisted? && (submitted? || slots_submitted?)
 
       # The rule the series goes on with: the one sent, else its own.
-      def rule_for(event) = submitted? ? rule : event.rrule
+      def rule_for(event) = submitted? ? rule(event) : event.rrule
 
       # Whether the rule, the times or the collection sent differ from the series'.
       def changed_for?(event)
-        (submitted? && Events::RecurrenceRule.describe(rule) != Events::RecurrenceRule.describe(event.rrule)) ||
+        (submitted? && Events::RecurrenceRule.describe(rule(event)) != Events::RecurrenceRule.describe(event.rrule)) ||
           (slots_submitted? && event.slots_differ_from?(slots)) ||
           (@params.key?(:collection_id) && collection_id_for(event) != event.collection_id)
       end
@@ -81,6 +83,8 @@ module Occurrences
       def payload = @params.to_h.except("reminders_submitted", "reminders")
 
       private
+
+      def series_end = @series_end ||= Events::SeriesEnd.from(@params)
 
       # The collection is checked against what the actor can reach, and
       # what the owner can, since the series becomes theirs.

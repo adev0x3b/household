@@ -32,6 +32,27 @@ class CalendarTest < ApplicationSystemTestCase
     assert_accessible "the day with its task done"
   end
 
+  test "a series set to end after a number of days stops on its last day, the first counted" do
+    visit calendar_path
+
+    within("#day_#{@today.iso8601}") { click_on I18n.t("calendar.day_card.add_event_on", date: I18n.l(@today, format: :day_long)) }
+    within("#day_add_menu") { click_on I18n.t("calendar.day_card.event_types.task") }
+    within(".modal") do
+      fill_in "task[title]", with: "Gargle with salt water"
+      assert_no_field I18n.t("event_fields.ends.label")
+      select I18n.t("event_fields.frequencies.daily"), from: I18n.t("event_fields.frequency_label")
+      select I18n.t("event_fields.ends.days.choice"), from: I18n.t("event_fields.ends.label")
+      assert_no_field I18n.t("event_fields.ends.times.label")
+      fill_in I18n.t("event_fields.ends.days.label"), with: "3"
+      assert_accessible "a new series ending after a number of days"
+      click_on I18n.t("tasks.form.create")
+    end
+
+    assert_no_selector ".modal"
+    series = profiles(:alice).events.find_by!(title: "Gargle with salt water")
+    assert_equal [ @today, @today + 1, @today + 2 ], series.occurrences_between(@today, @today + 30).map(&:date)
+  end
+
   test "a card's more deletes one day of a repeating series, after asking, and offers only the day for a series that doesn't repeat" do
     weekly_event(profile: profiles(:alice), type: "Task", starts_on: Date.new(2027, 3, 1), title: "Bins")
     task!(profile: profiles(:alice), date: Date.new(2027, 3, 9), title: "Call the plumber")
