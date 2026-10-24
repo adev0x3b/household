@@ -42,7 +42,7 @@ class Forms::ErrorsTest < ActiveSupport::TestCase
     ).permit!)
 
     assert_not form.save
-    assert_equal [ "Repeats is invalid" ], Forms::Errors.new(form.record).sentences
+    assert_equal [ "Repeats needs the day it ends" ], Forms::Errors.new(form.record).sentences
   end
 
   test "a list with one row on the form is not numbered" do

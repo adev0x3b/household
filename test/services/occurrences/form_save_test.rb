@@ -420,4 +420,69 @@ class Occurrences::FormSaveTest < ActiveSupport::TestCase
     moved = form("Task", { task: { title: event.title }, event: rule.merge(collection_id: "") }, record: day, actor: @bob)
     assert_equal "", moved.payload.dig("event", "collection_id"), "taking it out of its collection is a change"
   end
+
+  test "a course of fifteen days twice a day ends on its fifteenth day, both doses of it included" do
+    save = form("Medication", { medication: { title: "Amoxicillin", date: "2026-11-01", details_attributes: { kind: "pill" } },
+                                event: { frequency: "daily", slots: %w[08:00 20:00], slots_submitted: "1",
+                                         ends_by: "after_days", ends_after_days: "15" } })
+
+    assert save.save
+    event = save.event.reload
+    assert_equal Date.new(2026, 11, 15), Events::RecurrenceRule.describe(event.rrule)[:ends]
+    assert_equal 30, event.occurrences_between(Date.new(2026, 10, 1), Date.new(2026, 12, 31)).size
+  end
+
+  test "a number of times counts the days the series falls on" do
+    save = form("Task", { task: { title: "Physio", date: "2026-11-02" },
+                          event: { frequency: "weekly", week_days: %w[monday thursday], ends_by: "after_times", ends_after_times: "4" } })
+
+    assert save.save
+    assert_equal [ Date.new(2026, 11, 2), Date.new(2026, 11, 5), Date.new(2026, 11, 9), Date.new(2026, 11, 12) ],
+                 save.event.reload.occurrences_between(Date.new(2026, 11, 1), Date.new(2026, 12, 31)).map(&:date)
+  end
+
+  test "an end before the first day, or a count of none, is the form's error under the end, and nothing is saved" do
+    early = form("Task", { task: { title: "Physio", date: "2026-11-02" },
+                           event: { frequency: "daily", ends_by: "on_date", ends: "2026-11-01" } })
+    none = form("Task", { task: { title: "Physio", date: "2026-11-02" },
+                          event: { frequency: "daily", ends_by: "after_days", ends_after_days: "0" } })
+
+    assert_no_difference "Event.count" do
+      assert_not early.save
+      assert_not none.save
+    end
+    assert_equal [ "Repeats can't end before its first day" ], Forms::Errors.new(early.record).sentences
+    assert_equal [ "Repeats must end after a whole number of days or times, from 1 to 999" ], Forms::Errors.new(none.record).for(:rrule)
+  end
+
+  test "a one-off has no end, whatever the end's fields say" do
+    save = form("Task", { task: { title: "Mow", date: "2026-11-02" }, event: { frequency: "none", ends_by: "after_days", ends_after_days: "" } })
+
+    assert save.save
+    assert_nil save.event.reload.rrule
+  end
+
+  test "an end given to a series that exists counts from its first day, and keeps its days so far" do
+    travel_to Time.zone.local(2026, 3, 20, 12)
+    event = events(:water_the_plants) # Mondays from 2026-03-02
+    day = event.occurrence_on(Date.new(2026, 3, 23))
+
+    assert form("Task", { task: { title: event.title, apply_to: "series" },
+                          event: { frequency: "weekly", interval: "1", week_days: [ "monday" ], ends_by: "after_times", ends_after_times: "5" } },
+                record: day).save
+
+    assert_equal Date.new(2026, 3, 30), Events::RecurrenceRule.describe(event.reload.rrule)[:ends]
+    assert_equal 5, event.occurrences_between(Date.new(2026, 3, 1), Date.new(2026, 6, 30)).size
+  end
+
+  test "a housemate asking to end the owner's series with an end that can't be is told so when asking" do
+    event = events(:water_the_plants)
+    day = event.occurrence_on(Date.new(2026, 3, 16)).tap(&:save!)
+    held = form("Task", { task: { title: event.title },
+                          event: { frequency: "weekly", interval: "1", week_days: [ "monday" ], ends_by: "on_date", ends: "2026-01-01" } },
+                record: day, actor: @bob)
+
+    assert_not held.valid_for_hold?
+    assert_equal [ "Repeats can't end before its first day" ], Forms::Errors.new(held.record).sentences
+  end
 end

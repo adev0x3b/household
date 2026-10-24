@@ -24,12 +24,14 @@ class Views::Occurrences::Form < Views::Base
     new(occurrence: occurrence, url: url, current_profile: viewer, housemates: housemates)
   end
 
-  def initialize(occurrence:, url:, current_profile:, reminders: [], housemates: [])
+  # ends_sent: how a refused form said the series ends, drawn again as it was typed.
+  def initialize(occurrence:, url:, current_profile:, reminders: [], housemates: [], ends_sent: {})
     @occurrence = occurrence
     @url = url
     @current_profile = current_profile
     @reminders = reminders
     @housemates = housemates
+    @ends_sent = ends_sent
   end
 
   def view_template
@@ -84,7 +86,7 @@ class Views::Occurrences::Form < Views::Base
 
   # The series' repeat rule and the viewer's own "Remind me" rows.
   def render_event_fields
-    render Views::Occurrences::EventFields.new(event: event)
+    render Views::Occurrences::EventFields.new(event: event, ends_sent: @ends_sent, ends_errors: Forms::Errors.new(@occurrence).for(:rrule))
     render Views::Occurrences::ReminderFields.new(reminders: @reminders)
   end
 
