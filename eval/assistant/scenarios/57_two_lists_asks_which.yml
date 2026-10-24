@@ -1,0 +1,14 @@
+description: 'With two grocery lists in use and neither called that, "the grocery list" is asked about, then the one named gets the item; nothing goes on a guessed list or a new one.'
+tags: [pantry]
+locale: it
+today: 2026-10-16
+seed: [two_grocery_lists]
+messages:
+  - "Aggiungi tonno alla lista della spesa"
+  - "Quella dell'Esselunga"
+expect:
+  - asks: 1
+  - saves: 2
+  - grocery_lists: 3
+  - grocery_list_items: { esselunga: { total_items: 2, checked_items: 0 }, mercato: { total_items: 1, checked_items: 0 } }
+  - reply_language: it

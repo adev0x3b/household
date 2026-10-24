@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# The pipeline's provisioning wizard: this machine, then each destination
+# on it (the deployment runbook, "First time"). A copy of one's own needs none of
+# it (docs/self-hosting.md). Run it as yourself: it asks for sudo where a
+# step needs it. Safe to run again: it shows what runs
+# here and offers what comes next. `bin/provision --help` lists the commands.
+root = File.expand_path("..", __dir__)
+require File.join(root, "lib", "provision")
+%w[stop settings mount env_file shell prompt questionnaire installation docker status known_hosts pipeline
+   pipeline/github pipeline/machine pipeline/destination pipeline/move wizard].each { require File.join(root, "lib", "provision", _1) }
+
+shell = Provision::Shell.new
+installation = Provision::Installation.new(config_dir: File.join(shell.my_home, ".config", "household"), root: root)
+prompt = Provision::Prompt.new(assume_defaults: ARGV.include?("--yes"))
+exit Provision::Wizard.new(ARGV, shell: shell, prompt: prompt, installation: installation, root: root).run

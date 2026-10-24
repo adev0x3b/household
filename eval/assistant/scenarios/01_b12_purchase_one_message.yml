@@ -1,0 +1,11 @@
+description: Three supplies bought for a therapy, everything said in one message (brief, scenario 1).
+tags: [purchases]
+today: 2026-09-22
+messages:
+  - For my B12 therapy I bought 1 vial of cobalamin injection for 32 euros, 100 needles for 12 euros and 50 syringes for 8 euros. All paid by card.
+expect:
+  - purchases: 3
+  - purchase_details:
+      cobalamin: { quantity: 1, cost: 32, paid: card, therapy: B12 }
+      needles: { quantity: 100, cost: 12, paid: card, therapy: B12 }
+      syringes: { quantity: 50, cost: 8, paid: card, therapy: B12 }

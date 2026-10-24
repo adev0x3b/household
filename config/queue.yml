@@ -1,0 +1,24 @@
+default: &default
+  dispatchers:
+    - polling_interval: 1
+      batch_size: 500
+  workers:
+    # Assistant replies wait on a (possibly slow, local) model for up to a
+    # few minutes; their own threads keep them from starving other jobs.
+    - queues: [ "assistant" ]
+      threads: 2
+      processes: 1
+      polling_interval: 0.1
+    - queues: "*"
+      threads: 3
+      processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
+      polling_interval: 0.1
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

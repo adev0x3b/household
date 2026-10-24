@@ -1,0 +1,286 @@
+# Dev, staging, the demo and production are this machine (docs/architecture/delivery.md).
+# This workflow is the one way a version gets to any of them:
+#   - on its own, when CI passes on a push to main (workflow_run): the image
+#     CI built for that commit goes to staging, then to the public demo. The
+#     repository variable DEPLOY_FREEZE=true holds this back;
+#   - by hand, from GitHub's "Run workflow", `gh workflow run deploy.yml -f …`
+#     or the app's /admin/deployment (workflow_dispatch): promote a version
+#     to production, deploy staging or the demo, restart a destination, roll
+#     production back, release a held version — or preview a branch on dev: its image
+#     is built here (image.yml), then dev runs it, on fresh data when asked.
+#     Dev can also be stopped, to give the machine its memory back, until
+#     the next preview starts it again.
+# Production never moves on its own: what staging runs is promoted by a
+# press, once someone has looked at it. A promotion that puts a newer
+# version there is also a release for the people who run a copy of their
+# own (release.yml).
+# Each destination is a call of kamal.yml: Kamal on the runner (GitHub's,
+# which joins the tailnet for the job, or the household's own: RUNS_ON),
+# recorded as a GitHub Deployment of the version it put there. Nothing but a
+# branch's preview builds anything.
+#
+# Whatever reaches the machine runs main's code: each destination's
+# secrets live in its GitHub environment, which only main may use, so a run
+# dispatched on any other branch gets none. A preview is no exception: dev
+# runs the branch's image, driven by main's Kamal configuration and scripts.
+#
+# The pipeline can run from a private repository of its own, which keeps
+# the deploy secrets out of a public one (the deployment runbook, "A private
+# pipeline"): its main is the code's main merged with files of its own, and
+# its SOURCE_REPOSITORY variable names the code's repository. There, the
+# merge is what takes staging and the demo to the code's newest commit it
+# holds (push), with the image the code's CI built; a preview builds a
+# branch of the code's repository; and the release is made in the code's
+# repository. Where the repository has no DEPLOY_HOST, as the code's public
+# one, nothing here runs on its own.
+name: Deploy
+
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch'
+      && (inputs.action == 'preview'
+          && format('preview {0} on dev{1}{2}', inputs.branch,
+                    inputs.fresh && ' (fresh)' || '',
+                    inputs.reason && format(' — {0}', inputs.reason) || '')
+          || format('{0} {1}{2}{3}', inputs.action, inputs.destination,
+                    inputs.version && format(' at {0}', inputs.version) || '',
+                    inputs.reason && format(' — {0}', inputs.reason) || ''))
+      || github.event_name == 'push' && format('Deploy the merge {0}', github.sha)
+      || format('Deploy {0}', github.event.workflow_run.display_title) }}
+
+on:
+  workflow_run:
+    workflows: [ CI ]
+    types: [ completed ]
+    branches: [ main ]
+  # A private pipeline's merge of the code's main (the job `changes` sets
+  # aside a push of its own files alone).
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      destination:
+        description: "Where (dev takes preview, restart and stop only; the demo deploy and restart)"
+        type: choice
+        options: [ production, staging, demo, dev ]
+        default: production
+      action:
+        description: "What to do (release: a version whose migration needs the app stopped — rehearsed on staging with production's data, then production behind the maintenance page; preview: a branch on dev, its image built first; stop: dev, until a preview starts it again)"
+        type: choice
+        options: [ deploy, restart, rollback, release, preview, stop ]
+        default: deploy
+      version:
+        description: "The commit to deploy or roll back to (deploy: blank for main's latest; GHCR keeps the last 50)"
+        type: string
+        default: ""
+      branch:
+        description: "preview: the branch to run on dev"
+        type: string
+        default: ""
+      fresh:
+        description: "preview: on a fresh database (the schema loaded whole, the demo seeded again)"
+        type: boolean
+        default: false
+      reason:
+        description: "Who asked, and why"
+        type: string
+        default: ""
+
+permissions:
+  # kamal.yml gives a private pipeline's repository a ref to each version
+  # of the code it records, which a Deployment needs.
+  contents: write
+  packages: read
+  deployments: write # kamal.yml records each action as a Deployment of its version
+
+# One deploy at a time per lane: dev on its own (a preview builds for
+# minutes and must never delay a release), staging and production together
+# (a release touches both). A newer run waiting replaces an older one
+# waiting. A run that will do nothing (CI failed, deploys frozen, the wrong
+# trigger for this repository) gets a group of its own, so it can't push a
+# waiting deploy out.
+concurrency:
+  group: >-
+    ${{ (github.event_name == 'workflow_dispatch' && (inputs.action == 'preview' || inputs.destination == 'dev')) && 'deploy-dev'
+        || ((github.event_name == 'workflow_dispatch' ||
+             (vars.DEPLOY_HOST != '' && vars.DEPLOY_FREEZE != 'true' && (
+               (github.event_name == 'push' && vars.SOURCE_REPOSITORY != '') ||
+               (vars.SOURCE_REPOSITORY == '' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'))))
+            && 'deploy' || format('deploy-noop-{0}', github.run_id)) }}
+  cancel-in-progress: false
+
+jobs:
+  # What the inputs can't say together: dev takes a preview, a restart or
+  # a stop, only dev stops, the demo takes a deploy or a restart, and a
+  # preview needs a branch. Said here, rather than as a run where every job
+  # was skipped.
+  refuse:
+    if: >-
+      github.event_name == 'workflow_dispatch' && (
+        (inputs.destination == 'dev' && inputs.action != 'preview' && inputs.action != 'restart' && inputs.action != 'stop') ||
+        (inputs.destination == 'demo' && inputs.action != 'deploy' && inputs.action != 'restart') ||
+        (inputs.action == 'stop' && inputs.destination != 'dev') ||
+        (inputs.action == 'preview' && inputs.branch == ''))
+    runs-on: ${{ fromJSON(vars.RUNS_ON || '"ubuntu-latest"') }}
+    steps:
+      - run: |
+          echo "::error::dev takes preview (with a branch), restart or stop, and only dev stops; the demo takes deploy or restart; main's versions go to staging, the demo and production (docs/architecture/delivery.md)."
+          exit 1
+
+  # --- Dev: a branch -----------------------------------------------------------
+
+  # The branch's image: the one build this workflow does.
+  image:
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'preview' && inputs.branch != ''
+    uses: ./.github/workflows/image.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      ref: ${{ inputs.branch }}
+      repository: ${{ vars.SOURCE_REPOSITORY }}
+      lane: preview
+
+  # Dev runs the branch's head once its image exists; or boots again; or stops.
+  # The branch brings its image and nothing else: Kamal's configuration and
+  # bin/preview-dev are main's (ref), so no branch's script holds the deploy
+  # key. A branch that changes them is tried on staging, once merged.
+  dev:
+    needs: image
+    if: >-
+      !cancelled() && github.event_name == 'workflow_dispatch' && (
+        (inputs.action == 'preview' && needs.image.result == 'success') ||
+        ((inputs.action == 'restart' || inputs.action == 'stop') && inputs.destination == 'dev'))
+    uses: ./.github/workflows/kamal.yml
+    with:
+      destination: dev
+      action: ${{ inputs.action }}
+      version: ${{ needs.image.outputs.sha || '' }}
+      ref: ${{ github.sha }}
+      branch: ${{ inputs.branch }}
+      fresh: ${{ inputs.fresh }}
+      reason: "${{ inputs.reason }}"
+    secrets: inherit
+
+  # --- Staging and the demo, then production: main ----------------------------------
+
+  # Whether a private pipeline's push changes the code. Its own files are
+  # the ones its PRIVATE_PATHS variable matches (a regular expression), and
+  # a push of those alone deploys nothing.
+  changes:
+    if: github.event_name == 'push' && vars.SOURCE_REPOSITORY != ''
+    runs-on: ${{ fromJSON(vars.RUNS_ON || '"ubuntu-latest"') }}
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.files.outputs.code }}
+    steps:
+      - name: List what the push changed
+        id: files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          PRIVATE_PATHS: ${{ vars.PRIVATE_PATHS }}
+        run: |
+          # A new main has nothing before it to compare with: all of it is new.
+          if [ "$BEFORE" = 0000000000000000000000000000000000000000 ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          files="$(gh api "repos/$GITHUB_REPOSITORY/compare/$BEFORE...$AFTER" --jq '.files[].filename')"
+          if [ -n "$PRIVATE_PATHS" ]; then files="$(grep -vE "$PRIVATE_PATHS" <<< "$files" || true)"; fi
+          if [ -n "$files" ]; then echo "code=true"; else echo "code=false"; fi >> "$GITHUB_OUTPUT"
+
+  # On its own: a finished CI run counts only when it passed, on a push to
+  # main of this repository; a private pipeline's push to main is its merge
+  # of the code's main, whose images CI built there.
+  staging:
+    needs: changes
+    if: >-
+      !cancelled() && (
+      (github.event_name == 'workflow_dispatch' && inputs.action != 'preview' && inputs.action != 'stop' && (inputs.destination == 'staging' || inputs.action == 'release')) ||
+      (vars.DEPLOY_HOST != '' && vars.DEPLOY_FREEZE != 'true' && (
+        (github.event_name == 'push' && vars.SOURCE_REPOSITORY != '' && needs.changes.outputs.code == 'true') ||
+        (github.event_name == 'workflow_run' &&
+         vars.SOURCE_REPOSITORY == '' &&
+         github.event.workflow_run.conclusion == 'success' &&
+         github.event.workflow_run.event == 'push' &&
+         github.event.workflow_run.head_branch == 'main' &&
+         github.event.workflow_run.head_repository.full_name == github.repository))))
+    uses: ./.github/workflows/kamal.yml
+    with:
+      destination: staging
+      action: ${{ inputs.action == 'release' && 'rehearse' || inputs.action || 'deploy' }}
+      version: ${{ inputs.version || github.event.workflow_run.head_sha || '' }}
+      ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      reason: "${{ inputs.reason || github.event_name == 'push' && 'main merged' || format('CI: {0}', github.event.workflow_run.display_title) }}"
+    secrets: inherit
+
+  # The public demo runs what staging just took, in the same run (the
+  # version boots and migrates there first); by hand, a deploy or a restart.
+  # Its data starts over every night, so a migration that needs the app
+  # stopped holds nothing here: the demo deploys it behind its maintenance
+  # page, unrehearsed, and a release never comes to it (kamal.yml).
+  demo:
+    needs: staging
+    if: >-
+      !cancelled() && (
+        (github.event_name != 'workflow_dispatch' && needs.staging.result == 'success') ||
+        (github.event_name == 'workflow_dispatch' && inputs.destination == 'demo' && (inputs.action == 'deploy' || inputs.action == 'restart')))
+    uses: ./.github/workflows/kamal.yml
+    with:
+      destination: demo
+      action: ${{ inputs.action || 'deploy' }}
+      version: ${{ inputs.version || needs.staging.outputs.version || github.event.workflow_run.head_sha || '' }}
+      ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      reason: "${{ inputs.reason || github.event_name == 'push' && 'main merged' || format('CI: {0}', github.event.workflow_run.display_title) }}"
+    secrets: inherit
+
+  # By hand only: a promotion of what staging runs (or any version of main),
+  # a restart, a rollback — and a release, once staging's rehearsal on
+  # production's data passed.
+  production:
+    needs: staging
+    if: >-
+      !cancelled() && github.event_name == 'workflow_dispatch' && (
+        (inputs.action == 'release' && needs.staging.result == 'success') ||
+        (inputs.destination == 'production' && inputs.action != 'release' && inputs.action != 'preview' && inputs.action != 'stop'))
+    uses: ./.github/workflows/kamal.yml
+    with:
+      destination: production
+      action: ${{ inputs.action }}
+      version: ${{ inputs.version }}
+      ref: ${{ github.sha }}
+      reason: "${{ inputs.reason }}"
+    secrets: inherit
+
+  # A version production now runs, newer than the last release, is the next
+  # release: tagged, its image given the version and :stable, published. A
+  # rollback, a restart or the same version again makes none (bin/release).
+  # It is made in the code's repository, by its owner alone (release.yml):
+  # this starts it there with production's DEPLOY_DISPATCH_TOKEN, the
+  # owner's.
+  release:
+    needs: production
+    if: >-
+      !cancelled() && needs.production.result == 'success' &&
+      (inputs.action == 'deploy' || inputs.action == 'release')
+    runs-on: ${{ fromJSON(vars.RUNS_ON || '"ubuntu-latest"') }}
+    environment:
+      name: production
+      deployment: false
+    timeout-minutes: 5
+    steps:
+      - name: Start the release
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_DISPATCH_TOKEN }}
+          SOURCE: ${{ vars.SOURCE_REPOSITORY || github.repository }}
+          COMMIT: ${{ needs.production.outputs.version }}
+          DOWNTIME: ${{ needs.production.outputs.downtime_seconds }}
+        run: |
+          release=(workflow run release.yml --repo "$SOURCE" --ref main -f "commit=$COMMIT" -f "downtime_seconds=$DOWNTIME" -f publish=true)
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Production's environment has no DEPLOY_DISPATCH_TOKEN, so ${COMMIT:0:7} isn't released. Its owner can start it: gh ${release[*]}"
+            exit 1
+          fi
+          gh "${release[@]}"
+          echo "::notice title=Release::started for ${COMMIT:0:7}: $GITHUB_SERVER_URL/$SOURCE/actions/workflows/release.yml"

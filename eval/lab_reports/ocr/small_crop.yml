@@ -1,0 +1,6 @@
+# A small crop: a few rows at a small font size.
+rows:
+  - [Ferritina, "40", ng/mL, "30 - 400"]
+  - [Sideremia, "85", ug/dL, "60 - 170"]
+  - [Vitamina D, "22", ng/mL, "30 - 100"]
+render: { font_size: 13 }

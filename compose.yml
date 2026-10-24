@@ -1,0 +1,145 @@
+# Household on a machine of one's own, without the pipeline
+# (docs/self-hosting.md). Each release publishes this file with the image
+# below pinned by version and digest; install.sh puts it beside the
+# installation's household.env and runs it:
+#
+#   docker compose --project-directory ~/household --env-file ~/household/household.env up -d
+#
+# Three containers that always come back, three volumes that hold
+# everything: the app makes its own secrets on the first boot
+# (bin/docker-secrets) and migrates its database before serving
+# (bin/docker-entrypoint). A name missing from household.env takes the
+# default below.
+
+x-app: &app
+  image: ${HOUSEHOLD_IMAGE}
+  restart: unless-stopped
+  environment:
+    # The image this copy runs, for the console: it tells a copy of one's own
+    # from the pipeline's, which release it is, and where newer ones are.
+    HOUSEHOLD_IMAGE: ${HOUSEHOLD_IMAGE}
+    DB_HOST: db
+    HOUSEHOLD_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?the database's password, in household.env}
+    # The address people use (config.hosts, Action Cable's origin, the links the app makes).
+    APP_HOST: ${APP_HOST:?the address people will use, in household.env}
+    # A path the app lives under, with no trailing slash; empty, the domain's root.
+    MOUNT_PATH: ${MOUNT_PATH:-}
+    TIME_ZONE: ${TIME_ZONE:-UTC}
+    # Off where nothing terminates HTTPS in front: the app then works in a
+    # browser over plain HTTP, but can't install as an app or receive push.
+    FORCE_SSL: ${FORCE_SSL:-on}
+    # Set, Thruster gets this name's certificate itself and answers on 443.
+    TLS_DOMAIN: ${TLS_DOMAIN:-}
+    RAILS_LOG_LEVEL: ${RAILS_LOG_LEVEL:-info}
+    # Solid Queue worker processes for the "*" queues, besides the assistant's own.
+    JOB_CONCURRENCY: ${JOB_CONCURRENCY:-1}
+    # Thruster's deadlines, for the Files section (config/deploy.yml says why).
+    HTTP_READ_TIMEOUT: 300
+    HTTP_WRITE_TIMEOUT: 0
+    # The installation's limits are the admin's, on /admin/settings. One
+    # written in household.env before the first setup is where the page
+    # starts; a missing line arrives empty, which the app reads as none.
+    ASSISTANT: ${ASSISTANT:-}
+    UPLOADS: ${UPLOADS:-}
+    PICTURES: ${PICTURES:-}
+    INVITATIONS: ${INVITATIONS:-}
+    PUSH_NOTIFICATIONS: ${PUSH_NOTIFICATIONS:-}
+    RELEASE_CHECK: ${RELEASE_CHECK:-}
+    ASSISTANT_MESSAGES_PER_DAY: ${ASSISTANT_MESSAGES_PER_DAY:-}
+    BOOK_LOOKUPS_PER_DAY: ${BOOK_LOOKUPS_PER_DAY:-}
+    FILES_QUOTA: ${FILES_QUOTA:-}
+    HOUSEHOLD_SIZE: ${HOUSEHOLD_SIZE:-}
+    INVITATIONS_PER_MEMBER: ${INVITATIONS_PER_MEMBER:-}
+    # The rest of the installation's settings (lib/provision/settings.rb), each with its default.
+    OPEN_ACCOUNTS: ${OPEN_ACCOUNTS:-}
+    ASSISTANT_PROVIDER: ${ASSISTANT_PROVIDER:-ollama}
+    ASSISTANT_MODEL: ${ASSISTANT_MODEL:-qwen3:8b}
+    # An Ollama on this machine, as a container reaches it (extra_hosts below).
+    OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    # The keys; an unset one arrives empty, which the app reads as none.
+    ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    GOOGLE_BOOKS_API_KEY: ${GOOGLE_BOOKS_API_KEY:-}
+    DEMO_PASSWORD: ${DEMO_PASSWORD:-demo-household}
+  volumes:
+    # Uploads, message pictures, the lexicon extracts, Thruster's certificate;
+    # what bin/docker-secrets made.
+    - storage:/rails/storage
+    - secrets:/rails/secrets
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  logging: &logging
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  # Not published: the containers reach it by name. The app's db:prepare
+  # makes the other four databases (cache, queue, cable, errors).
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: household
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?the database's password, in household.env}
+      POSTGRES_DB: household_production
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U household -d household_production" ]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+    logging: *logging
+
+  # Thruster in front of Puma: plain HTTP on PORT (127.0.0.1 alone unless
+  # BIND says otherwise), and HTTPS on TLS_PORT, where nothing answers unless
+  # TLS_DOMAIN is set. It migrates before it serves, so the first boot takes
+  # a minute; an update stops it first, so a migration never runs beside the
+  # version before it.
+  web:
+    <<: *app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${BIND:-127.0.0.1}:${PORT:-8080}:80"
+      - "${BIND:-127.0.0.1}:${TLS_PORT:-8443}:443"
+    healthcheck:
+      test: [ "CMD", "curl", "-fsS", "http://localhost${MOUNT_PATH:-}/up" ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 120s
+    # Time for the requests under way to finish once it's told to stop.
+    stop_grace_period: 30s
+
+  # Solid Queue: the jobs and config/recurring.yml. After web is healthy:
+  # the database is migrated and the secrets exist by then.
+  job:
+    <<: *app
+    command: bin/jobs
+    depends_on:
+      web:
+        condition: service_healthy
+
+  # A Cloudflare Tunnel to web, for a copy reached from anywhere with nothing
+  # published on the machine: on with COMPOSE_PROFILES=cloudflare. The
+  # tunnel's public hostname points at http://web:80 in Cloudflare's dashboard.
+  cloudflared:
+    image: cloudflare/cloudflared:2026.9.1
+    profiles: [ cloudflare ]
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-}
+    depends_on:
+      web:
+        condition: service_healthy
+    logging: *logging
+
+volumes:
+  db:
+  storage:
+  secrets:

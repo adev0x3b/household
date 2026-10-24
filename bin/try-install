@@ -1,0 +1,71 @@
+#!/bin/sh
+# Installs an image the way a person installs a release (install.sh --yes,
+# from a directory standing in for the release's files), then checks that
+# the setup page keeps a stranger out: a wrong code opens nothing, the
+# printed one opens the first setup. CI runs it on every image of main, so
+# a release never ships an installer that can't start what it installs.
+#
+#   bin/try-install ghcr.io/<owner>/household:<sha>
+#
+# Everything it makes is removed at the end, the volumes included.
+set -eu
+
+image=${1:?usage: bin/try-install <image>}
+root=$(cd "$(dirname "$0")/.." && pwd)
+work=$(mktemp -d)
+port=${TRY_INSTALL_PORT:-18080}
+# The directory's name is the Compose project's, so two runs never share volumes.
+dir="$work/household-try-$$"
+url="http://localhost:$port"
+
+clean_up() {
+  if [ -f "$dir/household.env" ]; then
+    docker compose --project-directory "$dir" -f "$dir/compose.yml" --env-file "$dir/household.env" down -v --remove-orphans > /dev/null 2>&1 || true
+  fi
+  rm -rf "$work"
+}
+trap clean_up EXIT
+
+fail() {
+  echo "::error::$1" >&2
+  if [ -f "$dir/household.env" ]; then
+    docker compose --project-directory "$dir" -f "$dir/compose.yml" --env-file "$dir/household.env" logs web >&2 || true
+  fi
+  exit 1
+}
+
+mkdir "$work/release"
+sed "s|\${HOUSEHOLD_IMAGE}|$image|g" "$root/compose.yml" > "$work/release/compose.yml"
+cp "$root/install.sh" "$work/release/install.sh"
+printf '{"version":"0.0.0","tag":"v0.0.0","image":"%s"}\n' "$image" > "$work/release/release.json"
+
+# Into a file first: a pipe into tee would hide install.sh's own exit status.
+if ! HOUSEHOLD_DIR=$dir HOUSEHOLD_EXPOSURE=local HOUSEHOLD_PORT=$port HOUSEHOLD_BACKUPS=no \
+  sh "$work/release/install.sh" --yes --from "$work/release" > "$work/install.log" 2>&1; then
+  cat "$work/install.log"
+  fail "install.sh failed"
+fi
+cat "$work/install.log"
+
+code=$(sed -n 's/^ *Code  *\([A-Z2-9-]*\).*/\1/p' "$work/install.log")
+[ -n "$code" ] || fail "install.sh printed no setup code"
+
+# One browser: the session cookie and the form's token, kept between requests.
+jar="$work/cookies"
+token() { curl -fsS -b "$jar" -c "$jar" "$url/setup" | sed -n 's/.*name="authenticity_token" value="\([^"]*\)".*/\1/p' | head -n 1; }
+send_code() {
+  curl -sS -o /dev/null -w '%{http_code}' -b "$jar" -c "$jar" \
+    --data-urlencode "authenticity_token=$(token)" --data-urlencode "setup_code[code]=$1" "$url/setup/code"
+}
+
+status=$(send_code AAAA-BBBB-CCCC-DDDD)
+[ "$status" = 422 ] || fail "a wrong code answered $status, not 422"
+curl -fsS -b "$jar" "$url/setup" | grep -q 'action="/setup/code"' || fail "a wrong code opened the setup"
+
+status=$(send_code "$code")
+[ "$status" = 303 ] || fail "the printed code answered $status, not 303"
+if curl -fsS -b "$jar" "$url/setup" | grep -q 'action="/setup/code"'; then
+  fail "the printed code didn't open the setup"
+fi
+
+echo "The installed copy asks for its code, refuses a wrong one and opens with the printed one."

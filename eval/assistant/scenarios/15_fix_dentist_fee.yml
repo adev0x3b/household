@@ -1,0 +1,12 @@
+description: >
+  A visit's price is corrected on the visit — the fee lives on a linked payment the model mustn't
+  have to find itself. "Last Tuesday" (not bare "Tuesday": today is Thursday, so an unqualified day
+  name is equally close to the Tuesday that already happened and the one 5 days off — that ambiguity
+  isn't what this scenario means to test).
+tags: [coverage, fees, appointments]
+today: 2026-09-24
+seed: [dentist_sep22_paid_60]
+messages:
+  - The dentist last Tuesday was 80 euros, not 60.
+expect:
+  - appointment: { provider: Dentist, date: 2026-09-22, fee: 80 }

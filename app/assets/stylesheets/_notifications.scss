@@ -1,0 +1,255 @@
+@use "variables" as *;
+@use "count-badge";
+
+// The navbar's bell (Views::Notifications::Bell): a count on the icon
+// and a dropdown of the latest notifications.
+.notifications {
+  // Not positioned on purpose: the panel hangs from the top bar itself, so
+  // it spans from the bar's right edge whatever sits next to the bell.
+  display: flex;
+}
+
+.notifications__bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: $radius-md;
+  background: transparent;
+  color: $accent;
+  font-size: $type-18;
+  cursor: pointer;
+  transition: background-color $motion-quick;
+
+  &:hover {
+    color: $accent-pressed;
+  }
+
+  &:active {
+    background-color: tint($accent, "fill");
+  }
+}
+
+.notifications__bell .count-badge {
+  @include count-badge.on-corner;
+
+  top: 0.125rem;
+  right: 0.125rem;
+  pointer-events: none;
+}
+
+.notifications__panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0.75rem;
+  z-index: $z-menu;
+  width: min(22rem, calc(100vw - 1.5rem));
+  max-height: min(28rem, 70dvh);
+  flex-direction: column;
+  overflow: hidden;
+  background-color: $surface-sunken;
+  border: 1px solid $surface-raised;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-popover;
+
+  &.is-open {
+    display: flex;
+  }
+
+  turbo-frame {
+    display: block;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+.notifications__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid $surface-raised;
+  flex-shrink: 0;
+}
+
+.notifications__title {
+  color: $text;
+  font-size: $type-14;
+  font-weight: 700;
+}
+
+.notifications__read-all-form {
+  margin: 0;
+}
+
+.notifications__read-all {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: $accent;
+  font-size: $type-12;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color $motion-quick;
+
+  &:hover {
+    background-color: tint($accent, "fill");
+  }
+}
+
+.notifications__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.375rem;
+}
+
+// What the panel says while its list loads.
+.notifications__loading {
+  margin: 0;
+  padding: 1.5rem 1rem;
+  color: $text-muted;
+  font-size: $type-13;
+  text-align: center;
+}
+
+// The list's empty line gives way to the first row, including one that
+// arrives live.
+.notifications__list > .empty-state:not(:only-child) {
+  display: none;
+}
+
+.notifications__older {
+  display: block;
+  margin: 0 0.375rem 0.375rem;
+  padding: 0.5rem;
+  border-radius: $radius-md;
+  color: $accent;
+  font-size: $type-13;
+  text-align: center;
+  transition: background-color $motion-quick;
+
+  &:hover,
+  &:focus-visible {
+    background: tint($accent, "fill");
+  }
+}
+
+.notifications__item-form {
+  display: block;
+  margin: 0;
+}
+
+// A question's answers (accept a link, approve a change), under its row,
+// lined up with the text past the dot.
+.notifications__actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 0.625rem 0.5rem 1.625rem;
+}
+
+.notifications__action-form {
+  margin: 0;
+}
+
+.notifications__action {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid tint($accent, "edge");
+  border-radius: $radius-pill;
+  background: transparent;
+  color: $accent;
+  font-size: $type-12;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background-color: tint($accent, "fill");
+  }
+}
+
+.notifications__action--approve,
+.notifications__action--accept {
+  background-color: $accent;
+  color: $surface-sunken;
+
+  &:hover,
+  &:focus-visible {
+    background-color: $accent-pressed;
+  }
+}
+
+.notifications__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border: none;
+  border-radius: $radius-md;
+  background: transparent;
+  color: $text-muted;
+  font-size: $type-13;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color $motion-quick;
+
+  &:hover,
+  &:focus-visible {
+    background-color: $surface-raised;
+  }
+
+  &.is-unread {
+    background-color: $surface-card;
+    color: $text;
+
+    &:hover,
+    &:focus-visible {
+      background-color: $surface-raised;
+    }
+  }
+}
+
+// Unread: a pink dot. Read: the dot's space stays, so the text lines up.
+.notifications__dot {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: 0.3125rem;
+  border-radius: 50%;
+
+  .is-unread & {
+    background-color: $accent;
+  }
+}
+
+.notifications__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.notifications__item-title {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.notifications__item-subject {
+  color: $text-muted;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notifications__item-time {
+  color: $text-muted;
+  font-size: $type-11;
+}

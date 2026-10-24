@@ -1,0 +1,12 @@
+description: Food bought without quantities or prices; the assistant asks for what is missing, then saves both items.
+tags: [pantry, followup]
+today: 2026-10-01
+messages:
+  - "I bought flour and eggs"
+  - "2kg of flour for 3 euros and 12 eggs for 4 euros, all cash"
+expect:
+  - ingredients: 2
+  - ingredient_purchases: 2
+  - ingredient_purchase_details:
+      flour: { quantity: 2, unit: "kg", cost: 3, paid: cash }
+      eggs: { quantity: 12, cost: 4, paid: cash }

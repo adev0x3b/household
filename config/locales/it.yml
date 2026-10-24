@@ -1,0 +1,4082 @@
+it:
+  # Giorni senza zero: "4 ottobre 2026", mai "04 ottobre".
+  # The names of months and days, the order of a date's parts, am and pm are
+  # Rails' own words too ("Rails' own words" below), so they are kept here
+  # rather than borrowed from another gem's locale file.
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      long: "%-d %B %Y"
+      short: "%-d %b"
+      day: "%a %-d %b"
+      day_long: "%A %-d %B"
+      weekday: "%a"
+      month: "%b"
+    day_names:
+      - domenica
+      - lunedì
+      - martedì
+      - mercoledì
+      - giovedì
+      - venerdì
+      - sabato
+    abbr_day_names:
+      - dom
+      - lun
+      - mar
+      - mer
+      - gio
+      - ven
+      - sab
+    month_names:
+      -
+      - gennaio
+      - febbraio
+      - marzo
+      - aprile
+      - maggio
+      - giugno
+      - luglio
+      - agosto
+      - settembre
+      - ottobre
+      - novembre
+      - dicembre
+    abbr_month_names:
+      -
+      - gen
+      - feb
+      - mar
+      - apr
+      - mag
+      - giu
+      - lug
+      - ago
+      - set
+      - ott
+      - nov
+      - dic
+    order:
+      - day
+      - month
+      - year
+  time:
+    ago: "%{time} fa"
+    formats:
+      default: "%a, %d %b %Y %H:%M:%S %z"
+      hour_minute: "%H:%M"
+      long: "%-d %B %Y, %H:%M"
+      short: "%-d %b, %H:%M"
+    am: "am"
+    pm: "pm"
+
+  app:
+    name: "Household"
+
+  navbar:
+    locale:
+      label: "Lingua"
+      names:
+        en: "English"
+        it: "Italiano"
+    menu: "Menu"
+    skip_to_content: "Vai al contenuto"
+    title:
+      page: "%{page} · %{app}"
+    account:
+      label: "Account"
+    bottom:
+      label: "Navigazione principale"
+    sheet:
+      label: "Tutte le pagine"
+    captions:
+      sections: "Sezioni"
+      people: "Persone"
+    groups:
+      admin: "Amministrazione"
+      expand: "Mostra le pagine di %{group}"
+      agenda: "Agenda"
+      healthcare: "Salute"
+      finance: "Finanze"
+      pantry: "Dispensa"
+    links:
+      household: "Casa"
+      households: "Case"
+      deployment: "Deploy"
+      settings: "Impostazioni"
+      errors: "Errori"
+      jobs: "Lavori in coda"
+      home: "Home"
+      evals: "Valutazioni"
+      assistant_settings: "Impostazioni assistente"
+      calendar: "Calendario"
+      assistant: "Assistente"
+      therapies: "Terapie mediche"
+      collections: "Raccolte"
+      analytes: "Analiti"
+      supplies: "Forniture"
+      ingredients: "Ingredienti"
+      recipes: "Ricette"
+      grocery_lists: "Liste della spesa"
+      bookshelf: "Libreria"
+      files: "File"
+      messages: "Messaggi"
+      links: "Collegamenti"
+      lexicons: "Lingue"
+    profile:
+      logout: "Esci"
+
+  calendar:
+    occurrences:
+      notices:
+        occurrence: "Giorno eliminato."
+        series: "Intera serie eliminata."
+    navigation:
+      month: "Mese"
+      year: "Anno"
+      previous_month: "Mese precedente"
+      next_month: "Mese successivo"
+    day_card:
+      complete: "Segna “%{title}” come fatto"
+      reopen: "Segna “%{title}” come non fatto"
+      share: "Condividi “%{title}”"
+      add_event: "Aggiungi evento"
+      add_event_on: "Aggiungi evento per %{date}"
+      nothing_planned: "Niente in programma"
+      event_types:
+        task: "Attività"
+        transaction: "Pagamento"
+        appointment: "Appuntamento"
+        medication: "Farmaco"
+        meal: "Pasto"
+        lab_test_result: "Esame"
+
+  home:
+    today: "Oggi"
+    kpis:
+      label: "Dati principali"
+      target: "Obiettivo %{target}"
+      other_currencies: "Anche %{amounts}"
+    tabs:
+      label: "Sezioni della home"
+      overview: "Panoramica"
+      agenda: "Agenda"
+      healthcare: "Salute"
+      finance: "Finanze"
+      pantry: "Dispensa"
+    overview:
+      title: "Home"
+      sections: "Sezioni"
+      first_steps:
+        title: "Ancora niente qui"
+        body: "Tutto ciò che la casa ha in programma sta nel calendario: un'attività, una visita, una dose, una bolletta, un pasto. Aggiungi la prima voce e qui compariranno i numeri."
+        calendar: "Apri il calendario"
+        household: "Invita gli altri membri della casa"
+      cards:
+        agenda:
+          value: "%{done} / %{total}"
+          caption: "attività completate oggi"
+          none_today: "Niente in scadenza oggi"
+          overdue:
+            one: "%{count} in ritardo"
+            other: "%{count} in ritardo"
+        healthcare:
+          caption: "aderenza alle dosi, ultimi 30 giorni"
+          missed:
+            one: "%{count} dose saltata"
+            other: "%{count} dosi saltate"
+        finance:
+          caption: "flusso di cassa netto, ultimi 30 giorni"
+        pantry:
+          caption: "pasti pianificati, oggi e i prossimi 7 giorni"
+          to_buy:
+            one: "%{count} articolo da comprare"
+            other: "%{count} articoli da comprare"
+      upcoming:
+        title: "Prossimi 7 giorni"
+        description: "Cosa resta da fare da domani in poi, prima le cose più importanti. Apri un giorno per occupartene."
+        empty: "Niente in programma per i prossimi 7 giorni."
+    agenda:
+      title: "Agenda"
+      kpis:
+        completion: "Attività completate"
+        overdue: "Non completate"
+        attendance: "Appuntamenti rispettati"
+        due_today: "In scadenza oggi"
+        upcoming: "Prossimi 7 giorni"
+        hints:
+          attendance: "Appuntamenti segnati come svolti ÷ appuntamenti previsti in questo periodo (di lavoro, sociali e personali, non quelli medici). Quelli annullati e quelli non ancora previsti non contano."
+          completion: "Attività completate ÷ attività previste in questo periodo. Quelle annullate e quelle non ancora previste non contano."
+          overdue: "Attività di questo periodo il cui giorno è passato senza che fossero completate, saltate o annullate."
+          due_today: "Le attività di oggi ancora aperte, qualunque sia il periodo selezionato."
+          upcoming: "Attività in programma da domani e per i prossimi 7 giorni, qualunque sia il periodo selezionato."
+      table:
+        columns:
+          task: "Attività"
+          day: "Giorno"
+          priority: "Priorità"
+      upcoming:
+        title: "In arrivo"
+        description: "Le attività aperte di oggi e dei prossimi 7 giorni, prima le più importanti di ogni giorno. Sempre a oggi."
+        empty: "Niente da fare nei prossimi 7 giorni."
+      overdue:
+        title: "In ritardo"
+        description: "Attività degli ultimi 30 giorni mai completate, prima le più importanti. Sempre a oggi."
+        empty: "Niente in ritardo."
+      next_appointments:
+        title: "Prossimi appuntamenti"
+        description: "Gli appuntamenti non medici da oggi ai prossimi 30 giorni, prima i più vicini. Sempre a oggi."
+        empty: "Nessun appuntamento nei prossimi 30 giorni."
+        columns:
+          appointment: "Appuntamento"
+          day: "Giorno"
+          kind: "Tipo"
+          counterpart: "Con"
+      progress:
+        title: "Completate e non completate"
+        description: "Attività il cui giorno è passato in questo periodo. Quelle saltate contano come non completate; quelle annullate sono escluse."
+        empty: "Nessuna attività in questo periodo."
+        chart: "Attività completate e non completate nel tempo"
+        chart_empty: "Nessuna attività era ancora prevista in questo periodo."
+        done: "Completate"
+        not_done: "Non completate"
+        table_caption: "Completamento per attività"
+        done_of_due: "%{done} su %{due}"
+        columns:
+          task: "Attività"
+          done: "Completate"
+          rate: "Completamento"
+          next: "Prossima"
+      timing:
+        title: "Tempi e priorità"
+        description: "Quando le attività sono state completate rispetto al giorno previsto, e come procede ogni priorità."
+        empty: "Nessuna attività prevista in questo periodo."
+        chart: "Quando sono state completate le attività"
+        chart_empty: "Nessuna attività completata in questo periodo."
+        tasks: "Attività"
+        by_priority: "Completamento per priorità"
+        columns:
+          priority: "Priorità"
+          done: "Completate"
+          rate: "Completamento"
+      appointments:
+        title: "Appuntamenti"
+        description: "Gli appuntamenti non medici di questo periodo. La partecipazione è appuntamenti segnati come svolti ÷ appuntamenti previsti; quelli annullati non contano."
+        empty: "Nessun appuntamento in questo periodo."
+        chart: "Appuntamenti per esito"
+        outcomes:
+          taken: "Svolti"
+          missed: "Esito non registrato"
+          skipped: "Saltati"
+          cancelled: "Annullati"
+          upcoming: "In arrivo"
+        table_caption: "Partecipazione per tipo di appuntamento"
+        attended_of_due: "%{attended} su %{due}"
+        columns:
+          kind: "Tipo"
+          attended: "Svolti"
+          attendance: "Partecipazione"
+    healthcare:
+      title: "Salute"
+      kpis:
+        adherence: "Aderenza alle dosi"
+        missed_doses: "Dosi saltate"
+        spend: "Spese sanitarie"
+        out_of_range_labs: "Valori fuori intervallo"
+        hints:
+          adherence: "Dosi assunte ÷ dosi previste finora. Le dosi annullate o non ancora dovute non contano."
+          missed_doses: "Dosi il cui giorno è passato senza essere assunte, incluse quelle segnate come saltate."
+          spend: "Spese sanitarie pagate in questo periodo. Quelle in attesa, annullate o saltate sono escluse."
+          out_of_range_labs: "Valori degli esami segnalati come bassi, alti o anomali rispetto al loro intervallo di riferimento."
+        footnotes:
+          scheduled: "+ %{amount} ancora in programma"
+          critical:
+            one: "%{count} oltre l'intervallo critico"
+            other: "%{count} oltre l'intervallo critico"
+      medications:
+        title: "Farmaci"
+        description: "L'aderenza è dosi assunte ÷ dosi previste. La linea tratteggiata è l'obiettivo dell'80%."
+        empty: "Nessuna dose prevista in questo periodo."
+        adherence_chart: "Aderenza nel tempo"
+        timing_chart: "Quando sono state assunte le dosi"
+        timing_empty: "Nessuna dose assunta con orario registrato."
+        doses: "Dosi"
+        table_caption: "Aderenza per farmaco"
+        taken_of_due: "%{taken} su %{due}"
+        columns:
+          name: "Farmaco"
+          taken: "Assunte"
+          adherence: "Aderenza"
+          streak: "Serie"
+          next_dose: "Prossima dose"
+      appointments:
+        title: "Appuntamenti"
+        description: "La partecipazione è appuntamenti svolti ÷ appuntamenti previsti. Quelli annullati non contano."
+        empty: "Nessun appuntamento in questo periodo."
+        attendance: "Partecipazione"
+        status_chart: "Appuntamenti per esito"
+        outcomes:
+          taken: "Svolti"
+          missed: "Esito non registrato"
+          skipped: "Saltati"
+          cancelled: "Annullati"
+          upcoming: "In arrivo"
+        upcoming: "In arrivo"
+        table_caption: "Partecipazione per medico o struttura"
+        no_counterpart: "Nessun medico o struttura"
+        attended_of_due: "%{attended} su %{due}"
+        columns:
+          counterpart: "Medico o struttura"
+          attended: "Svolti"
+          attendance: "Partecipazione"
+      labs:
+        title: "Esami di laboratorio"
+        description: "Ogni valore è confrontato con il suo intervallo di riferimento. Valori in unità diverse sono elencati separatamente."
+        empty: "Nessun esame in questo periodo."
+        table_caption: "Ultimo valore per analita"
+        trend_title: "%{analyte} nel tempo"
+        columns:
+          analyte: "Analita"
+          latest: "Ultimo"
+          flag: "Intervallo"
+          trend: "Andamento"
+          readings: "Valori"
+      spending:
+        title: "Spese"
+        description: "Solo le spese sanitarie pagate, nella tua valuta principale."
+        empty: "Nessuna spesa sanitaria in questo periodo."
+        by_type_chart: "Spese per tipo"
+        other: "Altro"
+        collection_title: "Costo per terapia"
+        supply_title: "Forniture più costose"
+        columns:
+          collection: "Terapia"
+          supply: "Fornitura"
+          total: "Totale"
+          share: "Quota"
+      supplies:
+        title: "Forniture"
+        description: "I giorni rimasti sono scorta attuale ÷ consumo giornaliero (dal programma o dagli ultimi 30 giorni). Sempre a oggi."
+        empty: "Nessuna fornitura monitorata."
+        runway_chart: "Giorni di scorta rimasti"
+        days_left: "Giorni rimasti"
+        no_rates: "Consumo ancora insufficiente per stimare la durata delle scorte."
+        table_caption: "Scorte per fornitura"
+        expiring_title: "Lotti in scadenza"
+        expiry:
+          expired: "Scaduto"
+          expiring: "Scade"
+        severity:
+          critical: "Riordina ora"
+          warning: "Riordina a breve"
+          good: "OK"
+          unknown: "Nessuna stima"
+        columns:
+          supply: "Fornitura"
+          remaining: "In scorta"
+          days_left: "Giorni rimasti"
+          status: "Stato"
+          expires_on: "Scadenza"
+    finance:
+      title: "Finanze"
+      kpis:
+        income: "Entrate"
+        expenses: "Uscite"
+        net_cash_flow: "Flusso di cassa netto"
+        savings_rate: "Tasso di risparmio"
+        hints:
+          income: "Entrate incassate in questo periodo. Le voci in attesa o annullate sono escluse."
+          expenses: "Uscite pagate in questo periodo, risparmi esclusi. Quelle in attesa, annullate o saltate sono escluse."
+          net_cash_flow: "Entrate meno uscite, solo quelle già incassate o pagate. Il denaro messo da parte non conta né tra le une né tra le altre."
+          savings_rate: "Denaro messo da parte ÷ entrate. Mostra — se non ci sono ancora entrate registrate."
+      spending:
+        title: "Uscite"
+        description: "Uscite pagate in ogni categoria tranne i risparmi, nella tua valuta principale."
+        empty: "Nessuna uscita in questo periodo."
+        by_category_chart: "Uscite per categoria"
+        other: "Altro"
+        category_table_caption: "Uscite per categoria"
+        top_transactions_title: "Uscite più grandi"
+        columns:
+          category: "Categoria"
+          total: "Totale"
+          share: "Quota"
+          date: "Data"
+          title: "Descrizione"
+          amount: "Importo"
+      income:
+        title: "Entrate"
+        description: "Entrate incassate in ogni categoria, nella tua valuta principale."
+        empty: "Nessuna entrata in questo periodo."
+        by_category_chart: "Entrate per categoria"
+        other: "Altro"
+        category_table_caption: "Entrate per categoria"
+        columns:
+          category: "Categoria"
+          total: "Totale"
+          share: "Quota"
+      settlements:
+        title: "Chi deve cosa"
+        description: "Saldo netto delle uscite e dei pagamenti registrati a nome di un membro della casa, in questo periodo."
+        empty: "Niente da saldare in questo periodo."
+        table_caption: "Saldi"
+        columns:
+          debtor: "Deve"
+          creditor: "A"
+          amount: "Importo"
+
+    pantry:
+      title: "Dispensa"
+      kpis:
+        planned: "Pasti pianificati"
+        eaten: "Pasti come da piano"
+        open_items: "Articoli da comprare"
+        grocery_spend: "Spesa alimentare"
+        hints:
+          planned: "Pasti pianificati per oggi e i prossimi 7 giorni non ancora consumati, qualunque sia il periodo selezionato."
+          eaten: "Pasti segnati come consumati ÷ pasti previsti in questo periodo. Quelli annullati e quelli non ancora previsti non contano."
+          open_items: "Articoli non ancora comprati nelle tue liste della spesa attive, a oggi."
+          grocery_spend: "Spesa alimentare pagata in questo periodo, escluse le voci in attesa, annullate o saltate."
+      short_meals:
+        title: "Pasti con ingredienti insufficienti"
+        description: "Pasti cucinati in casa, pianificati per oggi e i prossimi 7 giorni, le cui ricette richiedono più di quanto c'è in dispensa a oggi."
+        empty: "La dispensa copre tutti i pasti pianificati."
+        columns:
+          meal: "Pasto"
+          day: "Giorno"
+          missing: "Manca"
+      lists:
+        title: "Liste della spesa"
+        description: "Le tue liste della spesa attive, prima quelle con più articoli da comprare."
+        empty: "Nessuna lista della spesa attiva."
+        bought: "%{checked} su %{total}"
+        columns:
+          list: "Lista"
+          bought: "Comprati"
+          left: "Da comprare"
+      meals:
+        title: "Pasti rispetto al piano"
+        description: "I pasti pianificati in questo periodo: consumati, non consumati (saltati, o mai segnati una volta passato il giorno) e ancora da venire. Quelli annullati sono esclusi."
+        empty: "Nessun pasto pianificato in questo periodo."
+        chart: "Pasti consumati e non consumati nel tempo"
+        table_caption: "Pasti consumati come da piano, per tipo di pasto"
+        eaten_of_due: "%{eaten} su %{due}"
+        outcomes:
+          eaten: "Consumati"
+          not_eaten: "Non consumati"
+          upcoming: "Ancora da venire"
+        columns:
+          meal_type: "Pasto"
+          eaten: "Consumati"
+          rate: "Come da piano"
+      groceries:
+        title: "Spesa alimentare"
+        description: "La spesa alimentare pagata in questo periodo, nella tua valuta principale, e cosa hai comprato più spesso."
+        empty: "Nessuna spesa alimentare in questo periodo."
+        chart: "Spesa alimentare nel tempo"
+        chart_empty: "Nessuna spesa alimentare in questo periodo."
+        most_bought: "Comprati più spesso"
+        columns:
+          ingredient: "Ingrediente"
+          times: "Volte"
+          quantity: "Quantità"
+
+  statistics:
+    no_data: "—"
+    loading: "Caricamento…"
+    target_label: "Obiettivo"
+    empty_chart: "Niente da mostrare in questo periodo."
+    days:
+      one: "%{count} giorno"
+      other: "%{count} giorni"
+    hours:
+      one: "%{hours} ora"
+      other: "%{hours} ore"
+    delta:
+      points: "%{value} punti"
+      absolute: "%{value}"
+      vs_previous: "rispetto al periodo precedente"
+      no_change: "Nessuna variazione"
+      no_comparison: "Nessun dato precedente"
+      trends:
+        improving: "in miglioramento"
+        worsening: "in peggioramento"
+        neutral: "variato"
+        flat: "invariato"
+    timing:
+      on_time: "In orario"
+      early:
+        one: "%{count} giorno prima"
+        other: "%{count} giorni prima"
+      late:
+        one: "%{count} giorno dopo"
+        other: "%{count} giorni dopo"
+    member_filter:
+      label: "Dati di chi"
+      everyone: "Tutti"
+      me: "%{name} (io)"
+    period_selector:
+      label: "Periodo"
+      last_30_days: "Ultimi 30 giorni"
+      current_year: "Anno corrente"
+      current_month: "Mese corrente"
+      previous_month: "Mese precedente"
+      next_month: "Mese successivo"
+      from: "Da"
+      to: "A"
+      apply: "Applica"
+    attention:
+      title: "Da controllare"
+      resolve: "Segna %{subject} come saltato"
+      resolve_all: "Segna tutto come saltato"
+      resolve_all_confirm: "Segnare come saltato tutto quello che c'è qui? Quello che non è mai stato registrato resta così, come saltato."
+      notices:
+        resolved: "Segnato come saltato."
+        resolved_all: "Segnato tutto come saltato."
+        nothing: "Non c'è più niente qui da segnare come saltato."
+      times:
+        one: "una volta"
+        other: "%{count} volte"
+      severity:
+        critical: "Urgente"
+        warning: "A breve"
+      kinds:
+        overdue_dose: "Prevista %{time}, non ancora assunta"
+        skipped_dose: "Dose saltata il %{date}: %{reason}"
+        missed_dose: "Dose saltata il %{date}"
+        appointment_outcome: "Era il %{date}. Registra com'è andata"
+        supply_running_out:
+          one: "Finisce tra %{count} giorno"
+          other: "Finisce tra %{count} giorni"
+        supply_low_stock: "Sotto la soglia di scorta minima"
+        batch_expiring: "Un lotto scade il %{date}"
+        batch_expired: "Un lotto è scaduto il %{date} ed è ancora in scorta"
+        critical_lab_value: "%{value} il %{date}, oltre l'intervallo critico"
+        overdue_transaction: "Non registrata entro il %{date}"
+        overdue_task: "Era prevista per il %{date}"
+        meal_short_on_ingredients: "Il %{date}, manca: %{ingredients}"
+        unrecorded_meal: "Previsto per il %{date}, non segnato come consumato"
+        pending_lab_result: "Era il %{date}. Registra i valori"
+  # Rails' own words, which English has from Rails itself and Italian from
+  # here (test/i18n_test.rb checks none is missing): numbers and sizes, lists
+  # ("a, b e c"), validation messages, how long ago, a form's defaults.
+  number:
+    format:
+      separator: ","
+      delimiter: "."
+      precision: 2
+      round_mode: "default"
+      significant: false
+      strip_insignificant_zeros: false
+    currency:
+      format:
+        format: "%n %u"
+        negative_format: "-%n %u"
+        unit: "€"
+        separator: ","
+        delimiter: "."
+        precision: 2
+        significant: false
+        strip_insignificant_zeros: false
+    percentage:
+      format:
+        format: "%n%"
+        delimiter: ""
+    precision:
+      format:
+        delimiter: ""
+    human:
+      format:
+        delimiter: ""
+        precision: 3
+        significant: true
+        strip_insignificant_zeros: true
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one: "B"
+            other: "B"
+          kb: "KB"
+          mb: "MB"
+          gb: "GB"
+          tb: "TB"
+          pb: "PB"
+          eb: "EB"
+          zb: "ZB"
+      decimal_units:
+        format: "%n %u"
+        units:
+          unit: ""
+          thousand: "mila"
+          million: "milioni"
+          billion: "miliardi"
+          trillion: "bilioni"
+          quadrillion: "biliardi"
+
+  support:
+    array:
+      words_connector: ", "
+      two_words_connector: " e "
+      last_word_connector: " e "
+
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      model_invalid: "Non valido: %{errors}"
+      inclusion: "non è tra le scelte possibili"
+      exclusion: "non è disponibile"
+      invalid: "non è valido"
+      confirmation: "non coincide con %{attribute}"
+      accepted: "deve essere accettato"
+      empty: "non può essere vuoto"
+      blank: "non può essere vuoto"
+      present: "deve restare vuoto"
+      too_long:
+        one: "è troppo lungo (massimo 1 carattere)"
+        other: "è troppo lungo (massimo %{count} caratteri)"
+      password_too_long: "è troppo lunga"
+      too_short:
+        one: "è troppo corto (minimo 1 carattere)"
+        other: "è troppo corto (minimo %{count} caratteri)"
+      wrong_length:
+        one: "ha la lunghezza sbagliata (deve essere di 1 carattere)"
+        other: "ha la lunghezza sbagliata (deve essere di %{count} caratteri)"
+      not_a_number: "non è un numero"
+      not_an_integer: "deve essere un numero intero"
+      greater_than: "deve essere maggiore di %{count}"
+      greater_than_or_equal_to: "deve essere almeno %{count}"
+      equal_to: "deve essere %{count}"
+      less_than: "deve essere minore di %{count}"
+      less_than_or_equal_to: "deve essere al massimo %{count}"
+      other_than: "deve essere diverso da %{count}"
+      in: "deve essere compreso in %{count}"
+      odd: "deve essere dispari"
+      even: "deve essere pari"
+      required: "deve esserci"
+      taken: "è già in uso"
+
+  datetime:
+    distance_in_words:
+      half_a_minute: "mezzo minuto"
+      less_than_x_seconds:
+        one: "meno di un secondo"
+        other: "meno di %{count} secondi"
+      x_seconds:
+        one: "1 secondo"
+        other: "%{count} secondi"
+      less_than_x_minutes:
+        one: "meno di un minuto"
+        other: "meno di %{count} minuti"
+      x_minutes:
+        one: "1 minuto"
+        other: "%{count} minuti"
+      about_x_hours:
+        one: "circa un'ora"
+        other: "circa %{count} ore"
+      x_days:
+        one: "1 giorno"
+        other: "%{count} giorni"
+      about_x_months:
+        one: "circa un mese"
+        other: "circa %{count} mesi"
+      x_months:
+        one: "1 mese"
+        other: "%{count} mesi"
+      about_x_years:
+        one: "circa un anno"
+        other: "circa %{count} anni"
+      over_x_years:
+        one: "oltre un anno"
+        other: "oltre %{count} anni"
+      almost_x_years:
+        one: "quasi un anno"
+        other: "quasi %{count} anni"
+    prompts:
+      year: "Anno"
+      month: "Mese"
+      day: "Giorno"
+      hour: "Ora"
+      minute: "Minuto"
+      second: "Secondi"
+    relative:
+      future: "tra %{time}"
+      past: "%{time} fa"
+
+  helpers:
+    select:
+      prompt: "Seleziona"
+    submit:
+      create: "Crea %{model}"
+      update: "Aggiorna %{model}"
+      submit: "Invia %{model}"
+
+  sessions:
+    new:
+      title: "Bentornato"
+      subtitle: "Accedi alla tua casa"
+      login_placeholder: "Nome utente o email"
+      password_placeholder: "Password"
+      remember_me: "Ricordami"
+      submit: "Accedi"
+      forgot: "Password dimenticata? Chi gestisce la tua casa può darti un link per sceglierne una nuova."
+
+  invitations:
+    edit:
+      title: "Unisciti a %{household}"
+      subtitle: "Hai ricevuto un invito per %{household}. Scegli come accedere."
+      username_label: "Nome utente"
+      first_name_label: "Nome"
+      password_label: "Password"
+      password_placeholder: "Scegli una password"
+      password_confirmation_label: "Conferma password"
+      password_confirmation_placeholder: "Ripeti la password"
+      submit: "Accetta invito"
+
+  # The installation's settings, one section each: a step of the first setup and a card on /admin/settings (Installation::*, Views::Installation::*).
+  installation:
+    no_limit: "Nessun limite"
+    allowances:
+      title: "Cosa permette questa installazione"
+      hint: "Lo stesso per ogni casa qui. Disattivare qualcosa lo nasconde; niente di ciò che è stato conservato viene eliminato."
+      switches:
+        assistant:
+          name: "L'assistente"
+          help: "Una chat che risponde a domande sulla casa e fa modifiche per i suoi membri, con il modello scelto nelle impostazioni dell'assistente."
+        uploads:
+          name: "File"
+          help: "Caricare file e crearne link pubblici. Quando è disattivato, ciò che c'è già si può ancora vedere e scaricare."
+        pictures:
+          name: "Foto nei messaggi"
+          help: "Foto nelle conversazioni e foto inviate all'assistente."
+        invitations:
+          name: "I membri invitano persone"
+          help: "Ogni membro può invitare persone nella propria casa. L'amministratore può sempre."
+        push_notifications:
+          name: "Notifiche push"
+          help: "Telefoni e computer ricevono le notifiche della campanella anche ad app chiusa, quando chi li usa lo permette."
+        release_check:
+          name: "Cerca nuove versioni"
+          help: "Una volta al giorno questa copia chiede a GitHub se è uscita una versione più recente, e lo dice all'amministratore."
+      assistant_messages_per_day: "Messaggi all'assistente per casa, al giorno"
+      assistant_messages_per_day_help: "Quanto una casa può chiedere all'assistente in un giorno, tutti i membri insieme. Lascia vuoto per nessun limite."
+      files_quota: "File per casa"
+      files_quota_unit: "Unità"
+      quota_units:
+        MB: "MB"
+        GB: "GB"
+      files_quota_help: "Quanto una casa può conservare in File, tutti i membri insieme."
+      household_size: "Persone per casa"
+      household_size_help: "Tutti i membri di una casa, compresi gli inviti ancora in attesa. Abbassarlo non toglie nessuno. Lascia vuoto per nessun limite."
+      invitations_per_member: "Inviti per membro"
+      invitations_per_member_help: "Quante persone ogni membro può invitare, l'amministratore compreso; un invito annullato non conta più. Lascia vuoto per nessun limite."
+    books:
+      title: "Libreria"
+      hint: "I libri si trovano dall'ISBN su Open Library, che non chiede chiavi. Google Books è una seconda fonte, per le edizioni che Open Library non ha (quasi tutte quelle italiane): la sua chiave è gratuita dalla console di Google Cloud, con la Books API attivata."
+      google_books_api_key: "Chiave API Google Books"
+      book_lookups_per_day: "Ricerche di libri per casa, al giorno"
+      book_lookups_per_day_help: "Quante volte al giorno una casa può cercare un libro. Lascia vuoto per nessun limite."
+    deploy_token:
+      title: "Deploy"
+      hint: "Un token GitHub fine-grained per %{repository} con Actions: lettura e scrittura, Contents: lettura e scrittura, Deployments: lettura, Pull requests: lettura e scrittura e Variables: lettura e scrittura. Permette alla pagina Deploy di avviare la CI e il workflow Deploy, leggere cosa gira dove e cosa partirebbe, unire la pull request di un ramo, e sospendere o riprendere i deploy automatici. Viene verificato quando lo salvi."
+      expires: "Scade il %{date}."
+      expires_soon: "Scade tra %{days} giorni: crea un nuovo token su GitHub e salvalo qui."
+      expired: "Scaduto il %{date}: la pagina Deploy non può interrogare GitHub finché non ne salvi uno nuovo."
+    demo_password:
+      title: "Casa demo"
+      hint: "La password di alex.demo, sam.demo e robin.demo. Vale dalla prossima ricostruzione: ogni notte, o con bin/rails demo:seed."
+    secret:
+      saved: "Salvato, finisce con …%{last4}"
+      from_env: "Dall'ambiente (%{variable})"
+      clear: "Dimentica il valore salvato: %{name}"
+      clear_confirm: "Dimenticare il valore salvato (%{name})? Se c'è, subentra quello dell'ambiente."
+      names:
+        google_books_api_key: "Chiave API Google Books"
+        deploy_dispatch_token: "Token GitHub per il deploy"
+        demo_password: "Password della demo"
+      none:
+        google_books_api_key: "Non impostata: solo Open Library"
+        deploy_dispatch_token: "Non impostato: nessun pulsante nella pagina Deploy"
+        demo_password: "Non impostata: quella predefinita, demo-household"
+
+  setup:
+    title: "Benvenuti in Household"
+    subtitle: "Non c'è ancora nessuno. Configura l'app una volta sola, qui: il tuo account, la tua casa, cosa permette l'app e chi altro vive con te. Tutto si può cambiare dopo."
+    progress: "Passo %{current} su %{total}: %{title}"
+    back: "Indietro"
+    next: "Avanti"
+    submit: "Crea la casa"
+    steps:
+      account:
+        title: "Tu"
+        hint: "Il tuo account gestisce l'app: decidi cosa permette e inviti tutti gli altri."
+        first_name: "Nome"
+        last_name: "Cognome"
+        username: "Nome utente"
+        email: "Email"
+        password: "Password"
+        password_confirmation: "Conferma password"
+        locale: "Lingua"
+        locale_help: "La lingua in cui l'app ti parla. Ognuno sceglie la propria."
+      assistant:
+        title: "L'assistente"
+      household:
+        title: "La tua casa"
+        hint: "Le persone che vivono insieme e condividono quello che si pianifica qui."
+        name: "Nome della casa"
+        name_placeholder: "es. Casa Rossi"
+        currency: "Valuta"
+        currency_help: "In cosa contano i pagamenti e le pagine delle finanze: un codice di tre lettere, come EUR."
+      housemates:
+        title: "Chi altro vive qui"
+        hint: "Per email, quante ne consentono i limiti impostati prima. Ognuna riceve un link per entrare, mostrato alla fine perché tu glielo dia; non viene inviata nessuna email. Puoi invitare altre persone anche dopo."
+        first_name: "Nome"
+        email: "Email"
+        add: "Aggiungi qualcuno"
+        remove: "Togli questa persona"
+    review:
+      title: "Controlla e crea"
+      hint: "Tutto quello che hai scelto, come verrà salvato. Modifica torna a quel passo; non si salva niente fino a Crea."
+      change: "Modifica"
+      "on": "Sì"
+      "off": "No"
+      set: "Impostata"
+      unset: "Non impostata"
+    done:
+      title: "La tua casa è pronta"
+      hint: "%{household} è configurata, e sei dentro."
+      links: "Link di invito"
+      links_hint: "Ogni link è mostrato solo ora. Copialo e mandalo tu alla persona: è il modo in cui entra."
+      link_label: "Link di invito di %{name}"
+      home: "Vai alla casa"
+    code:
+      subtitle: "Scrivi il codice di configurazione stampato sulla macchina dove gira questa copia. Solo chi gestisce la macchina può configurarla."
+      none: "Questa copia non ha ancora un codice di configurazione, quindi nessuno può configurarla dal browser."
+      command_intro: "Esegui questo comando sulla macchina, dentro il container dell'app, poi torna su questa pagina:"
+      label: "Codice di configurazione"
+      placeholder: "XXXX-XXXX-XXXX-XXXX"
+      help: "Stampato quando questa copia è stata installata, o dal server di sviluppo. L'hai perso? bin/rails setup:code sulla macchina ne crea uno nuovo."
+      wrong: "Non è il codice di configurazione di questa copia."
+      submit: "Continua"
+    notices:
+      created: "%{household} è pronta. Hai effettuato l'accesso come primo membro e amministratore dell'app."
+
+  demo:
+    welcome: "Questa è una demo: i dati sono inventati, condivisi con gli altri visitatori, e ripartono da capo ogni notte."
+    sign_in_link: "Prova la demo"
+    sign_in:
+      title: "Prova la demo"
+      pick: "Ci vivono tre persone. Guardala con gli occhi di una di loro:"
+      enter_as: "Entra come %{name}"
+      account: "Oppure entra con un account tuo:"
+    banner:
+      text: "Demo: dati inventati, azzerati ogni notte"
+      short: "Demo"
+      see_as: "Guarda la casa come"
+      see_as_name: "Guarda la casa come %{name}"
+
+  rate_limit:
+    exceeded: "Troppi tentativi. Aspetta un momento e riprova."
+
+  passwords:
+    edit:
+      title: "Scegli una nuova password"
+      subtitle: "Poi accedi con quella."
+      password_label: "Nuova password"
+      password_confirmation_label: "Conferma la nuova password"
+      submit: "Salva la password"
+
+  households:
+    people:
+      invitations_off: "Qui gli inviti sono disattivati."
+      count:
+        one: "%{count} persona su %{max}."
+        other: "%{count} persone su %{max}."
+      count_unlimited:
+        one: "%{count} persona."
+        other: "%{count} persone."
+      invites_left:
+        one: "Puoi invitarne ancora %{count}."
+        other: "Puoi invitarne ancora %{count}."
+      no_invites_left: "Hai usato i tuoi %{max} inviti."
+      full: "La casa è al completo."
+      owner: "proprietario"
+      password_link: "Link per impostare la password"
+      password_link_confirm: "Creare un link per %{name} per impostare la password? Quelli precedenti smettono di funzionare."
+      remove: "Rimuovi dalla casa"
+      remove_confirm: "Rimuovere %{name} dalla casa? Tutto ciò che ha registrato qui viene eliminato."
+      you: "tu"
+      invited: "Invitati"
+      invited_by: "Invito di %{name}"
+      valid_until: "link valido fino al %{date}"
+      expired: "link scaduto"
+      renew: "Nuovo link"
+      renew_confirm: "Creare un nuovo link per %{email}? Quello che ha smette di funzionare."
+      cancel: "Annulla l'invito"
+      cancel_confirm: "Annullare l'invito di %{email}? Il suo link smette di funzionare."
+    link:
+      label: "Link per accettare l'invito"
+      invitation: "Dai tu questo link a %{email}: è il modo per entrare, e viene mostrato solo ora."
+      password: "Un link con cui %{name} può scegliere la password, valido %{hours} ore. Daglielo tu; viene mostrato solo ora."
+      copy: "Copia il link"
+      copied: "Copiato"
+    invite:
+      title: "Invita qualcuno"
+      email_label: "La sua email"
+      email_placeholder: "nome@esempio.it"
+      first_name_label: "Nome (facoltativo)"
+      what_happens: "Riceverà un link per unirsi a %{household} e sceglierà nome utente e password."
+      submit: "Invita"
+    notices:
+      invited: "Invito creato per %{email}: dagli il link."
+      password_link: "Link creato per %{name}."
+      removed: "%{name} non fa più parte della casa."
+      cancelled: "Invito di %{email} annullato."
+    # Per cosa si chiede la password dell'amministratore: il sottotitolo della finestra e il suo pulsante.
+    password_check:
+      password_link: "Un link con cui %{name} imposta la password"
+      password_link_submit: "Crea il link"
+      remove: "Rimuovi %{name} dalla casa"
+      remove_submit: "Rimuovi"
+
+  # Un campo password (Components::PasswordField): il pulsante per mostrarla, la regola sotto una nuova.
+  password_field:
+    show: "Mostra password"
+    rule:
+      one: "Almeno %{count} carattere."
+      other: "Almeno %{count} caratteri."
+
+  tasks:
+    priority:
+      low: "Bassa"
+      medium: "Media"
+      high: "Alta"
+      urgent: "Urgente"
+    status:
+      pending: "In attesa"
+      in_progress: "In corso"
+      completed: "Completata"
+      cancelled: "Annullata"
+      skipped: "Saltata"
+    default_title: "Attività"
+    form:
+      new_title: "Nuova attività"
+      edit_title: "Modifica attività"
+      title_label: "Titolo"
+      title_placeholder: "Cosa c'è da fare?"
+      description_label: "Note"
+      description_placeholder: "Aggiungi dettagli…"
+      priority_label: "Priorità"
+      status_label: "Stato"
+      create: "Aggiungi attività"
+      update: "Salva modifiche"
+    notices:
+      created: "Attività aggiunta."
+      updated: "Attività aggiornata."
+      completed: "Attività segnata come completata."
+      uncompleted: "Attività segnata come non completata."
+    completion:
+      days_early:
+        one: "1 giorno in anticipo"
+        other: "%{count} giorni in anticipo"
+      days_late:
+        one: "1 giorno in ritardo"
+        other: "%{count} giorni in ritardo"
+      on_time: "In orario"
+
+  transactions:
+    kind:
+      income: "Entrata"
+      expense: "Uscita"
+    category:
+      salary: "Stipendio"
+      freelance: "Freelance"
+      bonus: "Bonus"
+      refund: "Rimborso"
+      housing: "Casa"
+      utilities: "Utenze"
+      groceries: "Spesa alimentare"
+      dining_out: "Ristoranti e take-away"
+      transportation: "Trasporti"
+      healthcare: "Salute"
+      education: "Istruzione"
+      entertainment: "Svago"
+      shopping: "Acquisti"
+      insurance: "Assicurazione"
+      taxes: "Tasse"
+      savings: "Risparmi"
+      debt: "Debiti"
+      miscellaneous: "Varie"
+    payment_method:
+      card: "Carta"
+      cash: "Contanti"
+      bank_transfer: "Bonifico"
+    status:
+      pending: "In attesa"
+      completed: "Pagato"
+      received: "Ricevuto"
+      cancelled: "Annullato"
+      skipped: "Saltato"
+    default_title: "Pagamento"
+    attached_to: "Collegato a: %{thing}"
+    attached_cost:
+      mark_paid: "Segna come pagato"
+      mark_unpaid: "Segna come non pagato"
+      edit: "Modifica pagamento"
+      status:
+        pending: "Da pagare"
+        completed: "Pagato"
+        cancelled: "Annullato"
+        skipped: "Saltato"
+    form:
+      new_title: "Nuovo pagamento"
+      edit_title: "Modifica pagamento"
+      title_label: "Titolo"
+      title_placeholder: "A cosa si riferisce questo pagamento?"
+      description_label: "Note"
+      description_placeholder: "Aggiungi note…"
+      amount_label: "Importo"
+      amount_placeholder: "0.00"
+      kind_label: "Tipo"
+      category_label: "Categoria"
+      counterparty_label: "Pagato a o da"
+      counterparty_text_label: "Nome"
+      counterparty_profile_label: "Membro della casa"
+      counterparty_mode_text: "Qualcuno fuori dalla casa"
+      counterparty_mode_profile: "Un membro della casa"
+      counterparty_placeholder: "Un negozio, un'azienda, una persona"
+      counterparty_profile_placeholder: "Scegli un membro della casa…"
+      payment_method_label: "Metodo di pagamento"
+      payment_method_blank: "Non indicato"
+      status_label: "Stato"
+      create: "Aggiungi pagamento"
+      update: "Salva modifiche"
+    notices:
+      created: "Pagamento aggiunto."
+      updated: "Pagamento aggiornato."
+      completed: "Segnato come pagato."
+      uncompleted: "Segnato come da pagare."
+      received: "Segnato come ricevuto."
+      unreceived: "Segnato come da ricevere."
+    completion:
+      days_early:
+        one: "1 giorno in anticipo"
+        other: "%{count} giorni in anticipo"
+      days_late:
+        one: "1 giorno in ritardo"
+        other: "%{count} giorni in ritardo"
+      on_time: "In orario"
+
+  appointments:
+    kind:
+      medical: "Medico"
+      work: "Lavoro"
+      social: "Sociale"
+      personal: "Personale"
+      other: "Altro"
+    status:
+      pending: "In attesa"
+      completed: "Svolto"
+      cancelled: "Annullato"
+      skipped: "Saltato"
+    default_title: "Appuntamento"
+    form:
+      new_title: "Nuovo appuntamento"
+      edit_title: "Modifica appuntamento"
+      title_label: "Titolo"
+      kind_label: "Tipo"
+      # What a form suggests for the title and the place, per kind (Appointment::Kind#placeholder_key).
+      placeholders:
+        medical:
+          title: "es. Visita endocrinologica di controllo"
+          location: "Indirizzo o struttura"
+        work:
+          title: "es. Colloquio di lavoro"
+          location: "Indirizzo o link della videochiamata"
+        social:
+          title: "es. Cena con gli amici"
+          location: "Indirizzo o luogo"
+        personal:
+          title: "es. Parrucchiere"
+          location: "Indirizzo"
+        other:
+          title: "es. Riunione"
+          location: "Indirizzo"
+      counterpart:
+        medical:
+          label: "Medico o struttura"
+          placeholder: "Nome del medico o della struttura"
+        work:
+          label: "Con"
+          placeholder: "Azienda o persona"
+        social:
+          label: "Con"
+          placeholder: "Chi incontri"
+        personal:
+          label: "Con"
+          placeholder: "Con chi, se qualcuno"
+        other:
+          label: "Con"
+          placeholder: "Con chi, se qualcuno"
+      start_time_label: "Orario"
+      location_label: "Luogo"
+      notes_label: "Note"
+      notes_placeholder: "Eventuali note su questo appuntamento"
+      status_label: "Stato"
+      create: "Aggiungi appuntamento"
+      update: "Salva modifiche"
+      cost_section:
+        label: "Costo (facoltativo)"
+        help: "Registra quanto è costato questo appuntamento. Titolo, tipo, categoria e destinatario vengono compilati automaticamente."
+      transaction_title_with_counterpart: "Appuntamento con %{counterpart} il %{date}"
+      transaction_title: "Appuntamento il %{date}"
+    notices:
+      created: "Appuntamento aggiunto."
+      updated: "Appuntamento aggiornato."
+      completed: "Appuntamento segnato come svolto."
+      uncompleted: "Appuntamento segnato come non svolto."
+    completion:
+      days_early:
+        one: "1 giorno in anticipo"
+        other: "%{count} giorni in anticipo"
+      days_late:
+        one: "1 giorno in ritardo"
+        other: "%{count} giorni in ritardo"
+      on_time: "In orario"
+
+  meals:
+    default_title: "Pasto"
+    low_stock_warning: "Alcuni ingredienti mancano o stanno finendo in dispensa."
+    kind:
+      home: "A casa"
+      eating_out: "Al ristorante"
+      ordered_in: "Ordinato a domicilio"
+    meal_type:
+      breakfast: "Colazione"
+      lunch: "Pranzo"
+      dinner: "Cena"
+      snack: "Spuntino"
+    status:
+      pending: "In attesa"
+      completed: "Consumato"
+      cancelled: "Annullato"
+      skipped: "Saltato"
+    form:
+      new_title: "Nuovo pasto"
+      edit_title: "Modifica pasto"
+      kind_label: "Dove"
+      meal_type_label: "Quale pasto"
+      meal_type_blank: "Non specificato"
+      title_label: "Nome"
+      title_placeholder: "es. Pizzeria Da Mario"
+      title_help: "Obbligatorio se mangi fuori o ordini a domicilio. Per un pasto cucinato in casa, se resta vuoto prende i nomi delle ricette."
+      notes_label: "Note"
+      notes_placeholder: "Eventuali note su questo pasto"
+      status_label: "Stato"
+      create: "Aggiungi pasto"
+      update: "Salva modifiche"
+      recipes:
+        label: "Ricette"
+        help: "Segnando il pasto come consumato, gli ingredienti vengono tolti dalla dispensa."
+        add: "Aggiungi ricetta"
+        remove: "Rimuovi ricetta"
+        placeholder: "Scegli una ricetta…"
+      cost_section:
+        label: "Costo (facoltativo)"
+        help: "Registra quanto è costato questo pasto. Titolo, tipo e categoria vengono compilati automaticamente."
+      transaction_title: "%{title} il %{date}"
+    notices:
+      created: "Pasto aggiunto."
+      updated: "Pasto aggiornato."
+      completed: "Pasto segnato come consumato."
+      uncompleted: "Pasto segnato come non consumato."
+    completion:
+      days_early:
+        one: "1 giorno in anticipo"
+        other: "%{count} giorni in anticipo"
+      days_late:
+        one: "1 giorno in ritardo"
+        other: "%{count} giorni in ritardo"
+      on_time: "In orario"
+
+  medications:
+    at_time: "alle %{time}"
+    anchors:
+      CM: "a colazione"
+      CD: "a pranzo"
+      CV: "a cena"
+      HS: "prima di dormire"
+    skipped_reason:
+      refused: "Rifiutata"
+      not_available: "Non disponibile"
+      held: "Sospeso su indicazione"
+      forgot: "Dimenticata"
+      other: "Altro motivo"
+    kind:
+      injection: "Iniezione"
+      pill: "Compressa"
+      drops: "Gocce"
+    area:
+      thigh: "Coscia"
+      glute: "Gluteo"
+      arm: "Braccio"
+    side:
+      left: "Sinistra"
+      right: "Destra"
+    position:
+      thigh:
+        left: "Coscia sinistra"
+        right: "Coscia destra"
+      glute:
+        left: "Gluteo sinistro"
+        right: "Gluteo destro"
+      arm:
+        left: "Braccio sinistro"
+        right: "Braccio destro"
+    status:
+      pending: "In attesa"
+      completed: "Assunta"
+      cancelled: "Annullata"
+      skipped: "Saltata"
+    default_title: "Farmaco"
+    low_stock_warning: "La fornitura collegata sta per finire: conviene ricomprarla presto."
+    form:
+      new_title: "Nuovo farmaco"
+      edit_title: "Modifica farmaco"
+      name_label: "Nome"
+      name_placeholder: "Nome del farmaco"
+      notes_label: "Note"
+      notes_placeholder: "Eventuali note su questo farmaco"
+      kind_label: "Tipo"
+      area_label: "Zona"
+      side_label: "Lato"
+      supply_uses:
+        label: "Forniture usate (facoltativo)"
+        help: "Registra cos'altro usa questa dose (siringhe, aghi, salviette…). Le scorte vengono scalate automaticamente quando la dose viene segnata come assunta."
+        add: "Aggiungi fornitura"
+        supply_placeholder: "Scegli una fornitura…"
+        quantity_placeholder: "Qtà"
+        quantity_label: "Quantità"
+        remove: "Rimuovi"
+      times:
+        label: "Orari"
+        help: "Quante volte al giorno, e quando. Lascia 0 per una dose al giorno senza un orario fisso."
+        per_day: "volte al giorno"
+        more: "Una dose al giorno in più"
+        fewer: "Una dose al giorno in meno"
+        custom: "A un orario"
+        remove: "Rimuovi questa dose"
+      skipped_reason_label: "Motivo"
+      skipped_reason_placeholder: "Nessun motivo"
+      taken_at_label: "Assunta alle"
+      status_label: "Stato"
+      create: "Aggiungi farmaco"
+      update: "Salva modifiche"
+    notices:
+      created: "Farmaco aggiunto."
+      updated: "Farmaco aggiornato."
+      completed: "Dose segnata come assunta."
+      uncompleted: "Dose segnata come non assunta."
+    completion:
+      days_early:
+        one: "1 giorno in anticipo"
+        other: "%{count} giorni in anticipo"
+      days_late:
+        one: "1 giorno in ritardo"
+        other: "%{count} giorni in ritardo"
+      on_time: "In orario"
+
+  lab_test_results:
+    add_cost: "Aggiungi costo"
+    status:
+      pending: "In attesa"
+      completed: "Registrato"
+      cancelled: "Annullato"
+      skipped: "Saltato"
+    default_title: "Esame"
+    results_count:
+      one: "1 valore"
+      other: "%{count} valori"
+    has_abnormal_result: "Uno o più valori sono fuori dall'intervallo di riferimento"
+    form:
+      new_title: "Nuovo esame"
+      edit_title: "Modifica esame"
+      title_label: "Titolo"
+      title_placeholder: "es. Esami del sangue trimestrali"
+      notes_label: "Note"
+      notes_placeholder: "Eventuali note su questo esame"
+      status_label: "Stato"
+      create: "Aggiungi esame"
+      update: "Salva modifiche"
+      entries:
+        label: "Valori"
+        analyte_label: "Analita"
+        value_label: "Valore"
+        unit_label: "Unità"
+        analyte_placeholder: "Digita o scegli un analita"
+        value_placeholder: "es. 95"
+        unit_placeholder: "Digita o scegli un'unità"
+        add: "Aggiungi valore"
+        remove: "Rimuovi valore"
+        flags:
+          normal: "Normale"
+          low: "Basso"
+          high: "Alto"
+          abnormal: "Anomalo"
+    notices:
+      created: "Esame aggiunto."
+      updated: "Esame aggiornato."
+      completed: "Esame segnato come registrato."
+      uncompleted: "Esame segnato come non registrato."
+    completion:
+      days_early:
+        one: "1 giorno in anticipo"
+        other: "%{count} giorni in anticipo"
+      days_late:
+        one: "1 giorno in ritardo"
+        other: "%{count} giorni in ritardo"
+      on_time: "In orario"
+
+  # Condividere qualcosa con un membro della casa (SharesController, Views::Shares::Modal).
+  shares:
+    share: "Condividi"
+    with_label: "Condividi con"
+    select_placeholder: "Scegli una persona…"
+    no_one_left: "Nessun altro con cui condividere."
+    shared_with: "Persone con accesso"
+    shared_with_names: "Condiviso con %{names}"
+    owner: "Di %{name}"
+    not_shared: "Per ora solo tu."
+    stop: "Smetti di condividere con %{name}"
+    notices:
+      shared: "Condiviso con %{name}."
+      unshared: "Non più condiviso con %{name}."
+    errors:
+      pick_someone: "Scegli una persona con cui condividere."
+    # Il modale di ogni tipo: il titolo e cosa vuol dire condividerlo.
+    things:
+      event:
+        title: "Condividi \"%{name}\""
+        subtitle: "Chi lo riceve lo vede nel suo calendario e può modificarlo."
+      collection:
+        title: "Condividi \"%{name}\""
+        subtitle: "Chi la riceve vede tutto ciò che contiene."
+      recipe:
+        title: "Condividi ricetta"
+        subtitle: "Chi riceve \"%{name}\" può cucinarla e modificarla."
+      grocery_list:
+        title: "Condividi lista della spesa"
+        subtitle: "Chi riceve \"%{name}\" può usarla per la spesa e modificarla."
+      book:
+        title: "Condividi libro"
+        subtitle: "Scegli con chi condividere \"%{name}\"."
+      bookshelf:
+        title: "Condividi la mia libreria"
+        subtitle: "Vedrà ogni libro della tua libreria, ora e in futuro."
+      upload:
+        title: "Condividi file"
+        subtitle: "Chi riceve \"%{name}\" può vederlo e scaricarlo."
+
+  collections:
+    status:
+      active: "Attiva"
+      paused: "In pausa"
+      completed: "Completata"
+    card:
+      more: "Altro"
+      share: "Condividi"
+      edit: "Modifica"
+      destroy: "Elimina"
+    confirm_destroy: "Eliminare \"%{name}\"? I suoi eventi restano nel calendario."
+    show:
+      edit: "Modifica"
+      share: "Condividi"
+      destroy: "Elimina"
+    form:
+      name_label: "Nome"
+      notes_label: "Note"
+      status_label: "Stato"
+      update: "Salva modifiche"
+    # Come si chiama una raccolta in ogni sezione: una terapia in Salute.
+    sections:
+      healthcare:
+        index:
+          title: "Terapie mediche"
+          new: "Nuova terapia"
+          empty: "Ancora nessuna terapia. Creane una per tenere insieme appuntamenti, farmaci ed esami."
+          empty_search: "Nessuna terapia corrisponde alla ricerca."
+          search_placeholder: "Cerca terapie…"
+        show:
+          back: "Torna alle terapie mediche"
+          events_title: "Eventi in questa terapia"
+          events_empty: "Questa terapia è ancora vuota."
+        form:
+          new_title: "Nuova terapia"
+          new_subtitle: "Tieni insieme appuntamenti, farmaci ed esami"
+          edit_title: "Modifica terapia"
+          create: "Aggiungi terapia"
+          name_placeholder: "es. Iniezioni di B12, cura per la fibromialgia"
+          notes_placeholder: "Eventuali note su questa terapia"
+        notices:
+          created: "Terapia aggiunta."
+          updated: "Terapia aggiornata."
+          destroyed: "Terapia eliminata."
+        picker:
+          label: "Terapia"
+          none: "Nessuna"
+      agenda:
+        index:
+          title: "Raccolte dell'agenda"
+          new: "Nuova raccolta"
+          empty: "Ancora nessuna raccolta. Creane una per tenere insieme attività e appuntamenti collegati, come la ricerca di un lavoro o un trasloco."
+          empty_search: "Nessuna raccolta corrisponde alla ricerca."
+          search_placeholder: "Cerca raccolte…"
+        show:
+          back: "Torna alle raccolte"
+          events_title: "Eventi in questa raccolta"
+          events_empty: "Questa raccolta è ancora vuota."
+        form:
+          new_title: "Nuova raccolta"
+          new_subtitle: "Tieni insieme attività e appuntamenti collegati"
+          edit_title: "Modifica raccolta"
+          create: "Aggiungi raccolta"
+          name_placeholder: "es. Ricerca lavoro, Trasloco"
+          notes_placeholder: "Eventuali note su questa raccolta"
+        notices:
+          created: "Raccolta aggiunta."
+          updated: "Raccolta aggiornata."
+          destroyed: "Raccolta eliminata."
+        picker:
+          label: "Raccolta"
+          none: "Nessuna"
+      finance:
+        index:
+          title: "Raccolte delle finanze"
+          new: "Nuova raccolta"
+          empty: "Ancora nessuna raccolta. Creane una per tenere insieme pagamenti collegati, come una ristrutturazione o un viaggio."
+          empty_search: "Nessuna raccolta corrisponde alla ricerca."
+          search_placeholder: "Cerca raccolte…"
+        show:
+          back: "Torna alle raccolte"
+          events_title: "Pagamenti in questa raccolta"
+          events_empty: "Questa raccolta è ancora vuota."
+        form:
+          new_title: "Nuova raccolta"
+          new_subtitle: "Tieni insieme pagamenti collegati"
+          edit_title: "Modifica raccolta"
+          create: "Aggiungi raccolta"
+          name_placeholder: "es. Ristrutturazione, Viaggio estivo"
+          notes_placeholder: "Eventuali note su questa raccolta"
+        notices:
+          created: "Raccolta aggiunta."
+          updated: "Raccolta aggiornata."
+          destroyed: "Raccolta eliminata."
+        picker:
+          label: "Raccolta"
+          none: "Nessuna"
+      pantry:
+        index:
+          title: "Raccolte della dispensa"
+          new: "Nuova raccolta"
+          empty: "Ancora nessuna raccolta. Creane una per tenere insieme pasti collegati, come una festa o una dieta."
+          empty_search: "Nessuna raccolta corrisponde alla ricerca."
+          search_placeholder: "Cerca raccolte…"
+        show:
+          back: "Torna alle raccolte"
+          events_title: "Pasti in questa raccolta"
+          events_empty: "Questa raccolta è ancora vuota."
+        form:
+          new_title: "Nuova raccolta"
+          new_subtitle: "Tieni insieme pasti collegati"
+          edit_title: "Modifica raccolta"
+          create: "Aggiungi raccolta"
+          name_placeholder: "es. Festa di compleanno, Cucina della settimana"
+          notes_placeholder: "Eventuali note su questa raccolta"
+        notices:
+          created: "Raccolta aggiunta."
+          updated: "Raccolta aggiornata."
+          destroyed: "Raccolta eliminata."
+        picker:
+          label: "Raccolta"
+          none: "Nessuna"
+
+
+  analytes:
+    index:
+      title: "Analiti"
+      empty: "Ancora nessun analita."
+      empty_search: "Nessun analita corrisponde alla ricerca."
+      new: "Nuovo analita"
+      search_placeholder: "Cerca analiti…"
+    card:
+      ranges_empty: "Ancora nessun intervallo di riferimento"
+      more: "Altro"
+      edit: "Modifica"
+      destroy: "Elimina"
+    confirm_destroy: "Eliminare questo analita? Non si può annullare."
+    form:
+      new_title: "Nuovo analita"
+      edit_title: "Modifica analita"
+      name_label: "Nome"
+      name_placeholder: "es. Glucosio, TSH"
+      create: "Aggiungi analita"
+      update: "Salva modifiche"
+    notices:
+      created: "Analita aggiunto."
+      updated: "Analita aggiornato."
+      destroyed: "Analita eliminato."
+      in_use: "Impossibile eliminare %{name}: è ancora usato in un esame."
+    show:
+      back: "Torna agli analiti"
+      edit: "Modifica"
+      destroy: "Elimina analita"
+      ranges_title: "Intervalli di riferimento"
+      ranges_empty: "Ancora nessun intervallo di riferimento: finché non ne aggiungi uno, i valori di questo analita non vengono segnati come Normale, Alto, Basso o Anomalo."
+
+  reference_ranges:
+    sex:
+      any: "Tutti"
+      male: "Uomini"
+      female: "Donne"
+    form:
+      add: "Aggiungi intervallo"
+      edit: "Modifica"
+      destroy: "Elimina"
+      new_title: "Nuovo intervallo di riferimento"
+      edit_title: "Modifica intervallo di riferimento"
+      unit_label: "Unità"
+      unit_placeholder: "Scegli un'unità…"
+      sex_label: "Si applica a"
+      low_label: "Basso"
+      high_label: "Alto"
+      critical_low_label: "Critico basso"
+      critical_high_label: "Critico alto"
+      critical_help: "Lascia vuoto, a meno che un valore così estremo non vada segnato come Anomalo anziché solo Basso o Alto."
+      create: "Aggiungi intervallo di riferimento"
+      update: "Salva modifiche"
+    confirm_destroy: "Eliminare questo intervallo di riferimento?"
+    notices:
+      created: "Intervallo di riferimento aggiunto."
+      updated: "Intervallo di riferimento aggiornato."
+      destroyed: "Intervallo di riferimento eliminato."
+
+  supplies:
+    category:
+      medication: "Farmaco"
+      consumable: "Materiale di consumo"
+    index:
+      title: "Forniture"
+      new: "Nuova fornitura"
+      empty: "Ancora nessuna fornitura."
+      empty_search: "Nessuna fornitura corrisponde alla ricerca."
+      search_placeholder: "Cerca forniture…"
+      low_stock: "Scorte basse"
+    card:
+      more: "Altro"
+      history: "Cronologia acquisti"
+      buy_more: "Acquista ancora"
+      edit: "Modifica"
+      destroy: "Elimina"
+      projected_depletion: "Finisce verso il %{date}"
+    history:
+      back: "Torna alle forniture"
+      left_of: "Ne restano %{left} su %{bought}"
+      expires_on: "Scade il %{date}"
+      expired_on: "Scaduto il %{date}"
+      title: "%{name} — cronologia acquisti"
+      search_placeholder: "Cerca per data, terapia o dove l'hai acquistato…"
+      empty: "Ancora nessun acquisto."
+    form:
+      new_title: "Nuova fornitura"
+      edit_title: "Modifica fornitura"
+      name_label: "Nome"
+      name_placeholder: "es. Androcur, siringhe, salviette alcoliche…"
+      category_label: "Categoria"
+      unit_label_label: "Unità di scorta"
+      unit_label_placeholder: "es. compresse, ml, salviette"
+      low_stock_threshold_label: "Soglia scorte basse"
+      pao_days_label: "Giorni di durata dopo l'apertura"
+      pao_days_help: "La scadenza diventa il giorno di apertura più questi giorni, o la data stampata sul lotto se viene prima."
+      initial_purchase:
+        label: "Registra un primo acquisto (facoltativo)"
+        help: "Ne hai già un po'? Compila qui per registrare il primo lotto insieme alla nuova fornitura. Lascialo vuoto per registrare per ora solo la fornitura."
+      create: "Aggiungi fornitura"
+      update: "Salva modifiche"
+      confirm_destroy: "Eliminare \"%{name}\"?"
+      confirm_destroy_with_purchases: "Eliminare \"%{name}\" e i suoi %{count} lotti? Le uscite registrate per questi acquisti restano, staccate dalla fornitura. Non si può annullare."
+    notices:
+      created: "Fornitura aggiunta."
+      updated: "Fornitura aggiornata."
+      destroyed: "Fornitura eliminata."
+      in_use: "Impossibile eliminare %{name}: un farmaco ne prevede ancora l'uso."
+
+  ingredients:
+    index:
+      title: "Ingredienti"
+      new: "Nuovo ingrediente"
+      empty: "Ancora nessun ingrediente."
+      empty_search: "Nessun ingrediente corrisponde alla ricerca."
+      search_placeholder: "Cerca ingredienti…"
+    card:
+      more: "Altro"
+      history: "Cronologia acquisti"
+      buy: "Acquista"
+      edit: "Modifica"
+      destroy: "Elimina"
+    confirm_destroy: "Eliminare questo ingrediente? Non si può annullare."
+    history:
+      back: "Torna agli ingredienti"
+      title: "%{name} — cronologia acquisti"
+      search_placeholder: "Cerca per data o negozio"
+      empty: "Ancora nessun acquisto."
+    form:
+      new_title: "Nuovo ingrediente"
+      edit_title: "Modifica ingrediente"
+      name_label: "Nome"
+      name_placeholder: "es. Farina, Olio d'oliva, Uova"
+      quantity_label: "Quantità disponibile"
+      unit_label: "Unità"
+      unit_placeholder: "es. kg, l, pz"
+      category_label: "Reparto"
+      create: "Aggiungi ingrediente"
+      update: "Salva modifiche"
+    category:
+      produce: "Frutta e verdura"
+      dairy_eggs: "Latticini e uova"
+      meat_fish: "Carne e pesce"
+      bakery: "Pane e forno"
+      pantry: "Secchi e conserve"
+      frozen_foods: "Surgelati"
+      drinks: "Bevande"
+      household: "Prodotti per la casa"
+      other: "Altro"
+    notices:
+      created: "Ingrediente aggiunto."
+      updated: "Ingrediente aggiornato."
+      destroyed: "Ingrediente eliminato."
+      in_use: "Impossibile eliminare %{name}: è ancora usato in una ricetta o in una lista della spesa."
+
+  recipes:
+    index:
+      title: "Ricette"
+      new: "Nuova ricetta"
+      empty: "Ancora nessuna ricetta. Aggiungine una per tenere insieme passaggi e ingredienti."
+      empty_search: "Nessuna ricetta corrisponde alla ricerca."
+      search_placeholder: "Cerca ricette…"
+    card:
+      more: "Altro"
+      share: "Condividi"
+      edit: "Modifica"
+      destroy: "Elimina"
+    confirm_destroy: "Eliminare \"%{name}\"? Non si può annullare."
+    show:
+      back: "Torna alle ricette"
+      edit: "Modifica"
+      share: "Condividi"
+      destroy: "Elimina ricetta"
+      steps_title: "Passaggi"
+      steps_empty: "Ancora nessun passaggio."
+      ingredients_title: "Ingredienti"
+      ingredients_empty: "Ancora nessun ingrediente."
+      pantry_warning:
+        title: "In dispensa non basta"
+        low: "%{name}: ne hai %{on_hand}, te ne servono %{needed}"
+        out: "%{name}: esaurito, te ne servono %{needed}"
+        missing: "%{name}: non è in dispensa, te ne servono %{needed}"
+    form:
+      new_title: "Nuova ricetta"
+      new_subtitle: "Tieni insieme i passaggi e gli ingredienti"
+      edit_title: "Modifica ricetta"
+      name_label: "Nome"
+      name_placeholder: "es. Pollo arrosto della domenica"
+      description_label: "Descrizione"
+      description_placeholder: "Eventuali note su questa ricetta"
+      create: "Aggiungi ricetta"
+      update: "Salva modifiche"
+      steps:
+        label: "Passaggi"
+        placeholder: "es. Preriscalda il forno a 200°C"
+        step_label: "Passaggio"
+        add: "Aggiungi passaggio"
+        remove: "Rimuovi passaggio"
+      ingredients:
+        label: "Ingredienti"
+        ingredient_placeholder: "Digita o scegli un ingrediente"
+        quantity_placeholder: "es. 2"
+        unit_placeholder: "Digita o scegli un'unità"
+        ingredient_label: "Ingrediente"
+        quantity_label: "Quantità"
+        unit_label: "Unità"
+        add: "Aggiungi ingrediente"
+        remove: "Rimuovi ingrediente"
+    notices:
+      created: "Ricetta aggiunta."
+      updated: "Ricetta aggiornata."
+      destroyed: "Ricetta eliminata."
+
+
+  grocery_lists:
+    status:
+      active: "In corso"
+      completed: "Fatta"
+    progress:
+      bought: "%{checked} su %{total} comprati"
+      empty: "Ancora niente sulla lista"
+    index:
+      title: "Liste della spesa"
+      new: "Nuova lista della spesa"
+      empty: "Ancora nessuna lista della spesa. Creane una per organizzare la prossima spesa."
+      empty_search: "Nessuna lista della spesa corrisponde alla ricerca."
+      search_placeholder: "Cerca liste della spesa…"
+      none_active: "Niente da comprare al momento."
+      completed:
+        one: "Fatte (1)"
+        other: "Fatte (%{count})"
+    card:
+      more: "Altro"
+      share: "Condividi"
+      rename: "Rinomina"
+      shop_again: "Rifai la spesa"
+      destroy: "Elimina"
+    confirm_destroy: "Eliminare \"%{name}\"? Non si può annullare."
+    confirm_reopen: "Rifare la spesa \"%{name}\"? Tutto torna sulla lista; quello che hai comprato resta in dispensa."
+    show:
+      back: "Torna alle liste della spesa"
+      share: "Condividi"
+      edit: "Rinomina"
+      finish: "Spesa finita"
+      shop_again: "Rifai la spesa"
+      destroy: "Elimina lista"
+      shared_with: "Condivisa con %{names}"
+      shared_by: "Lista di %{name}"
+      items_empty: "Ancora niente da comprare. Scrivi un articolo qui sopra, ad esempio \"2 kg farina\"."
+      basket_title: "Nel carrello (%{count})"
+      all_bought: "È tutto nel carrello."
+      finish_cta: "Spesa finita"
+      gone: "Questa lista è stata eliminata."
+    form:
+      new_title: "Nuova lista della spesa"
+      new_subtitle: "Dalle un nome: le cose da comprare le aggiungi poi nella lista"
+      edit_title: "Modifica lista della spesa"
+      edit_subtitle: "Solo il nome: per concluderla o riaprirla usa la lista stessa"
+      name_label: "Nome"
+      name_placeholder: "es. Spesa settimanale"
+      create: "Aggiungi lista della spesa"
+      update: "Salva modifiche"
+    notices:
+      created: "Lista della spesa aggiunta."
+      updated: "Lista della spesa aggiornata."
+      destroyed: "Lista della spesa eliminata."
+      finished: "Spesa finita. Tutto quello che hai comprato è in dispensa."
+      reopened: "La lista è di nuovo aperta."
+
+
+  profiles:
+    # Someone told apart from a namesake: "Sam (sam.demo)".
+    identifying_name: "%{name} (%{username})"
+  conversations:
+    index:
+      title: "Messaggi"
+      people: "Persone"
+      alone: "Nessun altro è ancora entrato nella casa. Invita qualcuno dalla pagina Casa per iniziare a parlare."
+      nothing_yet: "Ancora niente"
+      say_hello: "Saluta"
+      you: "Tu"
+      unread:
+        one: "%{count} messaggio non letto"
+        other: "%{count} messaggi non letti"
+    household:
+      default_name: "%{household}"
+    direct:
+      gone: "Qualcuno che se n'è andato"
+    show:
+      back: "Torna ai messaggi"
+      direct_hint: "Solo voi due"
+      empty: "Ancora niente. Saluta!"
+      older: "Mostra i messaggi precedenti"
+      start: "È cominciato tutto qui"
+      seen: "Visto"
+      seen_by: "Visto da %{names}"
+      rename: "Rinomina la conversazione"
+    message:
+      # A message as a list or a notification shows it: "Sam: see you at 8".
+      line: "%{name}: %{text}"
+      deleted: "Messaggio ritirato"
+      picture:
+        one: "📷 Foto"
+        other: "📷 %{count} foto"
+      picture_alt: "Foto inviata da %{name}"
+      unsend: "Ritira"
+      unsend_confirm: "Ritirare questo messaggio? Sparisce per tutti."
+    reactions:
+      add: "Reagisci"
+      react_with: "Reagisci con %{emoji}"
+      by: "da %{names}"
+    composer:
+      placeholder: "Scrivi un messaggio…"
+      send: "Invia"
+      take_photo: "Scatta una foto"
+      attach: "Aggiungi foto"
+      remove_picture: "Rimuovi questa foto"
+    rename:
+      title: "Rinomina conversazione"
+      subtitle: "Tutti i membri della casa vedono il nuovo nome."
+      submit: "Rinomina"
+      name_label: "Nome"
+      help: "Lascialo vuoto per tornare al nome della casa."
+    notices:
+      renamed: "Conversazione rinominata."
+    errors:
+      pictures_off: "Qui le foto sono disattivate."
+      too_many_pictures: "Al massimo %{max} foto per messaggio."
+
+  books:
+    volume_title: "%{title}, vol. %{volume}"
+    status:
+      want_to_read: "Da leggere"
+      reading: "In lettura"
+      read: "Letto"
+      dropped: "Abbandonato"
+    index:
+      title: "Libreria"
+      new: "Nuovo libro"
+      scan: "Scansiona un codice a barre"
+      share_shelf: "Condividi la mia libreria"
+      search_placeholder: "Cerca per titolo o autore…"
+      status_label: "Stato di lettura"
+      genres_label: "Generi"
+      all: "Tutti"
+      empty: "Ancora nessun libro. Scansiona un codice a barre o aggiungine uno a mano."
+      empty_shelf: "Ancora niente in questa libreria."
+      empty_search: "Nessun libro corrisponde alla ricerca."
+      empty_genre: "Nessun libro di genere %{genre} qui."
+      empty_status:
+        want_to_read: "Niente in attesa di essere letto."
+        reading: "Niente in lettura al momento."
+        read: "Ancora nessun libro finito."
+        dropped: "Niente abbandonato."
+      sort:
+        label: "Ordina per"
+        recent: "Aggiunti di recente"
+        title: "Titolo"
+        author: "Autore"
+        finished: "Finiti per ultimi"
+      shelf:
+        label: "Libreria di"
+        mine: "La mia libreria"
+        owner: "Libreria di %{name}"
+        everyone: "Di tutti"
+    card:
+      more: "Altro"
+      edit: "Modifica"
+      share: "Condividi"
+      destroy: "Elimina"
+      drop: "Abbandonalo"
+      rating: "Valutato %{rating} su 5"
+      next:
+        want_to_read: "Inizia a leggerlo"
+        reading: "Finito"
+        read: "Rileggilo"
+        dropped: "Riprendilo"
+    confirm_destroy: "Eliminare \"%{title}\"? Non si può annullare."
+    show:
+      back: "Torna alla libreria"
+      edit: "Modifica"
+      share: "Condividi"
+      destroy: "Elimina libro"
+      status_label: "Stato di lettura"
+      notes: "Note"
+      shared_with: "Condiviso con %{names}"
+      shared_by: "Libro di %{name}"
+      open_library: "Dati e copertina da Open Library"
+      google_books: "Copertina da Google Books"
+      facts:
+        genres: "Generi"
+        isbn: "ISBN"
+        started_on: "Iniziato"
+        finished_on: "Finito"
+        rating: "Valutazione"
+    form:
+      new_title: "Nuovo libro"
+      new_subtitle: "Scrivi l'ISBN e cercalo, oppure compila a mano"
+      edit_title: "Modifica libro"
+      edit_subtitle: "I suoi dettagli e a che punto sei"
+      isbn_label: "ISBN (facoltativo)"
+      isbn_placeholder: "978…"
+      isbn_help: "Il numero sotto il codice a barre sul retro."
+      lookup: "Cerca"
+      title_label: "Titolo"
+      title_placeholder: "es. La mano sinistra delle tenebre"
+      volume_label: "Volume (facoltativo)"
+      volume_placeholder: "es. 12"
+      volume_help: "Per una serie: il numero di questo volume."
+      volume_suggested: "Proposto: quello dopo il vol. %{previous}, l'ultimo di questa serie nella tua libreria. Controlla."
+      author_label: "Autore"
+      author_placeholder: "es. Ursula K. Le Guin"
+      genres_label: "Generi"
+      genres_placeholder: "es. Fantascienza, Classici"
+      genres_help: "Separa i generi con una virgola."
+      status_label: "Stato"
+      started_on_label: "Iniziato il"
+      finished_on_label: "Finito il"
+      rating_label: "Valutazione"
+      rating_none: "Senza valutazione"
+      notes_label: "Note"
+      notes_placeholder: "Cosa ne pensi, chi te l'ha prestato…"
+      cover_help: "La copertina che Open Library ha per questo ISBN."
+      create: "Aggiungi libro"
+      update: "Salva modifiche"
+    scan:
+      title: "Scansiona un codice a barre"
+      subtitle: "Inquadra il codice a barre sul retro della copertina"
+      starting: "Avvio della fotocamera…"
+      loading: "Caricamento dello scanner…"
+      aim: "Tieni il codice a barre dentro il riquadro."
+      found: "Trovato %{isbn}, lo cerco…"
+      no_camera: "Nessuna fotocamera qui. Scatta una foto del codice a barre, o scrivi l'ISBN."
+      denied: "La fotocamera non è consentita. Scatta una foto del codice a barre, o scrivi l'ISBN."
+      none_in_photo: "Nessun codice a barre di libro in quella foto. Riprova, o scrivi l'ISBN."
+      photo: "Foto del codice a barre"
+      isbn_label: "Oppure scrivi l'ISBN"
+      isbn_placeholder: "978…"
+      look_up: "Cerca"
+    sources:
+      open_library: "Open Library"
+      google_books: "Google Books"
+    lookup:
+      found: "Compilato da %{source}. Controlla, poi mettilo in libreria."
+      not_found: "Open Library non conosce questo ISBN. Compila a mano."
+      unavailable: "Open Library non risponde al momento. Compila a mano, o riprova più tardi."
+      capped: "Questa casa ha esaurito le ricerche di oggi. Compila a mano."
+      invalid_isbn: "Non è un ISBN: 10 o 13 cifre, di solito a partire da 978."
+      already_there: "\"%{title}\" è già nella tua libreria."
+    notices:
+      created: "Libro aggiunto."
+      updated: "Libro aggiornato."
+      destroyed: "Libro eliminato."
+      status:
+        want_to_read: "Di nuovo nella pila da leggere."
+        reading: "Buona lettura!"
+        read: "Finito. Valutalo quando vuoi."
+        dropped: "Abbandonato. Non tutti i libri sono per tutti."
+
+
+
+  bookshelves:
+    name: "Libreria di %{name}"
+
+  uploads:
+    index:
+      title: "File"
+      new: "Carica file"
+      search_placeholder: "Cerca i file per nome…"
+      empty: "Ancora nessun file. Usa “Carica file” per aggiungerne uno."
+      empty_search: "Nessun file corrisponde alla ricerca."
+      empty_shared: "Nessuno ha ancora condiviso un file con te."
+      quota: "%{used} di %{quota} usati"
+      scope_label: "Di chi"
+      scope:
+        all: "Tutti"
+        mine: "Miei"
+        shared: "Condivisi con me"
+    kinds:
+      image: "Immagine"
+      video: "Video"
+      audio: "Audio"
+      pdf: "PDF"
+      archive: "Archivio"
+      spreadsheet: "Foglio di calcolo"
+      presentation: "Presentazione"
+      document: "Documento"
+      text: "Testo"
+      file: "File"
+    status:
+      uploading: "Caricamento, %{percent}%"
+      processing: "Verifica…"
+    row:
+      owner: "di %{name}"
+      shared_with:
+        one: "condiviso con 1 persona"
+        other: "condiviso con %{count} persone"
+      download: "Scarica"
+      share: "Condividi"
+      more: "Altro"
+      link: "Crea un link pubblico"
+      rename: "Rinomina"
+      destroy: "Elimina"
+    confirm_destroy: "Eliminare \"%{name}\"? Tutte le condivisioni e i link pubblici smettono di funzionare. Non si può annullare."
+    show:
+      back: "Torna ai file"
+      download: "Scarica"
+      share: "Condividi"
+      link: "Crea un link pubblico"
+      rename: "Rinomina"
+      destroy: "Elimina file"
+      copy: "Copia il checksum"
+      copied: "Copiato"
+      shared_by: "File di %{name}"
+      shares: "Condiviso con"
+      links: "Link pubblici"
+      activity: "Attività"
+      facts:
+        size: "Dimensione"
+        type: "Tipo"
+        checksum: "SHA-256"
+        uploaded_on: "Caricato il"
+        uploaded_by: "Da"
+    form:
+      title: "Rinomina file"
+      subtitle: "Il nome con cui viene scaricato"
+      name_label: "Nome"
+      update: "Rinomina"
+    uploader:
+      title: "Carica file"
+      subtitle: "%{left} ancora liberi nello spazio della casa"
+      drop: "Trascina qui i file, o tocca per sceglierli"
+      drop_hint: "I file grandi vanno bene: vengono caricati a pezzi e riprendono da dove si erano fermati."
+      closing_stops: "Tieni aperta questa schermata finché il caricamento non è finito. Il telefono mette in pausa i caricamenti quando il browser è in background; riprendono da soli quando torni. Chiudendola si fermano (un file caricato a metà riprende quando lo scegli di nuovo)."
+      pause: "Pausa"
+      resume: "Riprendi"
+      cancel: "Annulla"
+      confirm_close: "Ci sono file in caricamento. Fermarli?"
+      stop: "Fermali"
+      keep: "Continua a caricare"
+      failed_with: "Non riuscito: %{reason}"
+      gone: "Il server non è riuscito a completare questo file. Caricalo di nuovo."
+      states:
+        queued: "In attesa"
+        uploading: "Caricamento…"
+        processing: "Verifica…"
+        ready: "Fatto"
+        paused: "In pausa"
+        failed: "Non riuscito"
+        cancelled: "Annullato"
+        retrying: "Connessione persa, riprovo…"
+        background: "In pausa in background: riprende quando torni"
+      stats:
+        progress: "%{percent}% · %{sent} di %{total}"
+        speed: "%{speed}/s"
+        eta_seconds: "%{count} s rimasti"
+        eta_minutes: "%{count} min rimasti"
+        eta_hours: "%{hours} h %{minutes} min rimasti"
+    notices:
+      renamed: "File rinominato."
+      destroyed: "File eliminato."
+    errors:
+      quota: "Spazio insufficiente: restano %{left} nello spazio della casa."
+      too_large: "Un file può essere al massimo di %{max}."
+      chunk_too_large: "Quel pezzo non sta nel file."
+      no_offset: "Quel pezzo è arrivato senza la sua posizione nel file."
+    activity:
+      empty: "Ancora niente."
+      older:
+        one: "E una voce precedente."
+        other: "E altre %{count} voci precedenti."
+      uploaded: "%{who} l'ha caricato"
+      shared: "%{who} l'ha condiviso con %{with}"
+      unshared: "%{who} ha smesso di condividerlo con %{with}"
+      downloaded: "%{who} l'ha scaricato"
+      link_created: "%{who} ha creato un link pubblico"
+      link_revoked: "%{who} ha revocato un link pubblico"
+      link_downloaded: "Scaricato tramite link pubblico da %{ip}"
+      link_refused: "Download tramite link pubblico rifiutato da %{ip}: %{reason}"
+      link_locked: "Il link pubblico si è chiuso da solo dopo %{wrong_passwords} password sbagliate"
+      reasons:
+        wrong_password: "password sbagliata"
+
+
+  upload_links:
+    form:
+      title: "Crea un link pubblico"
+      subtitle: "Chiunque abbia il link può scaricare \"%{name}\", senza account"
+      lifetime_days_label: "Valido per"
+      lifetimes:
+        one: "1 giorno"
+        other: "%{count} giorni"
+      max_downloads_label: "Download"
+      downloads:
+        one: "1 download"
+        other: "%{count} download"
+      unlimited: "Senza limite"
+      password_label: "Password (facoltativa)"
+      password_placeholder: "Almeno %{min} caratteri"
+      password_help: "Comunicala a parte: il link da solo non basta."
+      shown_once: "Il link si vede una volta sola, appena creato: copialo allora."
+      create: "Crea il link"
+    created:
+      title: "Link pubblico creato"
+      hint: "Copialo adesso e passalo: si vede solo questa volta."
+      link: "Il link"
+      copy: "Copia il link"
+      copied: "Copiato"
+    panel:
+      empty: "Ancora nessun link pubblico."
+      protected: "Protetto da password"
+      revoke: "Revoca"
+      revoke_confirm: "Revocare questo link pubblico? Chi lo ha non potrà più usarlo."
+      used_of: "%{used} su %{max} download"
+      used:
+        one: "1 download"
+        other: "%{count} download"
+      expires_on: "valido fino al %{date}"
+      expired_on: "scaduto il %{date}"
+      made_by: "creato da %{name} il %{date}"
+    states:
+      active: "Attivo"
+      exhausted: "Esaurito"
+      expired: "Scaduto"
+      revoked: "Revocato"
+    notices:
+      revoked: "Link pubblico revocato."
+    public:
+      show:
+        shared_by: "%{size} · condiviso da %{name}"
+        downloads_left:
+          one: "1 download rimasto"
+          other: "%{count} download rimasti"
+        unlimited: "Scarica quante volte vuoi"
+        until: "valido fino al %{date}"
+        download: "Scarica"
+        password_label: "Password"
+      wrong_password: "La password non è questa."
+      gone:
+        title: "Qui non c'è niente"
+        missing: "Questo link non porta da nessuna parte. Controllalo, o chiedine uno nuovo."
+        exhausted: "Questo link è stato usato tutte le volte che permetteva. Chiedine uno nuovo."
+        expired: "Questo link è scaduto. Chiedine uno nuovo."
+        revoked: "Questo link è stato revocato. Chiedine uno nuovo."
+        too_many: "Troppi tentativi da qui. Aspetta qualche minuto."
+
+  grocery_list_items:
+    check: "Metti %{item} nel carrello"
+    uncheck: "Togli %{item} dal carrello"
+    edit: "Modifica articolo"
+    destroy: "Rimuovi articolo"
+    quick_add:
+      label: "Aggiungi un articolo"
+      placeholder: "Aggiungi un articolo… es. 2 kg farina"
+      submit: "Aggiungi"
+    form:
+      title: "%{name}"
+      quantity_label: "Quantità"
+      quantity_placeholder: "Quanto comprare"
+      unit_label: "Unità"
+      unit_placeholder: "es. kg, l, pz"
+      category_label: "Reparto"
+      update: "Salva modifiche"
+    notices:
+      duplicate: "%{name} è già sulla lista."
+      updated: "%{name} aggiornato."
+      removed: "%{name} rimosso dalla lista."
+
+  supply_purchases:
+    confirm_destroy: "Eliminare questo acquisto?"
+    form:
+      add: "Acquista ancora"
+      edit: "Modifica"
+      destroy: "Elimina"
+      new_title: "Nuovo acquisto"
+      edit_title: "Modifica acquisto"
+      collection_label: "Terapia"
+      transaction_title: "Pagamento per %{quantity} %{supply_name}"
+      cost_section:
+        label: "Costo (facoltativo)"
+        help: "Registra quanto è costato questo lotto. Titolo, tipo e categoria vengono compilati automaticamente."
+      quantity_purchased_label: "Quantità acquistata"
+      quantity_remaining_label: "Quantità rimanente"
+      purchased_on_label: "Acquistato il"
+      expires_on_label: "Scade il"
+      opened_on_label: "Aperto il"
+      pao_days_override_label: "Giorni di durata di questo lotto dopo l'apertura"
+      pao_days_override_help: "Solo se questo lotto dura un numero di giorni diverso da quello della fornitura. Altrimenti lascialo vuoto."
+      create: "Aggiungi acquisto"
+      update: "Salva modifiche"
+    notices:
+      created: "Acquisto aggiunto."
+      updated: "Acquisto aggiornato."
+      destroyed: "Acquisto eliminato."
+
+  ingredient_purchases:
+    confirm_destroy: "Eliminare questo acquisto? Viene tolta anche la scorta che aveva aggiunto."
+    form:
+      edit: "Modifica"
+      destroy: "Elimina"
+      new_title: "Nuovo acquisto"
+      edit_title: "Modifica acquisto"
+      transaction_title: "Spesa: %{quantity} %{ingredient_name}"
+      cost_section:
+        label: "Costo (facoltativo)"
+        help: "Registra quanto è costato. Titolo, tipo e categoria vengono compilati automaticamente."
+      quantity_label: "Quantità acquistata"
+      unit_label: "Unità"
+      unit_placeholder: "es. kg, l, pz"
+      purchased_on_label: "Acquistato il"
+      create: "Aggiungi acquisto"
+      update: "Salva modifiche"
+    notices:
+      created: "Acquisto aggiunto."
+      updated: "Acquisto aggiornato."
+      destroyed: "Acquisto eliminato."
+
+  form:
+    create: "Crea"
+    update: "Salva modifiche"
+    # Un giorno di una serie che si ripete: le modifiche valgono per quel giorno o per tutti.
+    apply_to:
+      label: "Modifica"
+      day: "Solo questo giorno"
+      series: "Tutta la serie"
+      help: "La ripetizione e gli orari valgono sempre per tutta la serie."
+    # Un modulo non salvato: cosa dice sopra i campi, e come indica una riga di uno dei suoi elenchi.
+    errors:
+      intro: "Non è stato salvato nulla. Correggi quanto segue e riprova."
+      row: "%{list}, riga %{number}: %{message}"
+      alone: "%{list}: %{message}"
+
+  links:
+    index:
+      title: "Collegamenti"
+      hint: "Collegati con un membro della casa per vedere i calendari l'uno dell'altro. Tu scegli cosa può fare con le tue cose, e l'altra persona sceglie cosa puoi fare con le sue."
+      no_links: "Non hai ancora collegamenti."
+      waiting:
+        one: "%{count} in attesa della tua risposta"
+        other: "%{count} in attesa della tua risposta"
+      sections:
+        approvals: "Aspettano la tua approvazione"
+        asked: "Le tue richieste"
+        incoming: "Vogliono collegarsi con te"
+        linked: "Collegamenti attivi"
+        housemates: "Membri della casa"
+    requests:
+      wants: "%{name} vuole vedere i vostri calendari insieme"
+      waiting: "In attesa che %{name} accetti"
+      accept: "Collegati con %{name}"
+      decline: "Rifiuta l'invito di %{name}"
+      cancel: "Annulla l'invito a %{name}"
+      link: "Collegati con %{name}"
+    partner:
+      since: "Collegati dal %{date}"
+      unlink: "Scollegati da %{name}"
+      unlink_confirm: "Scollegarti da %{name}? Smetterete di vedere i calendari l'uno dell'altro, e le richieste in attesa tra voi vengono annullate."
+      they_can: "Cosa può fare %{name} con le tue cose"
+      you_can: "Cosa puoi fare con le cose di %{name}"
+      actions_label: "%{type}: %{action}"
+      actions:
+        read: "Vedere"
+        write: "Modificare"
+        create: "Aggiungere"
+        delete: "Eliminare"
+      hidden: "Nascosto a %{name}."
+      hidden_from_you: "Nascosto a te"
+    levels:
+      "off": "No"
+      ask: "Chiedimi"
+      "on": "Sì"
+    types:
+      task: "Attività"
+      transaction: "Pagamenti"
+      appointment: "Appuntamenti"
+      medication: "Farmaci"
+      meal: "Pasti"
+      lab_test_result: "Esami"
+    things:
+      task: "attività"
+      transaction: "pagamento"
+      appointment: "appuntamento"
+      medication: "farmaco"
+      meal: "pasto"
+      lab_test_result: "esame"
+      item: "elemento"
+    approvals:
+      asks:
+        create: "%{name} chiede di aggiungere un elemento (%{thing}) al tuo calendario"
+        update: "%{name} chiede di modificare un elemento tuo (%{thing})"
+        complete: "%{name} chiede di segnare come fatto un elemento tuo (%{thing})"
+        uncomplete: "%{name} chiede di segnare come non fatto un elemento tuo (%{thing})"
+        destroy: "%{name} chiede di eliminare un elemento tuo (%{thing})"
+        destroy_series: "%{name} chiede di eliminare un'intera serie tua (%{thing})"
+      asked:
+        create: "Aggiungere un elemento (%{thing}) al calendario di %{name}"
+        update: "Modificare un elemento di %{name} (%{thing})"
+        complete: "Segnare come fatto un elemento di %{name} (%{thing})"
+        uncomplete: "Segnare come non fatto un elemento di %{name} (%{thing})"
+        destroy: "Eliminare un elemento di %{name} (%{thing})"
+        destroy_series: "Eliminare un'intera serie di %{name} (%{thing})"
+      status:
+        pending: "In attesa"
+        approved: "Approvato"
+        declined: "Rifiutato"
+        failed: "Non è stato possibile"
+        withdrawn: "Ritirato"
+        cancelled: "Annullato"
+      changed_since: "Modificato dopo la richiesta"
+      cleared: "(vuoto)"
+      fields:
+        recurrence: "Si ripete"
+        amount: "Costo"
+      approve: "Approva"
+      decline: "Rifiuta"
+      withdraw: "Ritira la richiesta"
+      withdraw_confirm: "Ritirare questa richiesta?"
+      failures:
+        gone: "Non c'è più."
+        changed: "È cambiato da quando è stato chiesto."
+        not_allowed: "Non è più consentito."
+      form:
+        notice: "Verrà chiesto a %{name} di approvarlo prima di salvarlo."
+        submit: "Chiedi a %{name}"
+        owner_label: "Nel calendario di"
+        owner_self: "Il mio"
+        readonly: "Puoi vederlo, ma solo %{name} può modificarlo."
+    cards:
+      owner: "Di %{name}"
+      locked: "Solo %{name} può segnarlo"
+      more: "Altro"
+      delete_occurrence: "Elimina questo giorno"
+      delete_series: "Elimina tutta la serie"
+      delete_occurrence_confirm: "Eliminare questo giorno?"
+      delete_series_confirm: "Eliminare ogni giorno di questa serie? Non si può annullare."
+      ask_delete_occurrence: "Chiedi a %{name} di eliminare questo giorno"
+      ask_delete_series: "Chiedi a %{name} di eliminare la serie"
+      ask_delete_occurrence_confirm: "Chiedere a %{name} di eliminare questo giorno?"
+      ask_delete_series_confirm: "Chiedere a %{name} di eliminare ogni giorno di questa serie?"
+    notices:
+      requested: "Hai invitato %{name} a collegarvi."
+      accepted: "Tu e %{name} siete collegati."
+      declined: "Hai rifiutato l'invito di %{name}."
+      cancelled: "Hai annullato l'invito a %{name}."
+      unlinked: "Collegamento con %{name} rimosso."
+      asked: "Hai chiesto a %{name} di approvarlo."
+      approved: "Fatto."
+      approval_declined: "Rifiutato."
+      approval_failed: "Non è stato possibile. %{reason}"
+      withdrawn: "Hai ritirato la richiesta."
+      decided: "Quella richiesta ha già una risposta."
+
+  notifications:
+    title: "Notifiche"
+    empty: "Ancora nessuna notifica."
+    loading: "Caricamento…"
+    mark_all_read: "Segna tutte come lette"
+    older: "Mostra le precedenti"
+    someone: "Qualcuno"
+    kinds:
+      shared:
+        event: "%{actor} ha condiviso un evento con te"
+        recipe: "%{actor} ha condiviso una ricetta con te"
+        grocery_list: "%{actor} ha condiviso una lista della spesa con te"
+        collection:
+          healthcare: "%{actor} ha condiviso una terapia con te"
+          agenda: "%{actor} ha condiviso una raccolta con te"
+          finance: "%{actor} ha condiviso una raccolta con te"
+          pantry: "%{actor} ha condiviso una raccolta con te"
+          other: "%{actor} ha condiviso una raccolta con te"
+        book: "%{actor} ha condiviso un libro con te"
+        bookshelf: "%{actor} ha condiviso la sua libreria con te"
+        upload: "%{actor} ha condiviso un file con te"
+      unshared:
+        event: "%{actor} non condivide più un evento con te"
+        recipe: "%{actor} non condivide più una ricetta con te"
+        grocery_list: "%{actor} non condivide più una lista della spesa con te"
+        collection:
+          healthcare: "%{actor} non condivide più una terapia con te"
+          agenda: "%{actor} non condivide più una raccolta con te"
+          finance: "%{actor} non condivide più una raccolta con te"
+          pantry: "%{actor} non condivide più una raccolta con te"
+          other: "%{actor} non condivide più una raccolta con te"
+        book: "%{actor} non condivide più un libro con te"
+        bookshelf: "%{actor} non condivide più la sua libreria con te"
+        upload: "%{actor} non condivide più un file con te"
+      import_finished: "L'importazione di %{language} è in uso"
+      import_failed: "L'importazione di %{language} non è riuscita"
+      import_needs_review: "L'importazione di %{language} aspetta la tua revisione"
+      import_unchanged: "Niente di nuovo da importare per %{language}"
+      lexicon_eval_passed: "Le verifiche di %{language} con l'assistente sono riuscite"
+      lexicon_eval_failed: "Le verifiche di %{language} con l'assistente non sono riuscite"
+      eval_cases_written: "I casi di prova di %{language} sono stati scritti"
+      eval_cases_failed: "Non è stato possibile scrivere i casi di prova di %{language}"
+      eval_run_finished: "L'esecuzione delle valutazioni con %{model} è terminata"
+      reminder_due: "Promemoria: %{title}"
+      message_received:
+        direct: "%{actor} ti ha scritto"
+        household: "%{actor} ha scritto in %{title}"
+      link_requested: "%{actor} vuole collegarsi con te"
+      link_accepted: "%{actor} ha accettato il tuo invito"
+      link_declined: "%{actor} ha rifiutato il tuo invito"
+      link_removed: "%{actor} ha rimosso il collegamento con te"
+      link_permissions_changed: "%{actor} ha cambiato cosa puoi fare con le sue cose"
+      approval_requested:
+        create: "%{actor} chiede di aggiungere un elemento (%{thing}) al tuo calendario"
+        update: "%{actor} chiede di modificare un elemento tuo (%{thing})"
+        complete: "%{actor} chiede di segnare come fatto un elemento tuo (%{thing})"
+        uncomplete: "%{actor} chiede di segnare come non fatto un elemento tuo (%{thing})"
+        destroy: "%{actor} chiede di eliminare un elemento tuo (%{thing})"
+        destroy_series: "%{actor} chiede di eliminare un'intera serie tua (%{thing})"
+      approval_approved:
+        create: "%{actor} ha aggiunto quello che hai chiesto (%{thing})"
+        update: "%{actor} ha approvato la tua modifica (%{thing})"
+        complete: "%{actor} ha approvato di segnarlo come fatto (%{thing})"
+        uncomplete: "%{actor} ha approvato di segnarlo come non fatto (%{thing})"
+        destroy: "%{actor} ha approvato l'eliminazione (%{thing})"
+        destroy_series: "%{actor} ha approvato l'eliminazione della serie (%{thing})"
+      approval_declined:
+        create: "%{actor} ha rifiutato l'aggiunta (%{thing})"
+        update: "%{actor} ha rifiutato la tua modifica (%{thing})"
+        complete: "%{actor} ha rifiutato di segnarlo come fatto (%{thing})"
+        uncomplete: "%{actor} ha rifiutato di segnarlo come non fatto (%{thing})"
+        destroy: "%{actor} ha rifiutato l'eliminazione (%{thing})"
+        destroy_series: "%{actor} ha rifiutato l'eliminazione della serie (%{thing})"
+      approval_failed:
+        create: "L'aggiunta al calendario di %{actor} non è stata possibile (%{thing})"
+        update: "La modifica per %{actor} non è stata possibile (%{thing})"
+        complete: "Segnarlo come fatto per %{actor} non è stato possibile (%{thing})"
+        uncomplete: "Segnarlo come non fatto per %{actor} non è stato possibile (%{thing})"
+        destroy: "L'eliminazione per %{actor} non è stata possibile (%{thing})"
+        destroy_series: "L'eliminazione della serie per %{actor} non è stata possibile (%{thing})"
+      deploy_succeeded: "%{what}: riuscito"
+      deploy_failed: "%{what}: non riuscito"
+      release_starting: "Household sta per aggiornarsi: un minuto di interruzione"
+      release_finished: "Household è aggiornato"
+      release_undone: "L'aggiornamento è stato annullato: Household funziona come prima"
+      release_available: "È uscito Household %{version}"
+      upload_ready: "Il tuo file è stato caricato"
+      upload_failed: "Il caricamento del tuo file non è riuscito"
+      password_link_made: "%{actor} ha creato un link per impostare la tua password"
+      error_reported: "Nuovo errore: %{name}"
+      job_failed: "Un job non è riuscito: %{name}"
+    actions:
+      approve: "Approva"
+      decline: "Rifiuta"
+      accept: "Accetta"
+    details:
+      eval_run_finished: "%{passed} su %{total} superati"
+      reminder_due: "Scadenza %{when}"
+      release_available: "Guarda le novità, e come aggiornare questa copia."
+      upload_ready: "Pronto da condividere o scaricare"
+      upload_failed: "%{title} è stato rimosso: caricalo di nuovo"
+      password_link_made: "Chi lo apre può entrare come te. Se non l'hai chiesto, diglielo subito."
+    outcomes:
+      lost: "La sua esecuzione non è mai comparsa su GitHub."
+    deployment:
+      what:
+        preview: "L'anteprima di %{ref} su %{destination}"
+        merge_branch: "L'unione di %{ref} (CI su main)"
+        ci: "La CI su %{ref}"
+        deploy: "Il deploy su %{destination}"
+        restart: "Il riavvio di %{destination}"
+        stop: "L'arresto di %{destination}"
+        rollback: "Il rollback di %{destination}"
+        release: "Il rilascio di %{version}"
+        freeze: "La sospensione"
+        unfreeze: "La ripresa"
+
+  pwa:
+    manifest:
+      name: "Household"
+      short_name: "Household"
+      description: "Il calendario, le attività, la salute, i conti e la dispensa di casa, insieme."
+    offline:
+      title: "Sei offline"
+      body: "Household ha bisogno di una connessione per mostrarti le tue cose. Controlla la rete e riprova."
+      retry: "Riprova"
+    device:
+      title: "Questo dispositivo"
+      install: "Installa l'app"
+      ios_hint: "Per installarla tocca Condividi e poi “Aggiungi alla schermata Home”. Su iPhone e iPad le notifiche richiedono l'app installata."
+      notifications: "Notifiche"
+
+  public_pages:
+    home: "Torna a Household"
+    pages:
+      bad_request:
+        status: "%{status} Richiesta non valida"
+        title: "Impossibile leggere questa richiesta"
+        body: "Contiene qualcosa di non valido. Torna indietro e riprova."
+      not_found:
+        status: "%{status} Non trovato"
+        title: "Qui non c'è nessuna pagina"
+        body: "L'indirizzo potrebbe essere sbagliato, o la pagina potrebbe essersi spostata."
+      not_acceptable:
+        status: "%{status} Non accettabile"
+        title: "Questo browser non è supportato"
+        body: "Household ha bisogno di un browser aggiornato. Aggiorna questo, o apri l'app in un altro."
+      unprocessable:
+        status: "%{status} Contenuto non elaborabile"
+        title: "Questa modifica è stata rifiutata"
+        body: "Il modulo potrebbe essere rimasto aperto troppo a lungo, o chiedere qualcosa che non puoi cambiare. Torna indietro e riprova."
+      server_error:
+        status: "%{status} Errore interno del server"
+        title: "Qualcosa è andato storto da parte nostra"
+        body: "Household ne ha preso nota. Riprova tra un momento."
+
+  push:
+    states:
+      "on": "Attive su questo dispositivo"
+      "off": "Disattivate"
+      denied: "Bloccate nelle impostazioni del browser"
+      unsupported: "Questo browser non può riceverle"
+      install_first: "Prima installa l'app"
+    unavailable:
+      not_configured: "Non configurate su questo server"
+
+  reminders:
+    form:
+      label: "Ricordamelo"
+      help: "Prima di ogni scadenza. I promemoria arrivano alla campanella e ai tuoi dispositivi con le notifiche attive; solo tu ricevi i tuoi."
+      add: "Aggiungi un promemoria"
+      remove: "Rimuovi questo promemoria"
+      amount: "Quanto prima"
+      unit: "Ore o giorni"
+      before: "prima"
+    units:
+      hours: "ore"
+      days: "giorni"
+    formats:
+      day: "%a %-d %b"
+      day_time: "%a %-d %b, %H:%M"
+
+  toast:
+    close: "Chiudi"
+
+  admin:
+    # La password dell'amministratore, chiesta di nuovo prima di agire sull'account di un altro o di salvare le impostazioni (Views::Admin::PasswordCheck).
+    password_check:
+      title: "Conferma che sei tu"
+      why_account: "Qui usi i poteri dell'amministratore sull'account di un'altra persona, quindi la password ti viene chiesta di nuovo. Poi vale per %{minutes} minuti."
+      why_settings: "Queste impostazioni valgono per ogni casa, quindi la password ti viene chiesta di nuovo prima di salvare. Poi vale per %{minutes} minuti."
+      password_label: "La tua password"
+      wrong: "Non è la tua password."
+    deployment:
+      title: "Deploy"
+      hint: "Cosa gira in questa copia, e la pipeline su GitHub: un ramo su dev; main e la sua CI, poi staging, poi la produzione. Ogni azione passa da GitHub, su qualunque destinazione, da qui."
+      self_hosted_hint: "Cosa gira in questa copia, e se le sue parti rispondono. Per aggiornarla, esegui questo sul computer che la ospita:"
+      self_hosted: "Installata in proprio"
+      update:
+        tag: "Aggiornamenti"
+        checked: "Controllato %{time} fa"
+        badges:
+          "off": "Controllo spento"
+          waiting: "Non ancora controllato"
+          current: "Aggiornata"
+          available: "È uscita la %{version}"
+        "off": "Questa copia non cerca nuove versioni."
+        off_link: "Attivalo nelle Impostazioni."
+        waiting: "Questa copia cerca una nuova versione una volta al giorno."
+        current: "La %{version} è la versione più recente."
+        available: "Per aggiornarla, esegui il comando qui sopra sul computer che la ospita."
+        notes: "Le novità della %{version}"
+      canned: "Su questa copia GitHub è simulato: la pipeline mostrata è inventata, e niente di ciò che premi qui arriva a GitHub."
+      lanes:
+        branch: "Un ramo, su dev"
+        main: "main: staging e la demo, poi produzione"
+      this_copy: "Questa copia"
+      version_badge: "Versione %{version}"
+      no_version: "Versione sconosciuta"
+      uncommitted: "modifiche non committate"
+      booted: "Avviato %{time} fa"
+      seconds:
+        one: "%{count} secondo"
+        other: "%{count} secondi"
+      facts:
+        version: "Versione"
+        environment: "Ambiente"
+        ruby: "Ruby"
+        rails: "Rails"
+        booted: "Avviato"
+        database: "Database"
+        worker: "Worker dei job"
+      checks:
+        db_ok: "Risponde"
+        db_down: "Non risponde"
+        worker_ok: "Attivo"
+        worker_down: "Nessun segnale negli ultimi %{minutes} minuti"
+        worker_unknown: "Non verificato qui"
+      no_token: "La pipeline, i pulsanti e le esecuzioni del workflow richiedono un token GitHub per questo repository. Senza, questa pagina mostra cosa gira e nient'altro."
+      no_token_link: "Impostalo nella pagina Impostazioni."
+      destinations:
+        production: "Produzione"
+        staging: "Staging"
+        demo: "Demo"
+        dev: "Dev"
+      console:
+        loading: "Interrogo GitHub…"
+        error: "Impossibile interrogare GitHub: %{error}"
+      frozen: "I deploy automatici sono sospesi%{note}. Un push su main costruisce l'immagine e si ferma lì: staging non si muove."
+      frozen_note: " (%{note})"
+      held_notice:
+        one: "%{version} richiede l'app ferma: %{count} migrazione."
+        other: "%{version} richiede l'app ferma: %{count} migrazioni."
+      rehearsal:
+        none: "Prova generale sui dati di produzione non ancora fatta."
+        passed: "Prova generale sui dati di produzione: la migrazione ha richiesto %{migration}, %{downtime} dietro la pagina di manutenzione."
+        undone: "La prova generale sui dati di produzione è stata annullata: %{reason}."
+        passed_short: "Prova generale di %{version} riuscita"
+        undone_short: "Prova generale di %{version} annullata"
+        timings: "migrazione %{migration}, %{downtime} dietro la pagina di manutenzione"
+      token_expiring:
+        one: "Il token per il deploy scade domani."
+        other: "Il token per il deploy scade tra %{count} giorni."
+      token_expired: "Il token per il deploy è scaduto: GitHub lo rifiuta."
+      pipeline:
+        title: "main"
+        hint: "Il ramo da cui viene ogni versione. La CI costruisce un'immagine di ogni commit che supera; staging la riceve da solo, la produzione quando qualcuno la promuove."
+        by: "%{author}, %{time}"
+        ci:
+          none: "CI mai eseguita"
+          running: "CI in corso"
+          passed: "CI superata"
+          failed: "CI non riuscita"
+        image:
+          built: "Immagine costruita"
+          missing: "Ancora nessuna immagine"
+        pending:
+          title: "Non ancora in produzione"
+          count:
+            one: "%{count} commit"
+            other: "%{count} commit"
+          none: "La produzione gira sulla testa di main."
+        held:
+          one: "%{count} migrazione richiede l'app ferma: la produzione attende finché non viene rilasciata."
+          other: "%{count} migrazioni richiedono l'app ferma: la produzione attende finché non vengono rilasciate."
+      environment:
+        open: "Apri %{name}"
+        branch: "Ramo"
+        version: "Versione"
+        data: "Dati"
+        deployed: "Deploy"
+        stopped: "Fermato"
+        sync: "Rispetto a main"
+        health: "Stato"
+        last: "Ultimo tentativo"
+        rehearsal: "Prova generale"
+        nothing: "Ancora niente di registrato"
+        some_branch: "un ramo"
+        pull_request: "Pull request"
+        no_pull_request: "Nessuna aperta: la CI gira su una pull request, quindi il ramo non si può unire da qui finché non ne ha una."
+        merge_states:
+          ready: "Pronto da unire"
+          ci_running: "CI in corso sulla sua testa"
+          ci_failed: "CI non riuscita sulla sua testa"
+          ci_none: "La CI non è ancora girata sulla sua testa"
+          draft: "Una bozza"
+          merged: "Unito a main"
+          none: "Nessuna pull request"
+        branch_states:
+          head: "Gira sulla testa del ramo"
+          behind:
+            one: "Il ramo è andato avanti di %{count} commit"
+            other: "Il ramo è andato avanti di %{count} commit"
+          merged: "Unito a main"
+          gone: "Il ramo non c'è più"
+          unknown: "Non registrato"
+        data_fresh: "Nuovi all'anteprima"
+        data_kept: "Tenuti da prima"
+        by: "%{time} da %{who}"
+        someone: "qualcuno"
+        run: "Vedi l'esecuzione"
+        deployed_ago: "Deploy %{time} fa"
+        stopped_ago: "Fermato %{time} fa"
+        in_progress: "In corso"
+        sync_states:
+          head: "Gira sulla testa di main"
+          behind:
+            one: "%{count} commit indietro rispetto a main"
+            other: "%{count} commit indietro rispetto a main"
+          rolled_back:
+            one: "Rollback, %{count} commit indietro rispetto a main"
+            other: "Rollback, %{count} commit indietro rispetto a main"
+          ahead: "Una versione che main non ha"
+          unknown: "Non registrato"
+        health_states:
+          here_ok: "Risponde"
+          here_down: "Non risponde"
+          public_ok: "Attiva"
+          public_down: "Non risponde"
+          unknown: "Non verificato da qui"
+          unknown_why: "%{name} sta dietro Cloudflare Access, che questa copia non può superare: aprila per vedere."
+      run:
+        steps: "%{done} passaggi su %{total} completati"
+        waiting: "In attesa di un runner"
+      activity:
+        title: "Attività"
+        hint: "Le ultime %{count} esecuzioni del workflow Deploy su GitHub. Un'esecuzione avviata da qui indica chi l'ha chiesta."
+        none: "Ancora nessuna esecuzione."
+        by: "%{actor}, %{time}"
+        statuses:
+          queued: "In coda"
+          in_progress: "In corso"
+          waiting: "In attesa"
+          pending: "In sospeso"
+          requested: "Richiesta"
+          success: "Riuscita"
+          failure: "Non riuscita"
+          cancelled: "Annullata"
+          skipped: "Saltata"
+          timed_out: "Scaduta"
+          action_required: "Richiede attenzione"
+          neutral: "Terminata"
+          startup_failure: "Non avviata"
+          stale: "Obsoleta"
+        request_statuses:
+          requested: "Richiesta"
+          running: "In corso"
+          succeeded: "Riuscita"
+          failed: "Non riuscita"
+          lost: "Non trovata"
+        request:
+          preview: "anteprima di %{ref} su %{destination}"
+          merge_branch: "unione di %{ref} in main"
+          ci: "CI su %{ref}"
+          deploy: "deploy di %{version} su %{destination}"
+          restart: "riavvio di %{destination}"
+          stop: "arresto di %{destination}"
+          rollback: "rollback di %{destination} a %{version}"
+          release: "rilascio di %{version} con interruzione"
+          freeze: "sospensione dei deploy automatici"
+          unfreeze: "ripresa dei deploy automatici"
+      metrics:
+        title: "Metriche di consegna"
+        hint: "Le quattro metriche DORA per la produzione: gli ultimi 30 giorni rispetto ai 30 precedenti, e le ultime 13 settimane di ciascuna."
+        loading: "Conteggio…"
+        frequency:
+          label: "Deploy"
+          hint: "Deploy, rilasci e rollback riusciti in produzione nel periodo."
+        lead_time:
+          label: "Lead time"
+          hint: "Tempo mediano da un commit al suo arrivo in produzione."
+        failure_rate:
+          label: "Modifiche non riuscite"
+          hint: "Deploy non riusciti, o annullati con un rollback entro un giorno, su tutti quelli tentati."
+        recovery_time:
+          label: "Ripristino"
+          hint: "Tempo mediano da una modifica non riuscita al deploy riuscito successivo."
+      actions:
+        preview: "Anteprima di un ramo su Dev"
+        merge: "Unisci a main…"
+        open_pull_request: "Pull request #%{number} su GitHub"
+        open_compare: "Apri una pull request su GitHub"
+        ci: "Esegui la CI su main"
+        deploy_main: "Porta la testa di main su staging"
+        promote: "Promuovi %{version} in produzione"
+        restart: "Riavvia"
+        stop: "Ferma"
+        rollback: "Rollback…"
+        release: "Rilascia con interruzione…"
+        release_now: "Rilascialo…"
+        more: "Altro"
+        freeze: "Sospendi i deploy automatici"
+        unfreeze: "Riprendi i deploy automatici"
+      modals:
+        in_progress: "C'è un'esecuzione in corso su GitHub: questa aspetta il suo turno."
+        reason_label: "Perché (resta con l'esecuzione)"
+        reason_label_optional: "Perché (facoltativo, resta con l'esecuzione)"
+        reason_placeholder: "Due parole"
+        typed_label: "Scrivi %{phrase} per confermare"
+        password_label: "La tua password"
+        password_help: "Chiesta una volta prima di qualunque cosa cambi la produzione; vale poi per %{minutes} minuti."
+        ships:
+          none: "Niente di nuovo parte: gira già questa versione."
+          count:
+            one: "Parte %{count} commit:"
+            other: "Partono %{count} commit:"
+          more:
+            one: "e %{count} altro"
+            other: "e altri %{count}"
+        preview:
+          title: "Anteprima di un ramo su Dev"
+          subtitle: "Ne viene costruita l'immagine, poi Dev la esegue"
+          help: "Qualunque ramo, com'è adesso. Dev è una copia a sé, con i dati della casa demo: niente di ciò che succede lì va oltre."
+          runs: "Dev esegue %{branch} a %{version}."
+          nothing: "Su Dev non gira ancora niente."
+          branch_label: "Ramo"
+          fresh_label: "Riparti da dati nuovi"
+          fresh_help: "I database di Dev vengono eliminati, lo schema caricato per intero e la demo generata di nuovo, con un amministratore (nome utente admin, la password della demo). Serve quando le migrazioni del ramo differiscono da quelle che Dev ha eseguito; se è disattivato, i dati restano e vengono migrati alla nuova versione."
+          submit: "Anteprima su Dev"
+        merge:
+          title: "Unisci %{branch} a main"
+          subtitle: "Tramite la sua pull request, con un merge commit, come il pulsante di GitHub"
+          no_pull_request: "%{branch} non ha una pull request aperta: aprine una su GitHub, così la CI ci gira."
+          pr_line: "%{title} — %{author}, da %{branch}"
+          untested:
+            one: "Dev esegue %{ran}, ma la testa del ramo è %{head}: %{count} commit non è stato provato su Dev."
+            other: "Dev esegue %{ran}, ma la testa del ramo è %{head}: %{count} commit non sono stati provati su Dev."
+          preview_again: "Prima fanne di nuovo l'anteprima."
+          after: "La CI costruisce l'unione, poi staging la prende da solo. La produzione aspetta te."
+          submit: "Unisci #%{number} a main"
+        ci:
+          title: "Esegui la CI"
+          subtitle: "I controlli, su qualunque ramo"
+          help: "Su main un'esecuzione superata costruisce anche l'immagine: così, dopo un errore occasionale, la si può ripetere e fare il deploy del commit. Niente va in deploy da solo."
+          ref_label: "Ramo"
+          submit: "Esegui la CI su %{ref}"
+        deploy:
+          title: "Deploy di %{version} su %{destination}"
+          subtitle: "Senza interruzione: le richieste continuano a essere servite mentre si avvia"
+          same_as_staging: "La stessa immagine che gira su staging: niente viene ricostruito."
+          held:
+            one: "Questa versione richiede l'app ferma: %{count} migrazione non può girare accanto alla versione in servizio. Rilasciala invece:"
+            other: "Questa versione richiede l'app ferma: %{count} migrazioni non possono girare accanto alla versione in servizio. Rilasciala invece:"
+          stopped:
+            staging:
+              one: "%{count} migrazione richiede l'app ferma: staging ne fa la prova generale sui dati di produzione invece di un deploy senza interruzione."
+              other: "%{count} migrazioni richiedono l'app ferma: staging ne fa la prova generale sui dati di produzione invece di un deploy senza interruzione."
+            demo:
+              one: "%{count} migrazione richiede l'app ferma: la demo fa il deploy dietro la pagina di manutenzione mentre gira."
+              other: "%{count} migrazioni richiedono l'app ferma: la demo fa il deploy dietro la pagina di manutenzione mentre girano."
+          submit: "Deploy su %{destination}"
+        restart:
+          title: "Riavvia %{destination}"
+          subtitle: "La stessa versione, processi nuovi, senza interruzione"
+          line: "%{destination} riavvia %{version}; le richieste continuano a essere servite nel frattempo."
+          submit: "Riavvia %{destination}"
+        stop:
+          title: "Ferma %{destination}"
+          subtitle: "La sua memoria torna alla macchina, fino a un'anteprima"
+          runs: "Dev esegue %{branch} a %{version}."
+          line: "%{destination} si ferma: i processi web e dei job, e il database. I dati restano. Lì non gira niente finché un'anteprima non lo riavvia: un riavvio non basta."
+          not_running: "%{destination} non è in funzione: lo avvia un'anteprima."
+          submit: "Ferma %{destination}"
+        rollback:
+          title: "Rollback della produzione"
+          subtitle: "Un'immagine precedente, com'era stata costruita; niente ricostruzione"
+          pick: "Torna a"
+          deployed: "deploy %{time} fa"
+          none: "Nessuna versione precedente registrata per la produzione."
+          help: "La produzione resta qui finché qualcuno non promuove di nuovo una versione."
+          submit: "Torna a %{phrase}"
+        release:
+          title: "Rilascia %{version} con interruzione"
+          subtitle: "Dietro la pagina di manutenzione, annullato da solo se qualcosa fallisce"
+          downtime: "Interruzione."
+          rehearsed: "L'ultima prova generale sui dati di produzione ha tenuto su la pagina di manutenzione per %{downtime} (la migrazione in sé %{migration}). Prima si ripete la prova generale, e la produzione parte solo se riesce."
+          undone: "L'ultima prova generale sui dati di produzione è stata annullata: %{reason}. Prima si ripete la prova generale, e la produzione parte solo se riesce."
+          not_rehearsed: "Prova generale sui dati di produzione non ancora fatta: non si sa quanto resterà su la pagina di manutenzione. Prima si fa la prova generale, e la produzione parte solo se riesce."
+          held:
+            one: "%{count} migrazione richiede l'app ferma:"
+            other: "%{count} migrazioni richiedono l'app ferma:"
+          members_told: "Tutti vengono avvisati quando inizia e quando è finito."
+          submit: "Rilascia %{phrase}"
+        freeze:
+          title: "Sospendi i deploy automatici"
+          subtitle: "Un push su main costruisce l'immagine e si ferma lì"
+          line: "Niente arriva su staging da solo finché non riprendi (in produzione mai). Quello che premi qui parte comunque."
+          submit: "Sospendi"
+        unfreeze:
+          title: "Riprendi i deploy automatici"
+          subtitle: "CI verde su main → staging, come sempre"
+          line: "Il prossimo push su main va di nuovo su staging da solo. Adesso non parte nessun deploy."
+          submit: "Riprendi"
+      notices:
+        pressed:
+          preview: "L'anteprima di %{ref} su %{destination} parte tra un attimo: prima ne viene costruita l'immagine."
+          merge_branch: "%{ref} è unito a main (%{version}): la CI lo costruisce, poi staging lo prende da solo."
+          ci: "La CI parte su %{ref} tra un attimo."
+          deploy: "Il deploy su %{destination} parte tra un attimo."
+          restart: "%{destination} si riavvia tra un attimo."
+          stop: "%{destination} si ferma tra un attimo."
+          rollback: "Il rollback parte tra un attimo."
+          release: "Il rilascio parte tra un attimo: prima fa la prova generale su staging."
+          freeze: "I deploy automatici sono sospesi."
+          unfreeze: "I deploy automatici sono di nuovo attivi."
+        on_github: "Seguilo su GitHub"
+        failed: "GitHub non l'ha accettato: %{error}"
+        no_token: "Nessun token per il deploy: impostalo prima nella pagina Impostazioni."
+    settings:
+      title: "Impostazioni"
+      hint: "Ciò che tutta l'app usa, impostato qui una volta. Un campo vuoto mantiene quanto salvato; il cestino lo dimentica."
+      assistant: "Provider, modello e chiavi dell'assistente hanno una pagina a parte:"
+      assistant_link: "Impostazioni dell'assistente"
+      save: "Salva"
+      token:
+        partial: "Il token è salvato, ma non può leggere %{list}. Dagli quei permessi su %{repository}."
+        reads:
+          actions: "i workflow (Actions: lettura)"
+          contents: "i commit (Contents: lettura)"
+          deployments: "i deployment (Deployments: lettura)"
+          pull_requests: "le pull request (Pull requests: lettura)"
+          variables: "la sospensione (Variables: lettura)"
+      notices:
+        saved: "Impostazioni salvate."
+        cleared: "Il valore salvato (%{name}) è stato dimenticato."
+    households:
+      index:
+        title: "Case"
+        hint: "Chiunque usi l'app appartiene a una di queste. Una casa nasce con un primo membro invitato, che invita gli altri."
+        hint_with_size: "Chiunque usi l'app appartiene a una di queste. Una casa nasce con un primo membro invitato, che invita gli altri (fino a %{max} persone)."
+        members:
+          one: "%{count} membro"
+          other: "%{count} membri"
+        waiting:
+          one: "%{count} invito in attesa"
+          other: "%{count} inviti in attesa"
+        since: "dal %{date}"
+        empty: "Ancora nessuna casa. Crea la prima con “Nuova casa”."
+      new:
+        title: "Nuova casa"
+        name_label: "Nome della casa"
+        first_member_email_label: "Email del primo membro"
+        first_member_first_name_label: "Il suo nome (facoltativo)"
+        what_happens: "Riceverà un link per unirsi e potrà poi invitare gli altri."
+        submit: "Crea e invita"
+    lexicons:
+      index:
+        title: "Lingue"
+        hint: "Le lingue in cui l'assistente capisce i nomi delle forniture. Le parole di ognuna vengono da Wikizionario; un'importazione si usa solo dopo che ha superato tutte le verifiche."
+        problems: "Alcune lingue vanno corrette:"
+      pivot: "pivot"
+      nouns:
+        one: "%{formatted} sostantivo"
+        other: "%{formatted} sostantivi"
+      not_imported: "Non ancora importata"
+      source_of: "Wikizionario del %{date}"
+      failed_at: "Non riuscita a %{step}:"
+      import: "Importa %{language}"
+      continue: "Prosegui l'importazione"
+      cancel: "Annulla l'importazione"
+      cancel_confirm: "Interrompere l'importazione di %{language}? Ciò che ha caricato finora viene eliminato; il dizionario in uso resta."
+      progress:
+        starting: "avvio…"
+        running_for: "in corso da %{time}"
+        updated: "ultimo aggiornamento %{time} fa"
+        for: "da %{time}"
+        queued: "In coda: il worker dei job la avvierà a momenti."
+        no_worker: "In coda, ma nessun worker dei job è attivo per avviarla. Avvialo (bin/jobs; riavviare bin/dev lo fa) o annulla questa importazione."
+        job_missing: "Il suo job non c'è: non è mai stato messo in coda, o è andato perso. Non sta succedendo nulla: annullala e importa di nuovo."
+        job_failed: "Il suo job non è riuscito nel worker dei job (vedi il suo log). Annullala e importa di nuovo."
+        stopping: "In arresto: finisce entro pochi secondi."
+      reimport:
+        which_file: "Quale file?"
+        download: "Scaricalo di nuovo da kaikki.org"
+        kept: "Usa il file già scaricato"
+        remote: "kaikki.org ha %{size}, aggiornato il %{date}."
+        unreachable: "kaikki.org non è raggiungibile ora (%{error})."
+        kept_detail: "%{size}, scaricato %{date}."
+        none_kept: "Nessun file conservato finora: scaricalo."
+        what_runs: "Si ripetono tutti i passaggi: le verifiche, la verifica del dizionario e il test con l'assistente (circa 15 minuti). Il dizionario in uso resta in uso finché la nuova importazione non le supera."
+        submit: "Importa"
+      review:
+        banner: "Questa importazione aspetta te: conferma almeno %{count} casi di prova qui sotto (correggi quelli sbagliati dal modello), poi scegli “Prosegui l'importazione” dal menu."
+      dictionary:
+        title: "Verifica del dizionario"
+        hint: "Senza modello: per ogni caso confermato il dizionario deve scegliere la fornitura giusta fra tre, nei due sensi. Almeno il %{rate}% giusto, e mai una sbagliata."
+        columns:
+          said: "Detto"
+          supplies: "Forniture"
+          expected: "Attesa"
+          got: "Scelta"
+        verdicts:
+          found: "giusta"
+          wrong: "fornitura sbagliata"
+          missed: "non trovata"
+      attribution: "Parole da Wikizionario, tramite"
+      statuses:
+        none: "Non importata"
+        running: "In importazione"
+        failed: "Non riuscita"
+        active: "Attiva"
+        superseded: "Sostituita"
+        unchanged: "Invariata"
+        awaiting_review: "In attesa di revisione"
+        cancelled: "Annullata"
+      steps:
+        configure: "Configurazione"
+        source: "Sorgente"
+        download: "Download"
+        parse: "Lettura"
+        load: "Caricamento"
+        verify: "Verifiche"
+        dictionary: "Verifica del dizionario"
+        agent: "Test con l'assistente"
+        activate: "Attivazione"
+      step_statuses:
+        ok: "fatto"
+        failed: "non riuscito"
+        running: "in corso"
+        skipped: "saltato"
+        pending: "in attesa"
+        waiting: "in attesa di revisione"
+        cancelled: "annullato"
+      show:
+        back: "Torna alle lingue"
+        started: "Avviata %{time}"
+        steps: "Passaggi"
+        checks: "Verifiche"
+        found: "trovato: %{got}"
+        seconds: "%{seconds} s"
+        history: "Importazioni precedenti"
+        newer_attempt: "Un tentativo più recente (%{time}):"
+        see_it: "vedilo"
+        took: "durata %{time}"
+        failed_at_step: "Non riuscita a %{step}"
+        steps_done: "%{done} passaggi su %{total} completati"
+        checks_passed: "%{passed} su %{total} superati"
+        agent_passed: "%{passed} su %{scored} superati"
+        cases_none: "ancora nessuno"
+        cases_to_confirm:
+          one: "%{count} da confermare"
+          other: "%{count} da confermare"
+        cases_all_confirmed:
+          one: "%{count} confermato"
+          other: "tutti e %{count} confermati"
+      notices:
+        started: "Importazione di %{language} avviata: i passaggi qui sotto si completano man mano."
+        already_running: "%{language} è già in importazione."
+        nothing_active: "%{language} non ha ancora un'importazione attiva da testare."
+        evaluating: "Nuovo test di %{language} con l'assistente: i risultati qui sotto si completano man mano."
+        already_evaluating: "Il test di %{language} con l'assistente è già in corso."
+        writing_cases: "Il modello sta scrivendo i casi di prova di %{language}; compariranno qui sotto."
+        continuing: "L'importazione di %{language} prosegue: verifica del dizionario, poi test con l'assistente."
+        cancel_stopping: "L'importazione di %{language} si sta fermando; finisce entro pochi secondi."
+        cancel_cancelled: "L'importazione di %{language} è annullata."
+        cancel_finished: "L'importazione di %{language} era già finita: niente da fermare."
+      add:
+        title: "Aggiungi una lingua"
+        submit: "Aggiungi e importa"
+        name_label: "Lingua"
+        name_placeholder: "Inizia a scrivere: Spanish, German, Português…"
+        name_help:
+          one: "Una delle %{count} lingue di cui kaikki.org ha un estratto, col suo nome inglese."
+          other: "Una delle %{count} lingue di cui kaikki.org ha un estratto, col suo nome inglese."
+        no_catalog: "Non è stato possibile caricare l'elenco di kaikki.org: scrivi il nome inglese della lingua come lo scrive kaikki.org."
+        senses:
+          one: "%{formatted} significato"
+          other: "%{formatted} significati"
+        head_label: "Quale parola di un nome è la cosa stessa?"
+        head_help: "Italiano \"STRISCE reattive\": la prima. Inglese \"test STRIPS\": l'ultima."
+        heads:
+          first: "La prima parola"
+          last: "L'ultima parola"
+        what_happens: "Il codice si legge dal download. Poi viene importata, il modello scrive i casi di prova e l'assistente viene testato con essa prima di usarla."
+        already_here: "%{language} c'è già."
+        code_taken: "Il %{language} di kaikki.org ha il codice \"%{code}\", già usato qui da %{existing}."
+        not_on_kaikki: "kaikki.org non ha un estratto di %{language} (%{error})."
+      agent:
+        title: "Test con l'assistente"
+        hint: "Ogni caso viene proposto all'assistente in quattro modi con questo dizionario, e due volte solo in inglese. La lingua deve andare bene quasi quanto il solo inglese (entro %{tolerance} punti) e non toccare mai la fornitura sbagliata: ciò che fallisce anche in inglese è dell'assistente, non della lingua."
+        rerun: "Ripeti il test con l'assistente"
+        rerun_confirm: "Ripetere il test con l'assistente sul dizionario attivo? Richiede alcuni minuti e usa il modello."
+        rerun_badge: "ripetuta"
+        concept: "Fornitura"
+        tools: "L'assistente ha chiamato: %{tools}"
+        failures:
+          one: "%{count} esecuzione non superata"
+          other: "%{count} esecuzioni non superate"
+        statuses:
+          none: "Non testata"
+          running: "Test in corso"
+          passed: "Superata"
+          failed: "Non superata"
+          skipped: "Saltata"
+        result_statuses:
+          passed: "superata"
+          failed: "non superata"
+          error: "non valutata (errore)"
+        kinds:
+          dose_native_supplies: "Dose, salvata in questa lingua"
+          purchase_native_supplies: "Acquisto, salvato in questa lingua"
+          dose_english_supplies: "Dose, detta in questa lingua"
+          purchase_english_supplies: "Acquisto, detto in questa lingua"
+          control_dose: "Dose, solo inglese"
+          control_purchase: "Acquisto, solo inglese"
+      cases:
+        title: "Casi di prova"
+        hint: "Bozze del modello, una per fornitura: la parola con cui la etichetterebbe chi parla la lingua e due frasi che direbbe. Contano solo i casi che confermi (così come sono o dopo averli corretti); restano quando i casi vengono riscritti."
+        none: "Ancora nessun caso di prova: si scrivono alla prima importazione, o con “Riscrivi i casi di prova” nel menu."
+        writing: "Il modello sta scrivendo i casi di prova…"
+        error: "Il modello non è riuscito a scrivere i casi di prova: %{error}"
+        write: "Riscrivi i casi di prova"
+        write_confirm: "Chiedere al modello di riscrivere i casi di prova? Quelli corretti a mano restano."
+        confirmed: "confermato"
+        confirm: "Conferma il caso %{concept} così com'è"
+        confirmed_notice: "Caso di prova %{concept} confermato."
+        new: "Aggiungi un caso di prova"
+        new_title: "Nuovo caso di prova in %{language}"
+        add: "Aggiungi"
+        created: "Caso di prova %{concept} aggiunto."
+        own: "aggiunto qui"
+        destroy: "Elimina il caso %{concept}"
+        destroy_confirm: "Eliminare il caso %{concept}? Non conterà più nelle verifiche."
+        destroyed: "Caso di prova %{concept} eliminato."
+        shared: "Il caso %{concept} è uno di quelli con cui si prova ogni lingua: correggilo invece."
+        help:
+          concept: "La fornitura, in inglese e al singolare: una di quelle comuni ancora senza caso, o qualsiasi altra."
+          english_plural: "Come si chiama una fornitura salvata in inglese. Lascialo vuoto per il plurale normale."
+          dose: "In %{language}: \"%{sentence}\""
+          purchase: "In %{language}: \"%{sentence}\""
+        reasons:
+          not_in_dictionary: "non è nel dizionario %{language}: non valutato"
+          duplicate: "è la stessa parola di un altro caso: non valutato"
+          unlinked: "il dizionario non dice che significa questo: correggilo, o confermalo se è giusto"
+          unconfirmed: "non ancora confermato: non conta"
+        edit: "Correggi il caso %{concept}"
+        edit_title: "Modifica il caso %{concept}"
+        save: "Salva modifiche"
+        saved: "Caso di prova %{concept} aggiornato."
+        fields:
+          native_singular: "Parola (singolare)"
+          native_plural: "Parola (plurale), come si chiama la fornitura"
+          dose_sentence: "Cosa dice per una dose"
+          purchase_sentence: "Cosa dice dopo averne comprate"
+          concept: "Fornitura, in inglese"
+          english_plural: "Il suo plurale inglese"
+
+  pundit:
+    not_authorized: "Non sei autorizzato a eseguire questa azione."
+
+  refusals:
+    unknown_choice: "Questa opzione non è disponibile. Ricarica la pagina e riprova."
+
+  failures:
+    gone: "Non c'è più. Forse qualcuno l'ha appena eliminato."
+    page_out_of_date: "Questa pagina non era aggiornata. Ora lo è: riprova."
+    changed_meanwhile: "Qualcuno ha appena salvato una modifica. La pagina è stata aggiornata: riprova."
+    offline: "Nessuna connessione. Controlla di essere online e riprova."
+    server_error: "Qualcosa non ha funzionato da parte nostra. È stato registrato; riprova."
+    missing: "Una parte di questa pagina non si è caricata. Ricarica la pagina per riprovare."
+
+  modal:
+    close: "Chiudi"
+    cancel: "Annulla"
+    done: "Fatto"
+    required_indicator: "*"
+    required_screen_reader: "obbligatorio"
+    field_required_hint: "%{field} è obbligatorio."
+
+  confirm_dialog:
+    cancel: "Annulla"
+    confirm: "Conferma"
+
+  event_fields:
+    frequency_label: "Ripeti"
+    interval_label: "Ogni"
+    interval_placeholder: "1"
+    interval_help: "Ogni quante volte si ripete (es. ogni 2 settimane)"
+    weekly_days_label: "Nei giorni"
+    frequencies:
+      none: "Non si ripete"
+      daily: "Giornaliero"
+      weekly: "Settimanale"
+      monthly: "Mensile"
+      yearly: "Annuale"
+
+  page_controls:
+    more: "Altre azioni"
+
+  pagination:
+    previous: "Precedente"
+    next: "Successiva"
+    gap: "…"
+    aria_label: "Paginazione"
+    aria_label_of: "Pagine di “%{list}”"
+    page: "Pagina %{page}"
+
+  assistant:
+    settings:
+      title: "Impostazioni dell'assistente"
+      hint: "Con quale IA parla l'assistente, e come. Le impostazioni salvate valgono per ogni casa dalla prossima risposta, senza riavviare."
+      status:
+        local: "Le chat restano sul server della casa (Ollama)."
+        cloud: "Le chat escono dal server: risponde %{provider}, dati sanitari compresi."
+        from_environment: "Si usa l'ambiente del server (.env) finché non salvi qui"
+        changed: "Modificate %{time} fa"
+        changed_by: "Modificate %{time} fa da %{name}"
+        context: "Finestra di contesto: %{tokens} token"
+        no_context: "Finestra di contesto non impostata"
+      connection:
+        checking: "Verifica della connessione…"
+        ok: "Connesso"
+        unreachable: "Non raggiungibile"
+        ok_detail: "%{provider} ha %{model}."
+        tested: "verificata con i valori del modulo, non salvati"
+        untested: "Verifica la connessione controlla la chiave e il modello, ed elenca i modelli del provider."
+      providers:
+        ollama:
+          name: "Ollama"
+          blurb: "Il tuo server: i dati della casa non escono di casa."
+        anthropic:
+          name: "Anthropic (Claude)"
+          blurb: "I modelli Claude tramite l'API di Anthropic. Serve una chiave API."
+        openai:
+          name: "OpenAI"
+          blurb: "I modelli GPT tramite l'API di OpenAI. Serve una chiave API."
+      usage:
+        hint: "Cosa ogni casa ha chiesto all'assistente questo mese, e quanto il modello ha letto e scritto per lei. I costi solo quando il provider ha un listino; un modello locale non costa nulla."
+        none: "Nessuno ha chiesto nulla all'assistente questo mese."
+        household: "Casa"
+        messages: "Messaggi"
+        input_tokens: "Token letti"
+        output_tokens: "Token scritti"
+        cost: "Costo"
+        free: "—"
+      sections:
+        usage: "Uso di questo mese"
+        provider: "Provider"
+        provider_hint: "Chi risponde. Ogni chat passa a lui dalla prossima risposta."
+        connection: "Connessione"
+        model: "Modello"
+        model_hint: "Il nome del modello come lo chiama il provider."
+        advanced: "Avanzate"
+      fields:
+        ollama_url: "Indirizzo del server"
+        ollama_url_help: "L'indirizzo di Ollama, senza /v1: ad esempio http://ollama.local:11434."
+        api_key: "Chiave API di %{provider}"
+        api_key_help: "Salvata cifrata e mai più mostrata: scrivine una nuova per sostituirla."
+        key_saved: "Chiave salvata che finisce con %{last4}: lascia vuoto per tenerla"
+        key_env: "Si usa %{variable} dall'ambiente: scrivine una per salvarne una tua"
+        key_none: "Incolla la chiave API"
+        model: "Modello"
+        models_loading: "Ricerca dei modelli del provider…"
+        models_found:
+          one: "1 modello disponibile: sceglilo o scrivi un nome."
+          other: "%{count} modelli disponibili: scegline uno o scrivi un nome."
+        models_none: "Il provider non ha elencato i suoi modelli (offline, o manca la chiave): scrivi il nome."
+        context_tokens: "Finestra di contesto (token)"
+        context_tokens_help: "Come viene servito il modello. Serve ad avvisare quando un passo ci si avvicina."
+        temperature: "Temperatura"
+        temperature_help: "Vuoto: non viene inviata (i modelli Claude più recenti la rifiutano)."
+        thinking_effort: "Ragionamento"
+        thinking_effort_help: "Quanto ragiona il modello prima di rispondere."
+        max_output_tokens: "Output massimo per passo (token)"
+        max_output_tokens_help: "Ferma una risposta fuori controllo. Vuoto: %{tokens}."
+      thinking:
+        default: "Predefinito del modello"
+        none: "Disattivato"
+        low: "Basso"
+        medium: "Medio"
+        high: "Alto"
+      advanced_summary: "Contesto %{context} · temperatura %{temperature} · ragionamento: %{thinking}"
+      unset: "non impostato"
+      not_sent: "non inviata"
+      test: "Verifica la connessione"
+      save: "Salva"
+      clear_key: "Dimentica la chiave %{provider} salvata"
+      clear_key_confirm: "Dimenticare la chiave %{provider} salvata? Si userà quella dell'ambiente, se c'è."
+      notices:
+        saved: "Impostazioni salvate. La prossima risposta le usa."
+        key_cleared: "La chiave %{provider} salvata è stata dimenticata."
+        key_in_use: "%{provider} è il provider in uso e non ha un'altra chiave: scegli prima un altro provider."
+    # Nome della lingua di risposta, in inglese: finisce nelle istruzioni del modello.
+    language_name: "Italian"
+    defaults:
+      appointment_title: "Appuntamento con %{counterpart}"
+      lab_test_result_title: "Esami"
+      payment_title_with: "%{category} con %{person}"
+      lab_photo_caption: "Foto inviata"
+    chats:
+      title: "Chat con l'assistente"
+      rename: "Rinomina chat"
+      delete: "Elimina chat"
+      confirm_destroy: "Eliminare \"%{title}\" e tutto il suo contenuto? Non si può annullare."
+      notices:
+        renamed: "Chat rinominata."
+        destroyed: "Chat eliminata."
+      form:
+        title: "Rinomina chat"
+        subtitle: "Dalle un nome che riconosci."
+        title_label: "Nome"
+        title_placeholder: "Nome della chat"
+        submit: "Rinomina"
+      all: "Torna alle chat con l'assistente"
+      new: "Nuova chat"
+      new_title: "Nuova chat"
+      empty: "Ancora nessuna chat."
+      empty_search: "Nessuna chat corrisponde alla ricerca."
+      search_placeholder: "Cerca chat…"
+    thread:
+      thinking: "Sto pensando…"
+      welcome: "Dimmi cosa hai comprato, prenotato o preso, e terrò in ordine i tuoi dati."
+      examples:
+        - "Ho comprato cobalamina, aghi e siringhe per la mia terapia di B12"
+        - "Ho prenotato il dottor Moretti per questo venerdì, costa 50 euro"
+        - "Appuntamento fatto!"
+      attached_image_alt: "Foto allegata"
+      photo_text: "Testo letto dalla foto"
+    composer:
+      cloud_notice: "Ciò che scrivi qui, dati sanitari compresi, è inviato a %{provider} per la risposta."
+      placeholder: "Scrivi all'assistente"
+      left_today:
+        one: "%{count} messaggio su %{max} rimasto oggi"
+        other: "%{count} messaggi su %{max} rimasti oggi"
+      send: "Invia"
+      stop: "Ferma"
+      attach_image: "Allega foto"
+      remove_image: "Rimuovi le foto"
+    types:
+      task: "attività"
+      appointment: "appuntamento"
+      medication: "farmaco"
+      lab_test_result: "esame"
+      transaction: "pagamento"
+      collection: "raccolta"
+      supply: "fornitura"
+      supply_purchase: "acquisto"
+      ingredient_purchase: "acquisto di spesa"
+      record: "elemento"
+      reference_range: "intervallo di riferimento"
+      analyte: "analita"
+      book: "libro"
+      ingredient: "ingrediente"
+      recipe: "ricetta"
+      grocery_list: "lista della spesa"
+      meal: "pasto"
+    activity:
+      search_records: "Cercato tra: %{type}"
+      get_record: "Controllato: %{type}"
+      change: "Ha provato a modificare i tuoi dati"
+      other: "Ha lavorato sui tuoi dati"
+      failed: "%{action}: non è riuscito"
+    proposals:
+      reference_range: "l'intervallo di riferimento di %{analyte} (%{unit})"
+      summary:
+        one: "%{label} del %{date}"
+        series: "%{label} (tutte le ripetizioni)"
+        undated: "%{label}"
+        many: "questi %{count}: %{list}"
+        more: "…e altri %{count}"
+    debug:
+      title: "Traccia di debug"
+      show: "Mostra traccia di debug"
+      hide: "Nascondi traccia di debug"
+      turn: "Turno %{number} · %{tools} chiamate a strumenti · %{input} in / %{output} out token"
+      arguments: "Argomenti"
+      result: "Risultato"
+      reply: "Risposta"
+      note: "Nota per il modello"
+      largest_step: "· passo più grande %{tokens} token"
+      largest_step_of: "· passo più grande %{tokens} di %{limit} token"
+      context: "Contesto inviato a ogni turno (ad ora)"
+      change_sets: "Modifiche (dati grezzi)"
+    operations:
+      ask_owner: "Chiedi a %{name}: %{change}"
+      create: "Salva %{thing}"
+      update: "Aggiorna %{thing}"
+      complete: "Segna come fatto: %{thing}"
+      uncomplete: "Segna come non fatto: %{thing}"
+      set_status: "Segna come %{status}: %{thing}"
+      share: "Condividi %{thing} con %{person}"
+      unshare: "Smetti di condividere %{thing} con %{person}"
+      merge: "Unisci gli analiti %{thing}"
+      merge_pair: "%{from} in %{into}"
+      statuses:
+        pending: "non fatto"
+        in_progress: "in corso"
+        completed: "fatto"
+        cancelled: "annullato"
+        skipped: "saltato"
+      delete: "Elimina %{thing}"
+      set_range: "Salva l'intervallo di riferimento: %{thing}"
+      on_date: "%{thing} del %{date}"
+      on_date_at: "%{thing} del %{date}, %{when}"
+      with_supplies: "%{thing}, usando %{supplies}"
+      supplies_from: "le forniture di %{thing} dal %{date}"
+      bounds:
+        low: "basso %{value}"
+        high: "alto %{value}"
+        critical_low: "criticamente basso a %{value}"
+        critical_high: "criticamente alto a %{value}"
+      values:
+        one: "%{count} valore"
+        other: "%{count} valori"
+    change_sets:
+      status:
+        open: "In attesa di alcuni dettagli"
+        awaiting_confirmation: "In attesa del tuo OK"
+        applied: "Salvato"
+        undone: "Ripristinato"
+        cancelled: "Annullato"
+        expired: "Non salvato (scaduto)"
+      op_status:
+        asked: "chiesto"
+        ready: "pronto"
+        missing: "servono dettagli"
+        ambiguous: "quale?"
+        confirm: "serve il tuo OK"
+        invalid: "non capito"
+      buttons:
+        apply: "Applica"
+        apply_delete: "Elimina"
+        cancel: "Annulla"
+        undo: "Ripristina"
+        review_thing: "Rivedi %{thing}"
+        edit_thing: "Modifica %{thing}"
+      not_undoable: "Un'eliminazione non si può ripristinare."
+      seen_by:
+        one: "%{names} lo vedrà."
+        other: "%{names} lo vedranno."
+      notices:
+        applied: "Salvato."
+        failed: "Non è stato possibile salvarlo: qualcosa è cambiato nel frattempo."
+        cancelled: "Annullato: non è stato salvato niente."
+        undone: "Ripristinato."
+        review_unavailable: "Non è stato possibile aprirlo per la revisione."
+      cannot_undo:
+        decided: "%{thing} ha già risposto, quindi non si può ripristinare lo stato precedente."
+        not_applied: "Si può ripristinare lo stato precedente solo dopo un salvataggio."
+        deleted: "Questa modifica ha eliminato qualcosa, quindi non si può ripristinare lo stato precedente."
+        changed_since: "%{thing} è stato modificato dopo, quindi non si può ripristinare lo stato precedente."
+        failed: "Impossibile ripristinare lo stato precedente."
+    errors:
+      cancelled: "Interrotto."
+      too_many_steps: "Servivano troppi passaggi, quindi mi sono fermato. Prova a chiedere un pezzo alla volta."
+      unreachable: "Al momento l'assistente non è raggiungibile. Riprova tra poco."
+      rate_limited: "L'assistente ha ricevuto troppe richieste per ora. Riprova tra qualche minuto."
+      setup: "L'assistente non è configurato bene, quindi non può rispondere. Chi gestisce l'app è stato avvisato."
+      context_full: "Questa chat è diventata troppo lunga per l'assistente. Iniziane una nuova per continuare."
+      stalled: "Non è arrivata nessuna risposta: l'assistente al momento non funziona. Chi gestisce l'app è stato avvisato."
+      no_answer: "Mi sono perso e non ho una risposta. Puoi ripeterlo, magari con meno parole?"
+      daily_limit: "Questa casa ha usato i suoi %{max} messaggi all'assistente per oggi. Tornano domani."
+      images_off: "Qui le foto sono disattivate."
+      empty: "Scrivi un messaggio o aggiungi una foto."
+      too_long: "Un messaggio può avere al massimo %{max} caratteri."
+      unsupported_photos: "Aggiungi al massimo %{max} foto, ciascuna JPEG, PNG, WebP o HEIC di al massimo %{size}."
+      busy: "L'assistente sta ancora rispondendo. Aspetta la risposta, poi invia di nuovo."
+      failed: "Qualcosa è andato storto. Non ho cambiato altro; riprova."
+    # La dashboard delle valutazioni (strumento per sviluppatori; solo in locale).
+    evals:
+      title: "Valutazioni dell'assistente"
+      new_scenario: "Nuovo scenario"
+      back_to_runs: "Torna alle esecuzioni"
+      back_to_scenarios: "Torna agli scenari"
+      select_scenario: "Seleziona %{name}"
+      run_scenario: "Esegui %{name}…"
+      edit_scenario: "Modifica %{name}"
+      delete_scenario: "Elimina %{name}"
+      history:
+        none: "Mai eseguito"
+        label: "%{name} nelle ultime esecuzioni, dalla più vecchia"
+        mark: "%{model}, %{date}: %{passed} su %{scored} superati, %{errors} non valutati"
+      overview:
+        empty: "Ancora niente da mostrare: avvia un'esecuzione con “Esegui” nella barra in alto e questa pagina si riempie."
+        kpis:
+          label: "L'ultima esecuzione"
+          pass_rate: "Tasso di successo"
+          scenarios: "Scenari"
+          pace: "Secondi per scenario"
+          tokens: "Token per scenario"
+          latest_run: "%{model}: %{passed} su %{scored} superati"
+          tags:
+            one: "1 etichetta"
+            other: "%{count} etichette"
+          hints:
+            pass_rate: "Scenari superati su quelli valutati nell'ultima esecuzione, rispetto alla precedente sullo stesso modello. Le piccole variazioni sono rumore: vedi l'intervallo sull'esecuzione."
+            scenarios: "File di scenario in eval/assistant/scenarios."
+            pace: "Tempo medio di uno scenario nell'ultima esecuzione, rispetto alla precedente sullo stesso modello."
+            tokens: "Token inviati in media al modello per scenario nell'ultima esecuzione."
+        trend:
+          title: "Tasso di successo, esecuzione dopo esecuzione"
+          description:
+            one: "L'ultima esecuzione, qualunque sia il modello."
+            other: "Le ultime %{count} esecuzioni, dalla più vecchia, qualunque sia il modello."
+        attention:
+          flaky: "instabile"
+          flaky_title: "Nell'ultima esecuzione ha superato alcune ripetizioni e non altre: instabile, non una percentuale."
+          title: "Non superati più spesso"
+          description: "Gli scenari non superati nelle esecuzioni recenti, dal peggiore. Eseguine uno da solo, o aprilo per vedere cosa verifica."
+          none: "Ogni scenario è stato superato nelle esecuzioni recenti."
+          last_failed: "non superato %{time}"
+        models:
+          title: "Modelli"
+          description: "L'ultima esecuzione di ogni modello che ha risposto, fianco a fianco."
+          runs:
+            one: "1 esecuzione"
+            other: "%{count} esecuzioni"
+          best: "migliore %{rate}"
+          pace: "%{seconds} s per scenario"
+        runs:
+          title: "Ultime esecuzioni"
+          all: "Tutte le esecuzioni"
+      tabs:
+        label: "Valutazioni"
+        overview: "Panoramica"
+        scenarios: "Scenari"
+        runs: "Esecuzioni"
+      empty:
+        scenarios: "Ancora nessuno scenario: scrivine uno con “Nuovo scenario” nella barra in alto."
+        tagged: "Nessuno scenario ha l'etichetta %{tag}."
+        runs: "Ancora nessuna esecuzione: avviane una con “Esegui” nella barra in alto."
+      modal:
+        title: "Avvia un'esecuzione"
+        one: "Esegue %{name}."
+        tagged: "Esegue gli scenari spuntati o, se non ne spunti nessuno, tutti quelli con l'etichetta %{tag}."
+        all: "Esegue gli scenari spuntati o, se non ne spunti nessuno, tutti."
+        submit: "Avvia l'esecuzione"
+        runs_help: "Ogni scenario questo numero di volte (fino a %{max}): più esecuzioni, intervallo più stretto."
+      save_chat: "Salva questa chat come scenario di valutazione"
+      select_hint: "Spunta gli scenari, poi premi “Esegui” nella barra in alto; se non ne spunti nessuno, esegue tutti quelli mostrati."
+      runs: "Esecuzioni ciascuno"
+      run_button: "Esegui"
+      provider: "Provider"
+      model: "Modello"
+      all_tags: "Tutti"
+      filter_by: "Mostra gli scenari con etichetta"
+      noise_title: "Tasso di successo sulle esecuzioni valutate, con intervallo al 95%: le differenze al suo interno sono rumore."
+      live:
+        outage_started: "Server del modello irraggiungibile %{streak} volte di fila: in attesa che torni"
+        outage_ended: "Il server del modello è tornato dopo %{seconds}s"
+        outage_gave_up: "Il server del modello è rimasto irraggiungibile: l'esecuzione è finita con quanto valutato"
+        user: "Utente"
+        assistant: "Assistente"
+        waiting_model: "in attesa del modello"
+        running_tool: "esegue %{tool}"
+        running: "in corso…"
+        ms: "%{ms} ms"
+        pressed: "premuto %{button}"
+        case_label: "%{scenario} #%{rep}"
+        cases: "Esecuzioni degli scenari"
+        timeline: "Cosa ha fatto l'assistente"
+        thinking: "Ragionamento"
+        outcome: "esito %{outcome}"
+        tokens: "%{input} in / %{output} out token"
+        run_tokens: "%{input} in / %{output} out token \u00b7 passo più grande %{largest}"
+        notes:
+          one: "1 nota per il modello"
+          other: "%{count} note per il modello"
+        run_finished: "Esecuzione terminata: %{passed} su %{total} superati, %{errors} non valutati."
+        states:
+          queued: "in coda"
+          running: "in corso"
+          passed: "superato"
+          failed: "non superato"
+          error: "errore (non valutato)"
+      run:
+        unreliable: "Inattendibile: %{errors} su %{total} non valutati"
+        unreliable_title: "Il server del modello è stato irraggiungibile per troppa parte di questa esecuzione perché il suo tasso dica qualcosa. Non conta come dato principale né come punto nella tendenza."
+        unreliable_gave_up_title: "Il server del modello è rimasto irraggiungibile e l'esecuzione è finita in anticipo con quanto valutato. Non conta come dato principale né come punto nella tendenza."
+        interval: "%{low}–%{high}"
+        passed_interval: "superati · intervallo al 95%% %{low}–%{high}"
+        title: "Esecuzione · %{model}"
+        draft_title: "Esecuzione singola: %{name}"
+        model_on_provider: "%{model} su %{provider}"
+        started: "Avviata %{time}"
+        running_for: "in corso da %{time}"
+        took: "durata %{time}"
+        progress: "%{done} su %{total} completati"
+        try_tag: "Esecuzione singola: %{name}"
+        log: "Log"
+        no_results: "Ancora nessun risultato."
+        cancel_confirm: "Fermare questa esecuzione? Ciò che è già finito resta."
+        open: "Apri l'esecuzione"
+        cancel: "Ferma l'esecuzione"
+        pause: "Pausa"
+        resume: "Riprendi"
+        starting: "Avvio…"
+        status:
+          running: "In corso"
+          paused: "In pausa"
+          finished: "Terminata"
+          crashed: "Interrotta per errore"
+      result:
+        pass: "Superato"
+        fail: "Non superato"
+        seconds: "%{seconds}s"
+        no_tools: "nessuno strumento"
+        none: "—"
+        count: "%{passed}/%{scored}"
+        max_in: "passo più grande %{tokens} token"
+        near_limit: "vicino al limite di contesto"
+        error: "Errore"
+        not_scored:
+          one: "1 non valutato"
+          other: "%{count} non valutati"
+        errors_title:
+          one: "1 esecuzione ha avuto un errore (modello irraggiungibile o un crash): non conta tra quelle non superate"
+          other: "%{count} esecuzioni hanno avuto un errore (modello irraggiungibile o un crash): non contano tra quelle non superate"
+      form:
+        basics: "Dati di base"
+        name: "Nome"
+        name_hint: "Due cifre, poi parole separate da trattini bassi, ad esempio 10_skip_todays_dose."
+        description: "Cosa verifica"
+        today: "Oggi"
+        today_hint: "Il giorno in cui inizia la chat."
+        seeds: "Dati di partenza"
+        seeds_hint: "Ogni esecuzione parte da un profilo nuovo con solo una terapia B12, più gli stati spuntati qui."
+        messages: "Cosa dice l'utente"
+        messages_hint: "Un messaggio per turno. Inizia con @2026-09-30 per spostarti a quel giorno; !confirm e !undo premono i pulsanti della scheda."
+        message: "Messaggio"
+        add_message: "Aggiungi messaggio"
+        checks: "Cosa deve risultare alla fine"
+        checks_hint: "Ogni verifica legge il database dopo l'ultimo messaggio. Scrivi il valore in YAML."
+        check: "Verifica"
+        pick_check: "Scegli una verifica…"
+        argument: "Valore"
+        add_check: "Aggiungi verifica"
+        try: "Esegui una volta"
+        save: "Salva"
+        delete: "Elimina scenario"
+        delete_confirm: "Eliminare il file di questo scenario?"
+        remove: "Rimuovi"
+        comments_warning: "Questo file contiene commenti; salvando da qui verranno rimossi."
+        lenient_warning: "Queste verifiche risultano già vere prima che si dica qualcosa, quindi un modello che non fa nulla passerebbe. Verifica cosa dovrebbe cambiare la chat."
+        tags: "Etichette"
+        tags_hint: "Parole per raggruppare gli scenari, separate da virgole, ad esempio labs, coverage."
+      notices:
+        saved: "%{name} salvato."
+        deleted: "%{name} eliminato."
+        cancelled: "Esecuzione annullata."
+        paused: "Esecuzione in pausa."
+        resumed: "Esecuzione ripresa."
+      errors:
+        busy: "C'è già una valutazione in corso: aspetta che finisca o annullala."
+        invalid_run: "Impossibile avviare l'esecuzione: %{details}"
+        model_unavailable: "L'esecuzione non è partita: %{details}"
+  activerecord:
+    # A model's name where Rails reads it for the reader (model_name.human):
+    # a chart's legend of kinds, what a cost pays for, what the assistant undid.
+    models:
+      task:
+        one: "Attività"
+        other: "Attività"
+      transaction:
+        one: "Pagamento"
+        other: "Pagamenti"
+      appointment:
+        one: "Appuntamento"
+        other: "Appuntamenti"
+      medication:
+        one: "Farmaco"
+        other: "Farmaci"
+      meal:
+        one: "Pasto"
+        other: "Pasti"
+      lab_test_result:
+        one: "Esame"
+        other: "Esami"
+      supply_purchase:
+        one: "Acquisto di fornitura"
+        other: "Acquisti di forniture"
+      ingredient_purchase:
+        one: "Acquisto alimentare"
+        other: "Acquisti alimentari"
+    attributes:
+      occurrence:
+        title: "Titolo"
+        notes: "Note"
+        location: "Luogo"
+        start_time: "Orario"
+        duration_minutes: "Durata (minuti)"
+        date: "Giorno"
+        starts_on: "Giorno"
+        time: "Ora del giorno"
+        status: "Stato"
+        completed_at: "Fatto alle"
+        skipped_reason: "Motivo"
+        lab_test_result_entries: "Valori"
+        rrule: "Ripetizione"
+        anchor: "Ora del giorno"
+      task/details:
+        priority: "Priorità"
+      appointment/details:
+        kind: "Tipo"
+        counterpart: "Con"
+      medication/details:
+        kind: "Tipo"
+        area: "Zona"
+        side: "Lato"
+        quantity: "Dose"
+        unit: "Unità"
+        pill_count: "Compresse"
+        supply_uses: "Forniture usate"
+      meal/details:
+        kind: "Tipo"
+        meal_type: "Pasto"
+        meal_recipes: "Ricette"
+      transaction/details:
+        amount: "Importo"
+        amount_cents: "Importo"
+        kind: "Tipo"
+        category: "Categoria"
+        payment_method: "Metodo di pagamento"
+        counterparty: "Pagato a o da"
+        counterparty_profile: "Membro della casa"
+        about: "Cosa paga"
+      collection:
+        name: "Nome"
+        notes: "Note"
+        status: "Stato"
+        section: "Sezione"
+      household:
+        name: "Nome"
+        # Lo slug nasce dal nome, quindi ciò che non va in esso è del nome.
+        slug: "Nome"
+        first_member_email: "Email del primo membro"
+      profile:
+        email: "Email"
+        username: "Nome utente"
+        password: "Password"
+      conversation:
+        name: "Nome"
+      message:
+        body: "Messaggio"
+        images: "Foto"
+      message_reaction:
+        emoji: "Emoji"
+      book:
+        title: "Titolo"
+        volume: "Volume"
+        author: "Autore"
+        isbn: "ISBN"
+        cover_url: "Copertina"
+        genres: "Generi"
+        status: "Stato"
+        started_on: "Iniziato il"
+        finished_on: "Finito il"
+        rating: "Valutazione"
+        notes: "Note"
+      assistant/setting:
+        provider: "Provider"
+        model: "Modello"
+        ollama_url: "Indirizzo del server"
+        anthropic_api_key: "Chiave API di Anthropic"
+        openai_api_key: "Chiave API di OpenAI"
+        context_tokens: "Finestra di contesto"
+        temperature: "Temperatura"
+        thinking_effort: "Ragionamento"
+        max_output_tokens: "Output massimo per passo"
+      ingredient:
+        name: "Nome"
+        quantity: "Quantità disponibile"
+        unit: "Unità"
+        category: "Reparto"
+      ingredient_purchase:
+        ingredient: "Ingrediente"
+        quantity: "Quantità acquistata"
+        unit: "Unità"
+        purchased_on: "Acquistato il"
+      grocery_list:
+        name: "Nome"
+        status: "Stato"
+        grocery_list_items: "Articoli"
+      grocery_list_item:
+        ingredient: "Ingrediente"
+        quantity: "Quantità"
+        unit: "Unità"
+        category: "Reparto"
+        ingredient_id: "Ingrediente"
+      recipe:
+        name: "Nome"
+        description: "Descrizione"
+        recipe_ingredients: "Ingredienti"
+        recipe_steps: "Passaggi"
+      recipe_ingredient:
+        ingredient: "Ingrediente"
+        quantity: "Quantità"
+        unit: "Unità"
+        ingredient_id: "Ingrediente"
+      recipe_step:
+        instruction: "Passaggio"
+      meal_recipe:
+        recipe: "Ricetta"
+        recipe_id: "Ricetta"
+      supply:
+        name: "Nome"
+        category: "Categoria"
+        unit_label: "Unità di scorta"
+        low_stock_threshold: "Soglia scorte basse"
+        supply_purchases: "Primo acquisto"
+      supply_purchase:
+        supply: "Fornitura"
+        quantity_purchased: "Quantità acquistata"
+        quantity_remaining: "Quantità rimanente"
+        purchased_on: "Acquistato il"
+        expires_on: "Scade il"
+        opened_on: "Aperto il"
+      supply_use:
+        supply: "Fornitura"
+        quantity: "Quantità"
+        supply_id: "Fornitura"
+      analyte:
+        name: "Nome"
+      lab_test_result_entry:
+        analyte: "Analita"
+        value: "Valore"
+        unit: "Unità"
+        analyte_id: "Analita"
+      reference_range:
+        analyte: "Analita"
+        unit: "Unità"
+        sex: "Si applica a"
+        low: "Basso"
+        high: "Alto"
+        critical_low: "Critico basso"
+        critical_high: "Critico alto"
+      unit:
+        name: "Nome"
+      upload:
+        name: "Nome"
+      upload_link:
+        expires_at: "Scadenza"
+        max_downloads: "Download"
+        password: "Password"
+      event_reminder:
+        offset_minutes: "Ricordamelo"
+      platform/setting:
+        demo_password: "Password della demo"
+        assistant_messages_per_day: "Messaggi all'assistente per casa, al giorno"
+        book_lookups_per_day: "Ricerche di libri per casa, al giorno"
+        files_quota: "File per casa"
+        household_size: "Persone per casa"
+        invitations_per_member: "Inviti per membro"
+      lexicon_language:
+        wiktionary: "Lingua"
+        code: "Codice"
+        head: "Parola principale"
+        min_lemmas: "Numero minimo di sostantivi"
+      lexicon_eval_case:
+        concept: "Fornitura, in inglese"
+        native_singular: "Parola (singolare)"
+        native_plural: "Parola (plurale)"
+        dose_sentence: "Cosa dice per una dose"
+        purchase_sentence: "Cosa dice dopo averne comprate"
+      assistant/message:
+        attachments: "Foto"
+    errors:
+      # validates_accessible (AccessibleReferences): a reference to someone else's record
+      messages:
+        inaccessible: "non è tra quelli a cui hai accesso"
+        outside_household: "non fa parte di questa casa"
+        # Households::Invite: the limits of Household
+        household_full: "non può essere invitato: la casa ha già %{max} persone"
+        no_invites_left: "non può essere invitato: hai usato i tuoi %{max} inviti"
+        invitations_off: "non può essere invitato: qui gli inviti sono disattivati"
+        # Admins::Create(first: true): a second setup page submitted at the same time
+        already_set_up: "Qualcuno ha appena configurato l'app: accedi."
+        # EditedTogether: someone saved the record after the form was opened
+        changed_meanwhile_by: "Nel frattempo %{name} ha salvato una modifica. Ora la vedi qui, tranne dove hai scritto tu: salva di nuovo per tenerle entrambe."
+        changed_meanwhile_by_you: "Nel frattempo hai salvato una modifica in un'altra finestra. Ora la vedi qui, tranne dove hai scritto: salva di nuovo per tenerle entrambe."
+        changed_meanwhile: "Nel frattempo è stata salvata una modifica. Ora la vedi qui, tranne dove hai scritto: salva di nuovo per tenerle entrambe."
+        record_invalid: "Non valido: %{errors}"
+        # dependent: :restrict_with_error (an ingredient a recipe uses)
+        restrict_dependent_destroy:
+          has_one: "Non si può eliminare: c'è un %{record} che dipende da questo"
+          has_many: "Non si può eliminare: ci sono %{record} che dipendono da questo"
+      models:
+        # Il nome di una riga scritto nel modulo: se manca è vuoto, non un record che non esiste.
+        grocery_list_item:
+          attributes:
+            ingredient:
+              required: "non può essere vuoto"
+        lab_test_result_entry:
+          attributes:
+            analyte:
+              required: "non può essere vuoto"
+        recipe_ingredient:
+          attributes:
+            ingredient:
+              required: "non può essere vuoto"
+        event:
+          attributes:
+            rrule:
+              never_happens: "non ha giorni a venire"
+        occurrence:
+          attributes:
+            lab_test_result_entries:
+              duplicate_analytes: "non possono avere lo stesso analita più di una volta (%{names})"
+        grocery_list:
+          attributes:
+            grocery_list_items:
+              duplicate_ingredients: "non possono avere lo stesso ingrediente più di una volta (%{names})"
+        recipe:
+          attributes:
+            recipe_ingredients:
+              duplicate_ingredients: "non possono avere lo stesso ingrediente più di una volta (%{names})"
+        reference_range:
+          attributes:
+            base:
+              blank_bounds: "Indica almeno uno tra basso, alto, critico basso o critico alto"
+            low:
+              must_be_less_than_high: "deve essere minore di alto"
+            critical_low:
+              must_be_less_than_low: "deve essere minore di basso"
+            critical_high:
+              must_be_greater_than_high: "deve essere maggiore di alto"
+        transaction/details:
+          attributes:
+            amount:
+              must_be_positive: "deve essere maggiore di zero"
+              too_fine: "ha più decimali di quanti ne abbia %{currency}"
+            counterparty:
+              name_and_member: "non può essere sia un nome sia un membro della casa"
+            counterparty_profile:
+              yourself: "non puoi essere tu"
+              series_only: "si imposta sulla serie, non su un giorno"
+            about:
+              takes_no_costs: "non prevede costi"
+        assistant/message:
+          attributes:
+            attachments:
+              not_an_image: "devono essere immagini (jpeg, png, webp o heic)"
+              too_large: "sono troppo grandi"
+        profile:
+          attributes:
+            username:
+              email_like: "non può essere un indirizzo email"
+        upload_share:
+          attributes:
+            upload:
+              not_ready: "non è ancora completo"
+        upload_link:
+          attributes:
+            expires_at:
+              too_far: "può essere al massimo tra 30 giorni"
+              past: "deve essere nel futuro"
+        link:
+          attributes:
+            addressee:
+              self: "non puoi essere tu"
+              not_housemate: "deve essere entrato nella casa"
+        assistant/setting:
+          attributes:
+            provider:
+              inclusion: "deve essere Ollama, Anthropic o OpenAI"
+            model:
+              blank: "è necessario"
+              invalid: "può avere solo lettere, cifre e . : / - _"
+            ollama_url:
+              blank: "è necessario per Ollama"
+              invalid: "deve essere un indirizzo http:// o https://"
+            anthropic_api_key:
+              blank: "è necessaria per Anthropic (non ce n'è una salvata né nell'ambiente)"
+            openai_api_key:
+              blank: "è necessaria per OpenAI (non ce n'è una salvata né nell'ambiente)"
+            thinking_effort:
+              inclusion: "non è tra le scelte"
+            temperature:
+              not_a_number: "deve essere un numero"
+              greater_than_or_equal_to: "deve essere almeno %{count}"
+              less_than_or_equal_to: "deve essere al massimo %{count}"
+            context_tokens:
+              not_a_number: "deve essere un numero"
+              not_an_integer: "deve essere un numero intero"
+              greater_than_or_equal_to: "deve essere almeno %{count}"
+            max_output_tokens:
+              not_a_number: "deve essere un numero"
+              not_an_integer: "deve essere un numero intero"
+              greater_than_or_equal_to: "deve essere almeno %{count}"
+        book:
+          attributes:
+            isbn:
+              invalid: "non è un ISBN valido (10 o 13 cifre con il codice di controllo che torna)"
+              taken: "è già nella tua libreria"
+            finished_on:
+              before_start: "non può essere prima del giorno in cui hai iniziato"
+        meal:
+          attributes:
+            base:
+              recipes_or_title: "Aggiungi almeno una ricetta o un nome per il pasto"
+        ingredient_purchase:
+          attributes:
+            unit:
+              not_convertible: "non può essere convertita in %{ingredient_unit}, l'unità in cui è tenuto questo ingrediente"
+        message:
+          attributes:
+            base:
+              not_a_picture: "Si possono inviare solo foto: JPEG, PNG, WebP o GIF."
+              not_cleaned: "Non è stato possibile togliere da una foto il luogo dello scatto, quindi non è stato inviato nulla. Provane un'altra."
+            body:
+              blank: "ha bisogno di qualche parola o di una foto"
+            images:
+              too_many: "non possono essere più di %{max} per messaggio"
+              not_a_picture: "devono essere foto (JPEG, PNG, WebP o GIF)"
+              too_large: "non possono superare %{max} l'una"
+            sender:
+              not_a_participant: "non fa parte di questa conversazione"
+        message_reaction:
+          attributes:
+            emoji:
+              invalid: "deve essere un'emoji sola"
+            profile:
+              not_a_participant: "non fa parte di questa conversazione"
+            message:
+              deleted: "è stato ritirato"
+
+  activemodel:
+    attributes:
+      installation/assistant:
+        provider: "Provider"
+        model: "Modello"
+        ollama_url: "Indirizzo del server"
+        anthropic_api_key: "Chiave API di Anthropic"
+        openai_api_key: "Chiave API di OpenAI"
+      setup/account:
+        first_name: "Nome"
+        last_name: "Cognome"
+        username: "Nome utente"
+        email: "Email"
+        password: "Password"
+        password_confirmation: "Conferma password"
+        locale: "Lingua"
+      setup/household_details:
+        name: "Nome della casa"
+        currency: "Valuta"
+      setup/housemates:
+        people: "Chi altro vive qui"
+      setup/housemate:
+        first_name: "Nome"
+        email: "Email"
+      installation/allowances:
+        assistant_messages_per_day: "Messaggi all'assistente per casa, al giorno"
+        files_quota_amount: "File per casa"
+        files_quota_unit: "File per casa, unità"
+        household_size: "Persone per casa"
+        invitations_per_member: "Inviti per membro"
+      installation/books:
+        google_books_api_key: "Chiave API Google Books"
+        book_lookups_per_day: "Ricerche di libri per casa, al giorno"
+      installation/demo_password:
+        demo_password: "Password della demo"
+      assistant_eval/scenario_draft:
+        name: "Nome"
+        today: "Oggi"
+        messages: "Messaggi"
+        seed: "Dati di partenza"
+        expect: "Verifiche"
+        tags: "Etichette"
+    errors:
+      models:
+        setup/housemates:
+          attributes:
+            people:
+              too_many: "possono essere al massimo %{count}"
+        setup/housemate:
+          attributes:
+            email:
+              owner: "è la tua: sei già dentro"
+              repeated: "è due volte nell'elenco"
+        delivery/presses/base:
+          reason_required: "Di' perché: resta con l'esecuzione."
+          branch_required: "Indica il ramo."
+          not_running: "%{destination} non è in funzione: non c'è niente da fermare."
+          no_branch: "Su Dev non gira nessun ramo da unire."
+          merge_merged: "Il ramo è già su main."
+          merge_none: "Il ramo non ha una pull request aperta."
+          merge_draft: "La pull request è una bozza."
+          merge_ci_none: "La CI non è ancora girata sulla testa della pull request."
+          merge_ci_running: "La CI sta ancora girando sulla testa della pull request."
+          merge_ci_failed: "La CI non è riuscita sulla testa della pull request."
+          version_required: "Scegli una versione."
+          typed_mismatch: "Scrivi esattamente %{phrase}, i primi sette caratteri della versione."
+          destination_required: "Scegli dove."
+          held:
+            one: "Questa versione aggiunge una migrazione che richiede l'app ferma: fai un rilascio."
+            other: "Questa versione aggiunge %{count} migrazioni che richiedono l'app ferma: fai un rilascio."
+          wrong_password: "Non è la tua password."
+        assistant_eval/scenario_draft:
+          attributes:
+            name:
+              name_format: "deve essere come 10_skip_todays_dose"
+              taken: "è già usato da un altro scenario"
+            today:
+              not_a_date: "deve essere una data come 2026-09-26"
+            messages:
+              none: "serve almeno un messaggio"
+              unknown_button: "%{row}: i pulsanti sono %{buttons}"
+              bad_date: "%{row}: la @data non è una data"
+            seed:
+              unknown: "sconosciuti: %{names}"
+            expect:
+              none: "serve almeno una verifica"
+              unknown_check: "%{row}: verifica sconosciuta %{check}"
+              missing_value: "%{row} (%{check}): manca il valore"
+              bad_yaml: "%{row} (%{check}): YAML non valido (%{message})"
+            tags:
+              not_words: "devono essere parole singole (lettere, cifre, - e _): %{tags}"

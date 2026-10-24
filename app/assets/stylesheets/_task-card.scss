@@ -1,0 +1,98 @@
+// The task card (Views::Calendar::Cards::TaskCard): what every card
+// has, the task's status, and how early or late it was done.
+
+@use "variables" as *;
+@use "calendar-card" as *;
+
+.task-card {
+  @include calendar-card;
+
+  // A task can be under way: its circle is half filled, as a clock face
+  // says "partly", so the state needs no colour of its own.
+  &__toggle--in_progress {
+    border-color: $text;
+    background-image: linear-gradient(to right, $text 50%, transparent 50%);
+  }
+
+  &__title {
+    font-size: $type-13;
+    font-weight: 500;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @include when-over("task-card") {
+      color: $text-muted;
+    }
+  }
+
+  &__title-link {
+    font-size: $type-13;
+    font-weight: 500;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      color: $accent;
+      text-decoration: underline;
+    }
+
+    @include when-over("task-card") {
+      color: $text-muted;
+
+      &:hover {
+        color: $accent;
+      }
+    }
+  }
+
+  &__completion {
+    display: block;
+    font-size: $type-10;
+    font-weight: 600;
+    margin-top: 0.1rem;
+
+    &--early {
+      color: $success-text;
+    }
+
+    &--late {
+      color: $danger-text;
+    }
+
+    &--on-time {
+      color: $text-muted;
+    }
+  }
+
+  &__status {
+    display: block;
+    font-size: $type-10;
+    color: $text-muted;
+    margin-top: 0.1rem;
+
+    &--completed {
+      color: $success-text;
+    }
+
+    &--in_progress {
+      color: $text;
+      font-weight: 600;
+    }
+  }
+}
+
+@include from("tablet") {
+  .task-card {
+    padding: 0.4rem 0.625rem;
+  }
+
+  .task-card__title {
+    font-size: $type-14;
+  }
+}

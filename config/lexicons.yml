@@ -1,0 +1,46 @@
+# Languages the assistant understands supply names in (Lexicon). Each one's
+# nouns are imported from Wiktionary, as extracted by kaikki.org:
+#   https://kaikki.org/dictionary/<wiktionary>/kaikki.org-dictionary-<wiktionary>.jsonl.gz
+#
+# These are the languages a new database starts with: db/seeds.rb saves each
+# one once, and from then on /admin/lexicons owns it. Others are added there,
+# or with bin/rails "lexicon:add[Spanish]" (see "The lexicon" in
+# docs/architecture/assistant.md). Every language the app speaks needs one here.
+#
+# Keys:
+#   wiktionary  kaikki.org's English name of the language (Italian, Spanish, Norwegian Bokmål…)
+#   role        pivot: the language every other one's meanings are written in (English,
+#               since the source is English Wiktionary) — only its plurals and synonyms are kept.
+#               Exactly one language is the pivot.
+#   head        first / last: which word of a name is its noun ("STRISCE reattive", "test STRIPS")
+#   min_lemmas  an import with fewer nouns than this is a broken download, never activated
+#   checks      optional; an import is activated only when all pass:
+#                 { form: aghi, lemma: ago }                    a plural belongs to its noun
+#                 { word: ago, means: needle, first: true }     a meaning (first: its first sense)
+#                 { word: vial, synonym: phial }                an English synonym (pivot only)
+#                 { said: needle, supplies: [Aghi, Siringhe], expect: Aghi }   what the matcher picks
+#                 { said: termometro, supplies: [Aghi], expect: none }        …or that it picks nothing
+
+en:
+  wiktionary: English
+  role: pivot
+  head: last
+  min_lemmas: 300000
+  checks:
+    - { form: gloves, lemma: glove }
+    - { form: needles, lemma: needle }
+    - { word: vial, synonym: phial }
+    - { said: gloves, supplies: [Needles, Latex gloves], expect: Latex gloves }
+
+it:
+  wiktionary: Italian
+  head: first
+  min_lemmas: 100000
+  checks:
+    - { form: aghi, lemma: ago }
+    - { word: ago, means: needle, first: true }
+    - { word: cerotto, means: band-aid }
+    - { word: siringa, means: syringe, first: true }
+    - { said: needle, supplies: [Aghi, Siringhe, Lancette], expect: Aghi }
+    - { said: ago, supplies: [Needles, Syringes, Lancets], expect: Needles }
+    - { said: termometro, supplies: [Aghi, Siringhe], expect: none }

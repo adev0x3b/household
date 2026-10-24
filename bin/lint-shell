@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Runs ShellCheck over every shell script in the repository. Scripts are found
+# by their shebang rather than listed, so a new one is checked from the start.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+if ! command -v shellcheck > /dev/null; then
+  echo "ShellCheck isn't installed: https://github.com/koalaman/shellcheck#installing" >&2
+  exit 1
+fi
+
+scripts=()
+while IFS= read -r -d '' file; do
+  if head -n 1 "$file" | grep -qE '^#!.*\b(ba)?sh\b'; then
+    scripts+=("$file")
+  fi
+done < <(git ls-files -z)
+
+shellcheck "${scripts[@]}"

@@ -1,0 +1,70 @@
+# PostgreSQL. The app keeps its records in the primary database, and Solid
+# Queue, Solid Cache, Solid Cable and Solid Errors each keep theirs in a
+# database of its own, with its own schema file under db/.
+#
+# Passwords never live here: they come from the environment.
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  primary: &primary_development
+    <<: *default
+    database: household_development
+    username: <%= ENV.fetch("HOUSEHOLD_DATABASE_USERNAME", "household") %>
+    password: <%= ENV["HOUSEHOLD_DATABASE_PASSWORD"] %>
+  # The jobs that run outside the web server in development too (lexicon
+  # imports and evals) are queued here and worked by `bin/jobs`.
+  queue:
+    <<: *primary_development
+    database: household_development_queue
+    migrations_paths: db/queue_migrate
+  # The rate limits count in the cache on every sign-in and assistant
+  # message, so development has one as production does.
+  cache:
+    <<: *primary_development
+    database: household_development_cache
+    migrations_paths: db/cache_migrate
+  cable:
+    <<: *primary_development
+    database: household_development_cable
+    migrations_paths: db/cable_migrate
+  errors:
+    <<: *primary_development
+    database: household_development_errors
+    migrations_paths: db/errors_migrate
+
+# Emptied and loaded again from db/schema.rb by the tests, so never the
+# development or production database.
+test:
+  <<: *default
+  database: household_test
+  username: <%= ENV.fetch("HOUSEHOLD_DATABASE_USERNAME", "household") %>
+  password: <%= ENV["HOUSEHOLD_DATABASE_PASSWORD"] %>
+
+production:
+  primary: &primary_production
+    <<: *default
+    database: household_production
+    username: household
+    password: <%= ENV["HOUSEHOLD_DATABASE_PASSWORD"] %>
+    # The Postgres container, named by DB_HOST (config/deploy.<destination>.yml
+    # for Kamal, compose.yml for Compose); unset, the local socket.
+    host: <%= ENV["DB_HOST"] %>
+  queue:
+    <<: *primary_production
+    database: household_production_queue
+    migrations_paths: db/queue_migrate
+  cache:
+    <<: *primary_production
+    database: household_production_cache
+    migrations_paths: db/cache_migrate
+  cable:
+    <<: *primary_production
+    database: household_production_cable
+    migrations_paths: db/cable_migrate
+  errors:
+    <<: *primary_production
+    database: household_production_errors
+    migrations_paths: db/errors_migrate

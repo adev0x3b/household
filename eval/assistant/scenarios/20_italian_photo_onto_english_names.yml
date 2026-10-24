@@ -1,0 +1,26 @@
+description: >
+  A photo of an Italian report (played as the OCR note the model really gets)
+  when the profile already has these tests under English names: the values
+  go onto Hemoglobin, Glucose and Creatinine — no duplicate analytes — the
+  OCR'd unit "10° 3/UL" is read as 10^3/µL, and the range column is saved
+  as reference ranges too.
+tags: [labs, ocr, search]
+today: 2026-09-26
+seed: [english_analytes]
+messages:
+  - |-
+    !photo
+    Esame Esito Unità di misura Valori di riferimento
+    Emoglobina 13,5 g/dL 12,0 - 16,0
+    Glicemia 92 mg/dL 70 - 99
+    Creatinina 0,84 mg/dL 0,50 - 1,10
+    Leucociti 6,8 10° 3/UL 4,0 - 10,0
+expect:
+  - lab_results: 1
+  - lab_values: { Hemoglobin: 13.5, Glucose: 92, Creatinine: 0.84, Leucociti: 6.8 }
+  # Glucose, Cholesterol, TSH (standard) + Hemoglobin, Creatinine (seeded) + Leucociti (new).
+  - analytes: 6
+  - ranges:
+      Hemoglobin: { low: 12, high: 16 }
+      Glucose: { low: 70, high: 99 }
+      Creatinine: { low: 0.5, high: 1.1 }

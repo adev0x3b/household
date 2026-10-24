@@ -1,0 +1,63 @@
+# Every night, main's tests with the clock a year ahead: a test that passes
+# only near the day it was written (canned data that ages out of a window,
+# a date typed in that is "in the future") fails here the night it reaches
+# main, months before it would turn every pull request red. The suite moves
+# its own clock (test/support/clock_ahead.rb); the browser tests stay out,
+# since the browser keeps the machine's.
+#
+# By hand: Actions → Year ahead → Run workflow, or `gh workflow run
+# year-ahead.yml`. A failed run is a red mark on main's Actions page and
+# GitHub's email to whoever last changed the schedule.
+name: Year ahead
+
+on:
+  schedule:
+    # 03:17 UTC, when nobody is pushing; off the hour, since GitHub starts
+    # scheduled runs late when everyone's fall on it.
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    # A schedule and a run by hand are the repository's own code, so they
+    # go where RUNS_ON says, as ci.yml's own jobs do.
+    runs-on: ${{ fromJSON(vars.RUNS_ON || '"ubuntu-latest"') }}
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432
+        options: --health-cmd="pg_isready" --health-interval=1s --health-timeout=5s --health-retries=30
+
+    env:
+      RAILS_ENV: test
+      PARALLEL_WORKERS: 2
+      CLOCK_AHEAD_DAYS: 365
+
+    steps:
+      - name: Install packages
+        if: runner.environment == 'github-hosted'
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev libvips tesseract-ocr tesseract-ocr-ita tesseract-ocr-eng
+
+      - name: Point at the job's database
+        run: echo "DATABASE_URL=postgres://postgres:postgres@localhost:${{ job.services.postgres.ports['5432'] }}" >> "$GITHUB_ENV"
+
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Prepare the job
+        uses: ./.github/actions/prepare
+
+      # CI unset: the coverage floor and the check that every route is
+      # requested hold for the whole suite, browser tests included, which
+      # ci.yml runs; this run leaves those out.
+      - name: Run the tests a year ahead
+        run: env -u CI bin/rails db:test:prepare test

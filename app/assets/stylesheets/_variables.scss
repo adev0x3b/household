@@ -1,0 +1,291 @@
+// Every colour, shadow, z-index, font size, corner radius, transition and
+// breakpoint in the app comes from here. The theme is dark: deep navy
+// surfaces, one pink for actions, a hue per section, saturated status colours.
+// No contrast is written beside a colour: test/lib/palette_test.rb measures
+// every colour on the surfaces it may sit on, and fails when one falls short.
+
+@use "sass:color";
+@use "sass:map";
+
+// Surfaces, darkest to lightest. Each step is one level of elevation.
+// Low in saturation on purpose: the surfaces carry the brand's hue, the
+// accents carry the color.
+$surface-page: #050a2d; // The page itself, behind everything
+$surface-sunken: #0c1438; // Sunken panels, menus, chart surfaces
+$surface-card: #151f40; // Cards, modals, the navbar
+$surface-raised: #242e4f; // Raised: items on a card, inputs, hover
+$shadow-ink: #030617; // Shadows and the scrim, never a surface
+
+// Brand pink means "you can act on this" or "you are here": buttons,
+// links, hover and focus, the current tab/day/page. Never a title, a
+// decorative icon or a border that is just a border.
+$accent: #fb78ae; // Primary, and every link
+$accent-pressed: #f36fb8; // Primary, hovered or pressed
+
+// Status: one hue each for success, warning and danger, in two tones. The
+// text tone colours a word, an icon, an edge or a tint on any surface, and
+// a small fill under $surface-sunken text. The solid tone is a chart mark:
+// deep enough to hold 3:1 on the chart surface, and still a fill under
+// $surface-sunken text. Every status also carries an icon or a word.
+$success-text: #2ad699; // Done, taken, passed
+$success-solid: #00b278;
+$warning-text: #f9c718; // Due soon, running low, waiting on someone
+$warning-solid: #ce9d00;
+$danger-text: #fd765d; // Missed, failed, invalid, about to delete
+$danger-solid: #e54f36;
+
+// Section identity: which part of the household something belongs to.
+// Decorative, never a status: always next to an icon or a label. Only the
+// four sections whose items sit on the calendar have a hue, so that each
+// is a hue's width from the status tones and from one another; the rest
+// (Bookshelf, Messages, Links, Files) take the neutral every reader falls
+// back to. Used through --section-color (_sections.scss), not directly.
+$section-agenda: #65adff; // Sky
+$section-healthcare: #3aced8; // Teal
+$section-finance: #a0e78d; // Lime
+$section-pantry: #ffa55b; // Apricot
+$section-assistant: #bd96fe; // Violet: the assistant
+
+// Text: neutrals of the surfaces' own hue, so that pink stays the one
+// colour that means "act". Body text is off-white rather than pure white,
+// which glows and smears on a dark surface for many readers.
+$text: #f0f2f5; // Body text, titles
+$text-muted: #acb1be; // Secondary text
+$text-faint: #878c99; // Captions, hints, axis ticks: never on the raised surface
+
+// Tints: a color at one of five fixed strengths over whatever is behind
+// it. Use tint($color, "step") instead of rgba($color, <any alpha>).
+//   faint   zebra rows, the lightest wash
+//   subtle  hover and resting backgrounds
+//   fill    tinted pills and badges, hairline borders
+//   edge    borders that must be seen, focus halos
+//   strong  disabled solids, heavy underlines
+$tint-steps: (
+  "faint": 0.04,
+  "subtle": 0.08,
+  "fill": 0.16,
+  "edge": 0.35,
+  "strong": 0.6
+);
+
+@function tint($color, $step: "fill") {
+  @return rgba($color, map.get($tint-steps, $step));
+}
+
+// A tint made opaque: what tint($color, $step) looks like laid on $surface,
+// as one flat colour. For what must hide the page it floats over, like a
+// toast, where a translucent tint would let the page show through.
+@function wash($color, $surface, $step: "fill") {
+  @return color.mix($color, $surface, map.get($tint-steps, $step) * 100%);
+}
+
+// The same as tint() for a color only known at runtime, i.e. var(--section-color)
+@function tint-var($color, $step: "fill") {
+  @return color-mix(in srgb, #{$color} #{map.get($tint-steps, $step) * 100%}, transparent);
+}
+
+// A bar that floats over scrolling content (the top bar, the phone's bottom
+// bar, a composer) is nearly opaque: enough shows through to say there is
+// content behind it, not enough to make the bar's own text harder to read.
+@function glass($color) {
+  @return rgba($color, 0.92);
+}
+
+// What dims the page behind the drawer or a dialog.
+$scrim: tint($shadow-ink, "strong");
+
+// Elevation off the page: what floats over it casts one of these shadows
+// (always one of these, never a literal); what rests on it — a card — is
+// told apart by its surface's step alone.
+$shadow-chip: 0 1px 4px rgba($shadow-ink, 0.5); // A small button raised over a picture
+$shadow-popover: 0 4px 12px rgba($shadow-ink, 0.4); // A menu or a picker dropped from its button
+$shadow-sheet: 0 -2px 24px rgba($shadow-ink, 0.3); // The drawer, rising from the bottom
+$shadow-float: 0 8px 32px rgba($shadow-ink, 0.3); // A page's one card, alone on it (sign-in)
+$shadow-toast:
+  0 8px 32px rgba($shadow-ink, 0.25),
+  0 2px 8px rgba($shadow-ink, 0.12); // A toast over the page
+$shadow-dialog: 0 12px 40px rgba($shadow-ink, 0.4); // A dialog over everything
+
+// Out of sight, still read by assistive technology: what .is-sr-only does,
+// as a mixin for a rule that applies it under a condition.
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+// A fieldset drawn as a box (a background, padding): its legend sits
+// inside it like a label, not on its top edge where browsers put one.
+@mixin legend-inside {
+  > legend {
+    float: left;
+    width: 100%;
+
+    + * {
+      clear: both;
+    }
+  }
+
+  // A label's own 0.5em and the 0.25rem of the line under it: the element
+  // that clears a float sits right under it, its own margin gone. (As a
+  // .label, over Bulma's .label:not(:last-child).)
+  > legend.label {
+    margin-bottom: 0.75rem;
+  }
+}
+
+// An index's cards: as many across as fit, each as tall as its own
+// content rather than the tallest in its row. The line shown when there
+// are none spans the grid: `grid-column: 1 / -1` on it.
+@mixin card-grid($min-width: 15rem) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($min-width, 1fr));
+  align-items: start;
+  gap: 0.75rem;
+}
+
+// How wide a page grows on a large screen, by what it is: a column for
+// what is read top to bottom (a record, a conversation, a settings page,
+// a list of rows), a grid for a list of cards, and the whole width a
+// dashboard's or a console's tables and charts need. Every page is one
+// of the three, through page-width(); none picks a width of its own.
+$page-widths: (
+  "column": 48rem,
+  "grid": 64rem,
+  "wide": 72rem
+);
+
+@mixin page-width($kind) {
+  width: 100%;
+  max-width: map.get($page-widths, $kind);
+  margin: 0 auto;
+}
+
+// Stacking: what covers what, lowest first. Always one of these.
+$z-behind: -1; // The page's backdrop art, under everything
+$z-raised: 1; // Above its siblings in its own box (a dialog's close button)
+$z-sticky: 2; // A footer stuck to the bottom of its page
+$z-picker: 10; // A picker over the message it reacts to
+$z-menu: 20; // A menu dropped from its button
+$z-bottom-nav: 90; // The phone's bottom bar
+$z-topbar: 900; // The top bar
+$z-skip-link: 950; // "Skip to content", over the top bar while it has the focus
+$z-drawer-backdrop: 990; // The drawer's scrim
+$z-drawer: 1000; // The drawer
+$z-toast: 1100; // Toasts, over everything
+
+// Charts: marks sit on $stat-surface (not the lighter card background), since
+// the palette is only validated there. Categorical slots are the dataviz
+// reference dark palette in its CVD-safe order, and every slot clears 3:1
+// on $stat-surface, as the status solids do. Assign series by domain
+// value, in order, never by row index. A status colour means good or bad
+// only and is never reused as a series colour; a mark that means nothing
+// (cancelled, "other") is $text-faint. Exposed as --stat-* custom
+// properties in _statistics.scss for chart_controller.js.
+$stat-surface: $surface-sunken; // Chart/section surface
+$stat-series-1: #3987e5; // Blue
+$stat-series-2: #d95926; // Orange
+$stat-series-3: #199e70; // Aqua
+$stat-series-4: #c98500; // Yellow
+$stat-series-5: #d55181; // Magenta
+$stat-series-6: #008300; // Green
+$stat-grid: tint($text, "subtle"); // Hairline gridlines
+$stat-axis: tint($text, "fill"); // Baseline
+
+// The type scale, each step named by its size at the browser's default and
+// written in rem so it follows the reader's setting. 14 is the body text of
+// the app's dense pages; 13 and 12 are a card's lines and a row's facts; 11
+// and 10 the badges and captions that must fit on a calendar card; 16 and
+// up are titles. Anything between two steps rounds to the nearer one.
+$type-10: 0.625rem;
+$type-11: 0.6875rem;
+$type-12: 0.75rem;
+$type-13: 0.8125rem;
+$type-14: 0.875rem;
+$type-15: 0.9375rem;
+$type-16: 1rem;
+$type-18: 1.125rem;
+$type-20: 1.25rem;
+$type-24: 1.5rem;
+$type-28: 1.75rem;
+$type-32: 2rem;
+
+// Corners, from the tightest to a full pill. A badge or a tag is xs, a
+// small control sm, a button, a row or a menu md, a card or a panel lg, a
+// bubble or a large tile xl, the drawer's sheet and a composer xxl. A
+// count, a bar or a handle is a pill, and a circle stays 50%.
+$radius-xs: 0.25rem;
+$radius-sm: 0.375rem;
+$radius-md: 0.5rem;
+$radius-lg: 0.75rem;
+$radius-xl: 1rem;
+$radius-xxl: 1.25rem;
+$radius-pill: 999px;
+
+// Motion: how long a change takes and how it eases. A small change (a
+// colour on hover, a switch) is quick; a press is quicker still; something
+// that moves or folds (a chevron, a group opening, a bar filling) settles
+// with a deceleration; the drawer and its scrim take longer, being the
+// largest thing on the screen that moves. A keyframe animation keeps its
+// own timing beside its keyframes.
+$motion-quick: 0.15s ease;
+$motion-press: 0.1s ease;
+$motion-settle: 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+$motion-sheet: 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+
+// Breakpoints: the widths where a layout changes, named for the screen that
+// starts there (a narrow phone held upright is below the first). A rule for
+// the screens below one uses until(), which stops 0.02px short of the width
+// so that no viewport matches both sides. These are the app's own widths,
+// not Bulma's, whose mixins of the same name take a width rather than a name.
+// application.scss exposes them as --breakpoint-* for the scripts that need
+// the same width.
+$breakpoints: (
+  "narrow": 480px,
+  "tablet": 768px,
+  "desktop": 960px,
+  "wide": 1440px
+);
+
+@mixin from($name) {
+  @media (min-width: #{map.get($breakpoints, $name)}) {
+    @content;
+  }
+}
+
+@mixin until($name) {
+  @media (max-width: #{map.get($breakpoints, $name) - 0.02px}) {
+    @content;
+  }
+}
+
+// Fixed top bar height; modals sit below it
+$navbar-height: 56px;
+
+// The smallest box a pointer has to hit to press something (24px at the
+// browser's default size, WCAG's minimum). A control drawn smaller than
+// that, such as a card's status circle, keeps its look and reaches it
+// through hit-area().
+$target-min: 1.5rem;
+
+// Makes a control drawn $drawn wide (border included) pressable over
+// $target-min, through an invisible layer centred on it. The layer is the
+// control's own, so a press on it is a press on the control.
+@mixin hit-area($drawn, $border: 0px) {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: calc((#{$drawn} - #{$target-min}) / 2 - #{$border});
+  }
+}
+
+// The navigation panel's width from a tablet up, slid in over the page
+$sidebar-width: 16rem;

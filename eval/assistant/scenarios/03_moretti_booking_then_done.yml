@@ -1,0 +1,14 @@
+description: Booking stops on an existing Moretti appointment, asks time and payment, then is completed on the day (brief, scenario 2).
+tags: [appointments]
+today: 2026-09-22
+seed: [moretti_oct2]
+messages:
+  - I made an appointment with doctor Moretti for this friday. It will cost 50 bucks
+  - Please create a new one
+  - Card, and the time is 11:00
+  - "!confirm"
+  - "@2026-09-25 Appointment done!"
+  - "Yes"
+expect:
+  - appointments: 2
+  - appointment: { provider: Moretti, date: 2026-09-25, time: "11:00", status: completed, fee: 50, fee_status: completed, fee_paid_by: card }

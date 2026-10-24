@@ -1,0 +1,8 @@
+# An English metabolic panel with a "< N" range.
+rows:
+  - [Glucose, "92", mg/dL, "70 - 99"]
+  - [Creatinine, "0.9", mg/dL, "0.6 - 1.2"]
+  - [Sodium, "140", mmol/L, "135 - 145"]
+  - [Potassium, "4.2", mmol/L, "3.5 - 5.1"]
+  - [ALT, "22", U/L, "< 35"]
+  - [TSH, "2.1", mIU/L, "0.4 - 4.0"]

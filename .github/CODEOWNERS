@@ -1,0 +1,12 @@
+# Every change is reviewed by the maintainer. The paths below decide what
+# runs with the deploy keys and on the household's own machine. The last line
+# that matches a file decides its owners, so these stay the maintainer's alone
+# even when others come to review the rest.
+*                 @adev0x3b
+
+/.github/         @adev0x3b
+/bin/             @adev0x3b
+/.kamal/          @adev0x3b
+/config/deploy*   @adev0x3b
+/Dockerfile       @adev0x3b
+/compose.yml      @adev0x3b

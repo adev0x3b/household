@@ -1,0 +1,157 @@
+// Supplies: the index, a supply's purchase history, and the optional
+// sections of its forms.
+
+@use "variables" as *;
+
+.supplies {
+  @include page-width("grid");
+
+  padding: 0.75rem;
+
+  &__list {
+    @include card-grid;
+  }
+}
+
+.supply-card {
+  &__name {
+    font-size: $type-16;
+    font-weight: 600;
+    color: $text;
+  }
+
+  // What kind of supply it is: a fact, so the word carries it and the pill
+  // has no colour of its own.
+  &__category {
+    font-size: $type-10;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.1rem 0.4rem;
+    border-radius: $radius-xs;
+    background-color: tint($text-muted, "fill");
+    color: $text;
+  }
+
+  &__remaining {
+    font-size: $type-14;
+    color: $text;
+  }
+
+  &__projection {
+    font-size: $type-13;
+    color: $text-muted;
+  }
+}
+
+.supply-history {
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0.75rem;
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-bottom: 0.75rem;
+    color: $text-muted;
+    font-size: $type-13;
+    text-decoration: none;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  &__title {
+    margin-bottom: 1rem;
+    font-size: $type-20;
+    font-weight: 700;
+    color: $text;
+  }
+
+  // A turbo-frame is inline by default; the list inside it needs a block.
+  &__results {
+    display: block;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.supply-purchase-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: $radius-md;
+  background-color: $surface-card;
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  &__quantity {
+    font-size: $type-13;
+    font-weight: 600;
+    color: $text;
+  }
+
+  &__date {
+    font-size: $type-12;
+    color: $text-muted;
+  }
+
+  &__expiration {
+    font-size: $type-11;
+    font-weight: 600;
+    color: $text-muted;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  // What the purchase cost, in plain text: spending is neither a success
+  // nor an alarm, so it takes no status colour.
+  &__cost-label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0 0.4rem;
+    flex-shrink: 0;
+    color: $text-muted;
+    font-size: $type-12;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+}
+
+.supply-form__initial-purchase {
+  @include legend-inside;
+
+  padding: 0.625rem 0.75rem;
+  border-radius: $radius-md;
+  background-color: tint($section-assistant, "subtle");
+  margin-top: 0.5rem;
+}
+
+.supply-purchase-form__cost-section {
+  @include legend-inside;
+
+  padding: 0.625rem 0.75rem;
+  border-radius: $radius-md;
+  background-color: tint($success-text, "subtle");
+  margin-top: 0.5rem;
+}

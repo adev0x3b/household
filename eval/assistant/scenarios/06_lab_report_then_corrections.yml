@@ -1,0 +1,28 @@
+description: >
+  A report, then a typo fix (Calcium 300 → 3) and the doctor's ranges in one follow-up. Turn 2
+  doesn't open with "yes, those are the units": record_lab_results never asks for one (units are
+  optional on a value), so every rep's real first reply just reports the values saved — a "yes"
+  opener would be answering a question that was never asked. Each range gets its own short
+  sentence, and the correction is its own clearly-marked sentence rather than a clause buried
+  inside the range talk, so a small model parsing this in one pass has a better chance of not
+  dropping it.
+tags: [labs, corrections]
+today: 2026-09-23
+messages:
+  - |-
+    I just got the following lab report, the test was done a week ago:
+    Cobalamin: 250
+    Homocysteine: 0.8
+    Calcium 300
+    Vitamin D 20
+  - |-
+    My doctor said the normal range for Cobalamin is 150 to 250 pg/mL, critical below 80 or above 300.
+    For Vitamin D it's 20 to 50. For Homocysteine, up to 0.8 is normal, 1 is high, 1.4 is critical.
+    Also, I gave you the wrong Calcium value before — it's actually 3, not 300.
+expect:
+  - lab_results: 1
+  - lab_values: { Cobalamin: 250, Homocysteine: 0.8, Calcium: 3, Vitamin D: 20 }
+  # Only Cobalamin's unit is ever said (pg/mL); a range needs one, so for
+  # Vitamin D and Homocysteine the right move is to ask — not to guess units.
+  - ranges:
+      Cobalamin: { low: 150, high: 250, critical_low: 80, critical_high: 300 }

@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# gitleaks, the secret scanner CI and bin/ci run (config/ci.rb), at one
+# pinned version: downloaded once into tmp/tools/, checked against the
+# SHA-256 written below — not against a checksum file from the same place —
+# and run with the arguments given. What it allows is .gitleaks.toml.
+#
+#   bin/gitleaks git --redact      # every commit of this repository
+#   bin/gitleaks dir --redact .    # the files as they are
+#
+# Plain Ruby, no Bundler: like the gems' own binstubs, it needs nothing but
+# Ruby, tar and the network the first time.
+require "digest"
+require "fileutils"
+require "net/http"
+require "rbconfig"
+require "tmpdir"
+
+VERSION = "8.30.1"
+# From gitleaks_8.30.1_checksums.txt, recorded when the version was pinned.
+SHA256 = {
+  "linux_x64" => "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb",
+  "linux_arm64" => "e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080",
+  "darwin_x64" => "dfe101a4db2255fc85120ac7f3d25e4342c3c20cf749f2c20a18081af1952709",
+  "darwin_arm64" => "b40ab0ae55c505963e365f271a8d3846efbc170aa17f2607f13df610a9aeb6a5"
+}.freeze
+
+os = { /linux/ => "linux", /darwin/ => "darwin" }.find { |pattern, _| RbConfig::CONFIG["host_os"].match?(pattern) }&.last
+arch = { /x86_64|amd64/ => "x64", /arm64|aarch64/ => "arm64" }.find { |pattern, _| RbConfig::CONFIG["host_cpu"].match?(pattern) }&.last
+platform = "#{os}_#{arch}"
+abort "bin/gitleaks: no pinned build for #{RbConfig::CONFIG["host_os"]} #{RbConfig::CONFIG["host_cpu"]}" unless SHA256.key?(platform)
+
+binary = File.expand_path("../tmp/tools/gitleaks-#{VERSION}/gitleaks", __dir__)
+
+unless File.executable?(binary)
+  def fetch(url, redirects = 5)
+    response = Net::HTTP.get_response(URI(url))
+    return fetch(response["location"], redirects - 1) if response.is_a?(Net::HTTPRedirection) && redirects.positive?
+    abort "bin/gitleaks: #{url} answered #{response.code}" unless response.is_a?(Net::HTTPSuccess)
+
+    response.body
+  end
+
+  archive = fetch("https://github.com/gitleaks/gitleaks/releases/download/v#{VERSION}/gitleaks_#{VERSION}_#{platform}.tar.gz")
+  actual = Digest::SHA256.hexdigest(archive)
+  abort "bin/gitleaks: the download's SHA-256 is #{actual}, not the pinned #{SHA256.fetch(platform)}; not running it" unless actual == SHA256.fetch(platform)
+
+  Dir.mktmpdir do |dir|
+    File.binwrite(File.join(dir, "gitleaks.tar.gz"), archive)
+    system("tar", "-xzf", File.join(dir, "gitleaks.tar.gz"), "-C", dir, "gitleaks", exception: true)
+    FileUtils.mkdir_p(File.dirname(binary))
+    FileUtils.mv(File.join(dir, "gitleaks"), binary)
+  end
+end
+
+Dir.chdir(File.expand_path("..", __dir__))
+exec(binary, *ARGV)

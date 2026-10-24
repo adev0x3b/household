@@ -1,0 +1,11 @@
+description: A vague purchase; the assistant must ask for what's missing, then save all three (brief, scenario 1).
+tags: [purchases]
+today: 2026-09-22
+messages:
+  - I bought the vial of vitamins, needles and syringes for my B12 therapy
+  - 1 vial for 32 euros, 100 needles for 12 and 50 syringes for 8, all by card
+expect:
+  - purchases: 3
+  - purchase_details:
+      needles: { quantity: 100, cost: 12, paid: card, therapy: B12 }
+      syringes: { quantity: 50, cost: 8, paid: card, therapy: B12 }

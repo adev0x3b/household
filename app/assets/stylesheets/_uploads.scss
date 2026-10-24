@@ -1,0 +1,477 @@
+// Files — the list (the household's storage gauge, the scope pills, one
+// row per file), one file's page (facts, shares, links, trail), the
+// upload modal's drop zone and queue, and the public page a link opens.
+// The section color comes from _sections.scss.
+
+@use "variables" as *;
+
+.uploads {
+  @include page-width("column");
+
+  padding: 0.75rem;
+
+  // "1.2 GB of 50 GB used", above the scope pills
+  &__quota {
+    margin-bottom: 0.75rem;
+  }
+
+  &__quota-text {
+    font-size: $type-12;
+    color: $text-muted;
+    margin-bottom: 0.25rem;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+}
+
+// One file: its kind as an icon in the section's color, the name, a line
+// of facts, and its actions on the right.
+.upload-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  background-color: $surface-card;
+  border-radius: $radius-lg;
+  border: 1px solid tint($text-muted, "faint");
+
+  &__icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: $radius-md;
+    background-color: tint($text, "subtle");
+    color: var(--section-color, $text-muted);
+    font-size: $type-20;
+    text-decoration: none;
+  }
+
+  &__main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__name {
+    display: block;
+    font-size: $type-15;
+    font-weight: 600;
+    color: $text;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  &__meta {
+    font-size: $type-12;
+    color: $text-muted;
+  }
+
+  &__status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.375rem;
+  }
+
+  &__actions {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &--pending &__name {
+    color: $text-muted;
+  }
+}
+
+.upload-show {
+  @include page-width("column");
+
+  padding: 0.75rem;
+
+  &__main {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+  }
+
+  &__icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    border-radius: $radius-xl;
+    background-color: tint($text, "subtle");
+    color: var(--section-color, $text-muted);
+    font-size: $type-32;
+  }
+
+  &__details {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__progress {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin-bottom: 0.75rem;
+  }
+
+  &__facts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.375rem 1rem;
+    font-size: $type-14;
+
+    dt {
+      color: $text-muted;
+    }
+
+    dd {
+      color: $text;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__fact {
+    display: contents;
+  }
+
+  &__checksum {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  &__checksum-value {
+    font-family: monospace;
+    font-size: $type-12;
+  }
+
+  &__shared {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.75rem;
+    font-size: $type-13;
+    color: $text-muted;
+  }
+
+  &__section {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid tint($text-muted, "fill");
+  }
+
+  &__section-title {
+    font-size: $type-14;
+    font-weight: 700;
+    color: $text;
+    margin-bottom: 0.5rem;
+  }
+}
+
+// What happened to the file, newest first.
+.upload-activity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: $type-13;
+
+  &__entry {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+  }
+
+  &__icon {
+    flex: none;
+    width: 1rem;
+    color: var(--section-color, $text-muted);
+    text-align: center;
+  }
+
+  &__text {
+    flex: 1 1 auto;
+    color: $text;
+  }
+
+  &__time {
+    flex: none;
+    color: $text-muted;
+    font-size: $type-12;
+  }
+
+  &__older {
+    margin: 0.25rem 0 0;
+    color: $text-muted;
+    font-size: $type-12;
+  }
+}
+
+.upload-links {
+  &__fresh {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: $radius-md;
+    background-color: tint($success-text, "subtle");
+    border: 1px solid tint($success-text, "edge");
+  }
+
+  &__fresh-hint {
+    font-size: $type-13;
+    color: $text;
+    margin-bottom: 0.5rem;
+  }
+
+  &__fresh-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__fresh-url {
+    font-family: monospace;
+    font-size: $type-13;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: $radius-md;
+    background-color: $surface-raised;
+
+    // A link that no longer opens anything steps back a surface; its badge
+    // says why (Components::StatusBadge), and its words keep their contrast.
+    &--expired,
+    &--exhausted,
+    &--revoked {
+      background-color: $surface-sunken;
+    }
+  }
+
+  &__item-main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__item-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__lock {
+    color: $text-muted;
+    font-size: $type-12;
+  }
+
+  &__item-meta {
+    font-size: $type-12;
+    color: $text-muted;
+    margin-top: 0.25rem;
+  }
+}
+
+.upload-link-form {
+  &__note {
+    font-size: $type-12;
+    color: $text-muted;
+  }
+}
+
+.uploader {
+  &__drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 1.5rem 1rem;
+    border: 2px dashed tint($text-muted, "edge");
+    border-radius: $radius-lg;
+    cursor: pointer;
+    text-align: center;
+    transition:
+      border-color $motion-quick,
+      background-color $motion-quick;
+
+    &:hover,
+    &--over {
+      border-color: $accent;
+      background-color: tint($accent, "faint");
+    }
+
+    // The file input inside takes the focus but is out of sight, so the
+    // zone it fills shows it.
+    &:has(.uploader__input:focus-visible) {
+      border-color: $accent;
+      outline: 2px solid $accent;
+      outline-offset: 2px;
+    }
+  }
+
+  &__drop-icon {
+    font-size: $type-28;
+    color: var(--section-color, $text-muted);
+  }
+
+  &__drop-text {
+    font-size: $type-15;
+    font-weight: 600;
+    color: $text;
+  }
+
+  &__drop-hint {
+    font-size: $type-12;
+    color: $text-muted;
+  }
+
+  &__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  &__queue {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: $radius-md;
+    background-color: $surface-raised;
+
+    // The buttons follow the state: pause while it goes, resume when it
+    // stopped, cancel until it is done.
+    [data-role="pause"],
+    [data-role="resume"],
+    [data-role="cancel"] {
+      display: none;
+    }
+
+    &[data-state="uploading"] [data-role="pause"],
+    &[data-state="paused"] [data-role="resume"],
+    &[data-state="failed"] [data-role="resume"],
+    &:not([data-state="ready"], [data-state="cancelled"]) [data-role="cancel"] {
+      display: inline-flex;
+    }
+
+    // A file that won't arrive steps back a surface; its status line says
+    // what happened, and its words keep their contrast.
+    &[data-state="cancelled"],
+    &[data-state="failed"] {
+      background-color: $surface-sunken;
+    }
+  }
+
+  &__item-icon {
+    flex: none;
+    color: var(--section-color, $text-muted);
+  }
+
+  &__item-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__item-name {
+    font-size: $type-14;
+    font-weight: 600;
+    color: $text;
+    overflow-wrap: anywhere;
+  }
+
+  &__item-meta {
+    font-size: $type-12;
+    color: $text-muted;
+  }
+
+  // "38% · 0.9 GB of 2.3 GB · 8.4 MB/s · 3 min left": figures that change
+  // every moment, so they don't make the line jump.
+  &__item-stats {
+    font-size: $type-12;
+    color: $text;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__item-actions {
+    flex: none;
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  &__note {
+    margin-top: 0.75rem;
+    font-size: $type-12;
+    color: $text-muted;
+  }
+}
+
+// The public page a link opens: the sign-in page's card.
+.public-upload-link {
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 0.75rem;
+    border-radius: $radius-xl;
+    background-color: tint($text, "subtle");
+    color: var(--section-color, $text-muted);
+    font-size: $type-32;
+
+    &--gone {
+      color: $text-muted;
+    }
+  }
+
+  &__name {
+    overflow-wrap: anywhere;
+  }
+
+  &__terms {
+    text-align: center;
+    font-size: $type-13;
+    color: $text-muted;
+    margin-bottom: 1.25rem;
+  }
+}

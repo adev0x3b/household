@@ -1,0 +1,99 @@
+@use "variables" as *;
+@use "statistics" as stats;
+
+// A household's people and invitations (Views::Households::*) and the
+// admin's list of households (Views::Admin::Households::Index). The page
+// itself is the shared report page (_report.scss). Mobile-first: one row
+// per person, its actions on the right, an invitation's link below.
+
+.household__people {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.household__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.household__heading {
+  color: $text-muted;
+  font-size: $type-14;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.household__row {
+  @include stats.stat-surface;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+}
+
+.household__icon {
+  width: 1.25rem;
+  color: $text-muted;
+  text-align: center;
+}
+
+.household__who {
+  min-width: 0;
+}
+
+.household__name {
+  color: $text;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+a.household__name:hover {
+  color: $accent;
+}
+
+.household__facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.75rem;
+  color: $text-muted;
+  font-size: $type-14;
+  overflow-wrap: anywhere;
+}
+
+.household__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+// The link to accept an invitation, shown once under its row.
+.household__link {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: $radius-md;
+  background: tint($accent, "subtle");
+}
+
+.household__link-hint {
+  color: $text;
+  font-size: $type-14;
+}
+
+.household__link-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.household__link-url {
+  font-family: monospace;
+  font-size: $type-13;
+}

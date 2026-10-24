@@ -1,0 +1,40 @@
+@use "variables" as *;
+
+// One action on one item (Components::ItemAction): a small round icon that
+// is easy to hit — the tap area reaches ~44px around it.
+.item-action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.875rem;
+  height: 1.875rem;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: $text-muted;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color $motion-quick,
+    color $motion-quick;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -0.4375rem;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background-color: tint($accent, "fill");
+    color: $accent;
+  }
+
+  &--danger:hover,
+  &--danger:focus-visible {
+    background-color: tint($danger-text, "fill");
+    color: $danger-text;
+  }
+}

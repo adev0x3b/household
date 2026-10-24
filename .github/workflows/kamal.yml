@@ -1,0 +1,542 @@
+# One destination of this machine, for deploy.yml: a GitHub runner joins the
+# tailnet as an ephemeral tag:ci node (its policy lets it reach this
+# machine's SSH and nothing else), Kamal deploys over SSH as `deploy`, then a
+# smoke test. The image is never built here: it's image.yml's, by commit —
+# CI's for main, the Deploy workflow's for a branch previewed on dev. Only a
+# commit on main may reach staging, the demo or production; dev takes any branch's.
+# Kamal's own deploy waits for the health check before it moves any traffic, so a
+# version that doesn't boot never serves (docs/architecture/delivery.md).
+#
+# The job holds the deploy key, so it runs where only the repository's own
+# code runs: GitHub's runner, which joins the tailnet for the job, or the
+# household's own runner (RUNS_ON), a machine apart from the one that serves
+# the app, on the tailnet already (the deployment runbook, "Secrets"). Its
+# secrets are its destination's GitHub environment's, which
+# only main may use.
+#
+# Each run is recorded as a GitHub Deployment whose ref is the version it
+# put there (a rollback's older commit included), with a status at the start
+# and one at the end saying how it went — what the repository's Deployments
+# page and the app's /admin/deployment read.
+#
+# In a private pipeline (deploy.yml) the versions are the code's
+# repository's commits, and main's images the ones its CI built; a preview's
+# image is this repository's own.
+name: Kamal
+
+on:
+  workflow_call:
+    inputs:
+      destination:
+        description: "production, staging, demo or dev (config/deploy.<destination>.yml)"
+        type: string
+        required: true
+      action:
+        description: "deploy, restart, rollback, release (production, behind the maintenance page), rehearse (staging, on production's data), preview (dev, a branch) or stop (dev, until the next preview); the demo takes deploy and restart"
+        type: string
+        required: true
+      version:
+        description: "The commit to run (deploy: blank for ref)"
+        type: string
+        default: ""
+      ref:
+        description: "The commit whose Kamal configuration is used"
+        type: string
+        required: true
+      branch:
+        description: "preview: the branch the version is the head of (kept with the deployment's record)"
+        type: string
+        default: ""
+      fresh:
+        description: "preview: on a fresh database (bin/preview-dev --fresh)"
+        type: boolean
+        default: false
+      reason:
+        description: "Who asked, and why (kept with the deployment's record)"
+        type: string
+        default: ""
+    # What a release of production is made from (release.yml).
+    outputs:
+      version:
+        description: "The commit a deploy, a rollback or a release put there, in full"
+        value: ${{ jobs.kamal.outputs.version }}
+      downtime_seconds:
+        description: "How long a release kept the destination behind its maintenance page"
+        value: ${{ jobs.kamal.outputs.downtime_seconds }}
+
+jobs:
+  kamal:
+    name: ${{ inputs.action }} ${{ inputs.destination }}
+    # GitHub's runner, which joins the tailnet to reach the machine, or the
+    # household's own (RUNS_ON), on the tailnet already.
+    runs-on: ${{ fromJSON(vars.RUNS_ON || '"ubuntu-latest"') }}
+    # The destination's secrets: its environment lets main alone use them, so
+    # this job, dispatched on a branch, starts with none. No Deployment is
+    # made for it here: one with main's head as its ref would be wrong for a
+    # rollback, so "Record the deployment" makes the right one below.
+    environment:
+      name: ${{ inputs.destination }}
+      deployment: false
+    timeout-minutes: 45
+    outputs:
+      version: ${{ steps.version.outputs.sha }}
+      downtime_seconds: ${{ steps.outcome.outputs.downtime_seconds }}
+    env:
+      DEST: ${{ inputs.destination }}
+      ACTION: ${{ inputs.action }}
+      BRANCH: ${{ inputs.branch }}
+      FRESH: ${{ inputs.fresh && 'true' || 'false' }}
+      # This installation's particulars, from the repository's variables
+      # (bin/provision sets them from .kamal/env); config/deploy.yml
+      # reads the same names.
+      HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      PRODUCTION_HOST: ${{ vars.PRODUCTION_HOST }}
+      STAGING_HOST: ${{ vars.STAGING_HOST }}
+      DEV_HOST: ${{ vars.DEV_HOST }}
+      DEMO_HOST: ${{ vars.DEMO_HOST }}
+      MOUNT_PATH: ${{ vars.MOUNT_PATH }} # empty: the domain's root
+      TIME_ZONE: ${{ vars.TIME_ZONE || 'UTC' }}
+      APP_HOST: ${{ inputs.destination == 'production' && vars.PRODUCTION_HOST || inputs.destination == 'staging' && vars.STAGING_HOST || inputs.destination == 'demo' && vars.DEMO_HOST || vars.DEV_HOST }}
+      KAMAL_REGISTRY_USERNAME: ${{ github.repository_owner }}
+      # The code's repository, this one unless the pipeline is a private one
+      # of its own; a preview's package is named after this one (image.yml,
+      # config/deploy.dev.yml).
+      SOURCE_REPOSITORY: ${{ vars.SOURCE_REPOSITORY || github.repository }}
+      PREVIEW_PACKAGE: ${{ github.event.repository.name }}
+      IMAGE: ghcr.io/${{ github.repository_owner }}/${{ inputs.destination == 'dev' && github.event.repository.name || 'household' }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      # Kamal's secrets (.kamal/secrets-common, .kamal/secrets.<destination>):
+      # the server pulls with this job's token, which expires with the job;
+      # the database password is the destination's own, and no other's.
+      KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      PRODUCTION_POSTGRES_PASSWORD: ${{ inputs.destination == 'production' && secrets.PRODUCTION_POSTGRES_PASSWORD || '' }}
+      STAGING_POSTGRES_PASSWORD: ${{ inputs.destination == 'staging' && secrets.STAGING_POSTGRES_PASSWORD || '' }}
+      DEMO_POSTGRES_PASSWORD: ${{ inputs.destination == 'demo' && secrets.DEMO_POSTGRES_PASSWORD || '' }}
+      DEV_POSTGRES_PASSWORD: ${{ inputs.destination == 'dev' && secrets.DEV_POSTGRES_PASSWORD || '' }}
+      # The destination's own settings and keys, from its environment's
+      # variables and secrets (the deployment runbook, "Settings, per
+      # destination"): config/deploy*.yml read the same names, and default
+      # one that arrives unset — as "" — to what that destination is.
+      ASSISTANT: ${{ vars.ASSISTANT }}
+      UPLOADS: ${{ vars.UPLOADS }}
+      PICTURES: ${{ vars.PICTURES }}
+      INVITATIONS: ${{ vars.INVITATIONS }}
+      PUSH_NOTIFICATIONS: ${{ vars.PUSH_NOTIFICATIONS }}
+      ASSISTANT_MESSAGES_PER_DAY: ${{ vars.ASSISTANT_MESSAGES_PER_DAY }}
+      BOOK_LOOKUPS_PER_DAY: ${{ vars.BOOK_LOOKUPS_PER_DAY }}
+      FILES_QUOTA: ${{ vars.FILES_QUOTA }}
+      OPEN_ACCOUNTS: ${{ vars.OPEN_ACCOUNTS }}
+      ASSISTANT_PROVIDER: ${{ vars.ASSISTANT_PROVIDER }}
+      ASSISTANT_MODEL: ${{ vars.ASSISTANT_MODEL }}
+      OLLAMA_BASE_URL: ${{ vars.OLLAMA_BASE_URL }}
+      WEB_MEMORY: ${{ vars.WEB_MEMORY }}
+      JOB_MEMORY: ${{ vars.JOB_MEMORY }}
+      DB_MEMORY: ${{ vars.DB_MEMORY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }}
+      DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
+      DEPLOY_DISPATCH_TOKEN: ${{ secrets.DEPLOY_DISPATCH_TOKEN }}
+    steps:
+      # What bin/provision and the Tailscale console set up: a
+      # missing one fails here, by name, rather than as a timeout later (a
+      # secret also goes missing when the run isn't on main: the environment
+      # holds it back; the Tailscale ones are only asked of GitHub's runner,
+      # the household's own being on the tailnet already). And what each
+      # destination takes: dev a branch's preview, a restart or a stop, the
+      # demo a deploy or a restart, the others main's versions.
+      - name: Check the repository's settings
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+          TS_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+        run: |
+          missing=()
+          case "$DEST:$ACTION" in
+            dev:preview | dev:restart | dev:stop | production:deploy | production:restart | production:rollback | production:release | staging:deploy | staging:restart | staging:rehearse | demo:deploy | demo:restart) ;;
+            dev:*) echo "::error::dev takes preview, restart or stop, not $ACTION"; exit 1 ;;
+            production:* | staging:* | demo:*) echo "::error::$DEST doesn't take $ACTION"; exit 1 ;;
+            *) echo "::error::Unknown destination $DEST"; exit 1 ;;
+          esac
+          if [ "$ACTION" = preview ] && [ -z "$BRANCH" ]; then echo "::error::A preview names its branch."; exit 1; fi
+          password_var="${DEST^^}_POSTGRES_PASSWORD"
+          [ -n "${!password_var}" ] || missing+=("secret $password_var")
+          [ -n "$SSH_KEY" ] || missing+=("secret DEPLOY_SSH_KEY")
+          [ -n "$KNOWN_HOSTS" ] || missing+=("variable DEPLOY_KNOWN_HOSTS")
+          if [ "$RUNNER_ENVIRONMENT" = github-hosted ]; then
+            [ -n "$TS_ID" ] || missing+=("secret TS_OAUTH_CLIENT_ID")
+            [ -n "$TS_SECRET" ] || missing+=("secret TS_OAUTH_SECRET")
+          fi
+          for variable in DEPLOY_HOST PRODUCTION_HOST STAGING_HOST DEV_HOST; do
+            [ -n "${!variable}" ] || missing+=("variable $variable")
+          done
+          if [ "$DEST" = demo ] && [ -z "$DEMO_HOST" ]; then missing+=("variable DEMO_HOST"); fi
+          if [ ${#missing[@]} -gt 0 ]; then
+            if [ "$GITHUB_REF" != refs/heads/main ]; then
+              echo "::error::This run is on $GITHUB_REF: $DEST's environment gives its secrets to main alone. Run it on main (the deployment runbook, \"Secrets\")."
+            fi
+            printf '::error::Not set for %s: %s (the deployment runbook, "First time")\n' "$DEST" "${missing[@]}"
+            exit 1
+          fi
+
+      # bin/release-stopped writes how a release or rehearsal went here, and
+      # the deployment's last status is worded from it. The runner's temp
+      # directory is the job's own: on the household's runner /tmp outlives
+      # the job, and an older run's result would pass for this one's.
+      - name: Where the release's result goes
+        run: echo "RELEASE_RESULT_FILE=$RUNNER_TEMP/household-release-result" >> "$GITHUB_ENV"
+
+      # A private pipeline's whole history, to find the code's commit its
+      # main holds.
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: ${{ vars.SOURCE_REPOSITORY && '0' || '1' }}
+          persist-credentials: false
+
+      # Ruby and the bundle (Kamal); on the household's runner, a home of the
+      # job's own for the registry login and the SSH keys below. The job runs
+      # on main, so on GitHub's runner it restores main's caches alone, and
+      # only main's code writes them.
+      - name: Prepare the job
+        uses: ./.github/actions/prepare
+
+      # The image's tag is the full commit sha; a rollback names one, a
+      # preview gets the branch's head from the build. A restart's or a
+      # stop's version is whatever runs there, read once SSH is up: its image
+      # is on the machine already. Staging and production take a commit on
+      # main and nothing else: an image of a branch exists once it was
+      # previewed, so the tag alone doesn't say. A private pipeline's ref is
+      # its merge of the code's main, so what it deploys is the code's newest
+      # commit the merge holds; every version is the code's repository's.
+      - name: Resolve the version
+        id: version
+        if: inputs.action != 'restart' && inputs.action != 'stop'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED: ${{ inputs.version }}
+          REF: ${{ inputs.ref }}
+        run: |
+          if [ "$ACTION" = rollback ] && [ -z "$REQUESTED" ]; then
+            echo "::error::A rollback needs the version to go back to: the commit sha of an earlier deploy."
+            exit 1
+          fi
+          wanted="${REQUESTED:-$REF}"
+          if [ -z "$REQUESTED" ] && [ "$SOURCE_REPOSITORY" != "$GITHUB_REPOSITORY" ]; then
+            git fetch --quiet "$GITHUB_SERVER_URL/$SOURCE_REPOSITORY.git" main
+            wanted="$(git merge-base "$REF" FETCH_HEAD)"
+          fi
+          if ! sha="$(gh api "repos/$SOURCE_REPOSITORY/commits/$wanted" --jq .sha)"; then
+            echo "::error::There's no commit $wanted in $SOURCE_REPOSITORY."
+            exit 1
+          fi
+          if [ "$DEST" != dev ]; then
+            standing="$(gh api "repos/$SOURCE_REPOSITORY/compare/main...$sha" --jq .status)" || standing=unknown
+            case "$standing" in
+              behind | identical) ;;
+              *) echo "::error::${sha:0:7} isn't on main ($standing): only main's commits go to $DEST. A branch is previewed on dev."; exit 1 ;;
+            esac
+          fi
+          echo "VERSION=$sha" >> "$GITHUB_ENV"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "::notice title=${DEST^}::$ACTION ${sha:0:7}${BRANCH:+ ($BRANCH)}"
+
+      - name: Check the image exists
+        if: inputs.action != 'restart' && inputs.action != 'stop'
+        run: |
+          echo "$KAMAL_REGISTRY_PASSWORD" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin > /dev/null
+          if ! docker manifest inspect "$IMAGE:$VERSION" > /dev/null; then
+            echo "::error::There's no image for ${VERSION:0:7}: CI builds one for every commit it passes on main, a preview for its branch (and GHCR keeps the last 50). Wait for CI, or pick another version."
+            exit 1
+          fi
+
+      - name: Join the tailnet
+        if: runner.environment == 'github-hosted'
+        uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+          ping: ${{ env.HOST }}
+
+      # Kamal (net-ssh) reads ~/.ssh/config too: the host key must be the one
+      # bin/provision recorded, never whatever answers. Every ssh
+      # this job runs (here, the smoke test, bin/preview-dev,
+      # bin/release-stopped) reads the same config.
+      - name: Set up SSH to the machine
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh ~/bin
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          # UpdateHostKeys no: the pinned known_hosts stays exactly as pinned.
+          # HostKeyAlias: the key is looked up by the machine's name alone, as pinned.
+          # The known_hosts by its full path: OpenSSH's ~ is the account's home, not $HOME.
+          printf 'Host %s\n  HostKeyAlias %s\n  User deploy\n  UserKnownHostsFile %s\n  StrictHostKeyChecking yes\n  UpdateHostKeys no\n  BatchMode yes\n' \
+            "$HOST" "$HOST" "$HOME/.ssh/known_hosts" > ~/.ssh/config
+          # The ssh command reads the account's own ~/.ssh, whatever $HOME says
+          # (Kamal follows $HOME): on the household's runner that is the runner
+          # user's. Every ssh this job runs — here, the smoke test,
+          # bin/preview-dev, bin/release-stopped — reads the job's config.
+          printf '#!/bin/sh\nexec %s -F %s "$@"\n' "$(command -v ssh)" "$HOME/.ssh/config" > ~/bin/ssh
+          chmod +x ~/bin/ssh
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/bin:$PATH"
+          eval "$(ssh-agent -s)" > /dev/null
+          ssh-add -q - <<< "$SSH_KEY"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+          ssh "$HOST" true
+
+      # The version the destination runs now: what a restart boots again
+      # (named explicitly: the other destination's prune drops Kamal's
+      # latest-<destination> tag) and a stop records, what the held-migration
+      # check compares with, and what the deployment's record remembers as
+      # "before". A stopped dev runs nothing: only a preview starts it.
+      - name: What runs there
+        run: |
+          # Kamal's answer is read whole, and only a commit-shaped token in it
+          # is the version: a failure's words (coloured, even) are not one, and
+          # a failure is a failure, never "nothing runs" — a deploy would then
+          # skip the held-migration check and the record of what ran before.
+          if ! answer="$(bin/kamal app version -d "$DEST" -q 2>&1)"; then
+            printf '::error::kamal app version failed on %s:\n%s\n' "$DEST" "$answer"
+            exit 1
+          fi
+          running="$(sed 's/\x1b\[[0-9;]*m//g' <<< "$answer" | grep -o -m1 -E '\b[0-9a-f]{40}(_uncommitted_[0-9a-f]+)?\b' || true)"
+          echo "RUNNING=$running" >> "$GITHUB_ENV"
+          if [ -z "$running" ]; then
+            echo "Nothing runs on $DEST."
+            [ -z "$(xargs <<< "$answer")" ] || printf 'kamal app version said:\n%s\n' "$answer"
+            case "$DEST:$ACTION" in
+              dev:restart) echo "::error::Nothing runs on dev to restart: a preview starts it (stopped, or never previewed)."; exit 1 ;;
+              *:restart | *:stop) echo "::error::Nothing runs on $DEST to $ACTION."; exit 1 ;;
+            esac
+          else
+            echo "$DEST runs ${running:0:7}"
+            if [ "$ACTION" = restart ] || [ "$ACTION" = stop ]; then echo "VERSION=$running" >> "$GITHUB_ENV"; fi
+          fi
+
+      # One GitHub Deployment per action, with the version as its ref: what
+      # runs where, and how each attempt went, readable by the repository's
+      # Deployments page and the app. (A job's `environment:` would record one
+      # too, but with main's head as its ref — wrong for a rollback.)
+      - name: Record the deployment
+        id: record
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::warning::$VERSION isn't a commit of this repository: this $ACTION isn't recorded under Deployments."
+            exit 0
+          fi
+          # A Deployment's ref is a commit of this repository: a private
+          # pipeline gets one for a commit of the code's it doesn't have yet
+          # (a branch's, previewed), under refs/versions/.
+          if [ "$SOURCE_REPOSITORY" != "$GITHUB_REPOSITORY" ] && ! gh api "repos/$GITHUB_REPOSITORY/commits/$VERSION" --silent 2> /dev/null; then
+            git fetch --quiet "$GITHUB_SERVER_URL/$SOURCE_REPOSITORY.git" "$VERSION"
+            git push --quiet "https://x-access-token:$GH_TOKEN@${GITHUB_SERVER_URL#https://}/$GITHUB_REPOSITORY.git" "$VERSION:refs/versions/$VERSION"
+          fi
+          # Ruby, which the job has once prepared, writes the JSON.
+          body="$(ruby -rjson -e '
+            e = ENV
+            payload = { action: e["ACTION"], destination: e["DEST"], requested_by: e["REASON"].to_s, run_url: e["RUN_URL"],
+                        running_before: e["RUNNING"].to_s }
+            payload.merge!(branch: e["BRANCH"], fresh: e["FRESH"] == "true") unless e["BRANCH"].to_s.empty?
+            puts JSON.generate(ref: e["VERSION"], task: e["ACTION"], environment: e["DEST"], auto_merge: false, required_contexts: [],
+                               transient_environment: false, production_environment: e["DEST"] == "production",
+                               description: "#{e["ACTION"]} #{e["DEST"]} #{e["VERSION"][0, 7]}", payload: payload)
+          ')"
+          id="$(gh api "repos/$GITHUB_REPOSITORY/deployments" --method POST --input - --jq .id <<< "$body")"
+          gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses" --method POST \
+            -f state=in_progress -f log_url="$RUN_URL" -f description="$ACTION ${VERSION:0:7}: in progress" > /dev/null
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+          echo "Deployment $id: $ACTION $DEST ${VERSION:0:7}"
+
+      # A migration in safety_assured needs the app stopped, unless a
+      # "# zero-downtime: <why>" line says it runs beside the previous version
+      # (docs/architecture/delivery.md, "A deploy without a gap";
+      # bin/held-migrations). Staging then rehearses it on production's data
+      # instead of a gapless deploy, and the demo, whose data starts over
+      # every night, deploys behind its maintenance page; production holds
+      # until someone releases it: Run workflow → release, or the app's
+      # Release button.
+      - name: Look for a migration that needs the app stopped
+        id: held
+        if: (inputs.action == 'deploy' || inputs.action == 'rollback')
+        run: |
+          if [ -z "$RUNNING" ]; then
+            echo "Nothing runs on $DEST yet: no previous version to protect."
+            exit 0
+          fi
+          status=0
+          held="$(bin/held-migrations "$RUNNING" "$VERSION")" || status=$? # no pipe: GitHub's bash has no pipefail
+          held="$(xargs <<< "$held")" # one line, trimmed
+          echo "HELD_LIST=$held" >> "$GITHUB_ENV"
+          if [ "$status" -eq 0 ]; then
+            echo "No migration between ${RUNNING:0:7} and ${VERSION:0:7} needs the app stopped."
+          elif [ "$DEST" = staging ] && [ "$ACTION" = deploy ] && [ "$status" -eq 1 ]; then
+            echo "::notice title=Rehearsal::${VERSION:0:7} needs the app stopped ($held): staging rehearses it on production's data."
+            echo "REHEARSE=true" >> "$GITHUB_ENV"
+          elif [ "$DEST" = demo ] && [ "$ACTION" = deploy ] && [ "$status" -eq 1 ]; then
+            echo "::notice title=Demo behind its page::${VERSION:0:7} needs the app stopped ($held): the demo deploys it behind its maintenance page."
+            echo "STOPPED=true" >> "$GITHUB_ENV"
+          else
+            reason="${held:-its migrations could not be compared with ${RUNNING:0:7}}"
+            echo "::error title=${DEST^} held::${VERSION:0:7} needs the app stopped ($reason). Release it with one click: the app's Release button, or Run workflow → action release (gh workflow run deploy.yml -f action=release)."
+            exit 1
+          fi
+
+      # setup = deploy, plus whatever the destination lacks (its database,
+      # kamal-proxy): the same command the first time and every time. A
+      # rollback deploys an older image. A restart boots the running version
+      # again. A preview puts a branch on dev, on fresh data when asked
+      # (bin/preview-dev). A stop stops dev's app and its database; their
+      # containers and volumes stay, and the next preview starts them.
+      - name: Kamal ${{ inputs.action }} ${{ inputs.destination }}
+        id: kamal
+        run: |
+          case "$ACTION" in
+            deploy | rollback)
+              if [ "${REHEARSE:-}" = true ]; then
+                bin/release-stopped staging "$VERSION" --with-production-data
+              elif [ "${STOPPED:-}" = true ]; then
+                bin/release-stopped demo "$VERSION"
+              else
+                bin/kamal setup -d "$DEST" --skip-push --version "$VERSION" --lock-wait
+              fi
+              ;;
+            preview)
+              if [ "$FRESH" = true ]; then bin/preview-dev "$VERSION" --fresh; else bin/preview-dev "$VERSION"; fi
+              ;;
+            # Behind the maintenance page, rolled back on its own if it fails
+            # (bin/release-stopped); deploy.yml rehearses on staging first.
+            release)
+              bin/release-stopped production "$VERSION"
+              ;;
+            rehearse)
+              bin/release-stopped staging "$VERSION" --with-production-data
+              ;;
+            restart)
+              bin/kamal app boot -d "$DEST" --version "$VERSION" --lock-wait
+              ;;
+            stop)
+              bin/kamal app stop -d "$DEST" --lock-wait
+              bin/kamal accessory stop db -d "$DEST" --lock-wait
+              ;;
+            *)
+              echo "::error::Unknown action $ACTION"
+              exit 1
+              ;;
+          esac
+
+      # Through kamal-proxy on the machine, as the tunnel reaches it: the
+      # health check, a page that reads the database (200, or 302 to the setup
+      # page on an empty one), and a running job worker. After a stop, the
+      # opposite: nothing of the destination runs, its database included
+      # (Kamal's accessory stop doesn't fail when docker does).
+      - name: Smoke test
+        id: smoke
+        run: |
+          if [ "$ACTION" = stop ]; then
+            # shellcheck disable=SC2016 # Ruby, not shell
+            db="$(bin/kamal config -d "$DEST" | ruby -ryaml -e 'puts YAML.unsafe_load($stdin.read)[:accessories]["db"]["service"]')"
+            ssh "$HOST" bash -s -- "$DEST" "$db" <<'SH'
+          set -euo pipefail
+          left="$(docker ps --format '{{.Names}}' --filter label=service=household --filter "label=destination=$1"; docker ps --format '{{.Names}}' --filter "name=^$2\$")"
+          if [ -n "$left" ]; then echo "::error::Still running on $1: $(xargs <<< "$left")"; exit 1; fi
+          echo "Nothing of $1 runs."
+          SH
+            exit 0
+          fi
+          # ssh joins its arguments into one command line for the remote
+          # shell, so an empty one (MOUNT_PATH at the domain's root) would
+          # vanish: the app's address on the machine goes whole instead.
+          ssh "$HOST" bash -s -- "$APP_HOST" "$DEST" "http://127.0.0.1:8080${MOUNT_PATH%/}" <<'SH'
+          set -euo pipefail
+          curl -fsS -o /dev/null --retry 5 --retry-delay 2 --retry-all-errors -H "Host: $1" "$3/up"
+          code="$(curl -fsS -o /dev/null -w '%{http_code}' -H "Host: $1" "$3/profiles/sign_in")"
+          echo "sign-in page: $code"
+          if [ -z "$(docker ps -q --filter label=service=household --filter "label=destination=$2" --filter label=role=job --filter status=running)" ]; then
+            echo "::error::No job container runs on $2."
+            exit 1
+          fi
+          SH
+          # Production and the demo have nothing in front of them: asked from here too.
+          if [ "$DEST" = production ] || [ "$DEST" = demo ]; then
+            site="https://$APP_HOST${MOUNT_PATH%/}"
+            if curl -fsS -o /dev/null --retry 5 --retry-delay 3 --retry-all-errors "$site/up"; then
+              echo "::notice title=${DEST^}::$site is up"
+            else
+              echo "::warning::$site/up didn't answer the runner (Cloudflare may challenge GitHub's addresses); the checks on the machine passed."
+            fi
+          fi
+
+      # The deployment's last status: success, failure or error (cancelled),
+      # with one line saying what happened — the timings bin/release-stopped
+      # wrote (a release, a rehearsal, the demo behind its page), a held
+      # migration, the step that failed. The app reads this line
+      # (Delivery::Github).
+      - name: Record how it went
+        id: outcome
+        if: always() && steps.record.outputs.id != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOYMENT_ID: ${{ steps.record.outputs.id }}
+          HELD: ${{ steps.held.outcome }}
+          KAMAL: ${{ steps.kamal.outcome }}
+          SMOKE: ${{ steps.smoke.outcome }}
+        run: |
+          state=failure
+          case "$KAMAL" in
+            success) [ "$SMOKE" = success ] && state=success ;;
+            cancelled) state=error ;;
+          esac
+          case "$ACTION" in
+            deploy) verb=deployed ;; rollback) verb="rolled back" ;; restart) verb=restarted ;; stop) verb=stopped ;;
+            release) verb=released ;; rehearse) verb=passed ;;
+            preview) verb="previewed $BRANCH$([ "$FRESH" = true ] && echo ' · fresh data')" ;;
+            *) verb="finished" ;;
+          esac
+          outcome=''; reason=''; migration_seconds=''; downtime_seconds=''; running=''
+          if [ -f "$RELEASE_RESULT_FILE" ]; then
+            while IFS='=' read -r key value; do
+              case "$key" in outcome | reason | migration_seconds | downtime_seconds | running) printf -v "$key" '%s' "$value" ;; esac
+            done < "$RELEASE_RESULT_FILE"
+          fi
+          if [ "$outcome" = passed ] && [ "$state" = success ]; then
+            description="$verb · migration ${migration_seconds} s · behind the page ${downtime_seconds} s"
+            echo "downtime_seconds=$downtime_seconds" >> "$GITHUB_OUTPUT"
+          elif [ "$outcome" = passed ]; then
+            description="failed: $verb (migration ${migration_seconds} s), but the smoke test after it failed"
+          elif [ "$outcome" = failed ]; then
+            description="undone: ${reason} · runs ${running:0:7}"
+          elif [ "$HELD" = failure ]; then
+            description="held: needs the app stopped${HELD_LIST:+ ($HELD_LIST)}"
+          elif [ "$state" = success ]; then
+            description="$verb"
+          elif [ "$state" = error ]; then
+            description="cancelled"
+          elif [ "$KAMAL" = failure ]; then
+            description="failed: kamal $ACTION"
+          elif [ "$SMOKE" = failure ]; then
+            description="failed: the smoke test"
+          else
+            description="failed before kamal ran"
+          fi
+          description="${description:0:140}"
+          gh api "repos/$GITHUB_REPOSITORY/deployments/$DEPLOYMENT_ID/statuses" --method POST \
+            -f state="$state" -f log_url="$RUN_URL" -f description="$description" > /dev/null
+          echo "Deployment $DEPLOYMENT_ID: $state — $description"
+
+      # GitHub's runner is thrown away with the job; the household's own
+      # isn't, and the agent holds the deploy key.
+      - name: Stop the SSH agent
+        if: always()
+        run: |
+          if [ -n "${SSH_AGENT_PID:-}" ]; then ssh-agent -k > /dev/null || true; fi

@@ -1,0 +1,57 @@
+# What every job needs before its own steps, on either kind of runner (the
+# repository variable RUNS_ON says which: the deployment runbook, "A runner
+# of your own").
+#
+# GitHub's runners are throwaway machines: setup-ruby installs the Ruby in
+# .ruby-version and caches the bundle. A self-hosted runner is a machine
+# someone lives on: the job gets a home of its own (SSH keys and registry
+# logins never land in the runner user's), runs the Ruby the runner's PATH
+# has — which must be .ruby-version's — and keeps the bundle in the runner's
+# tool cache, where the next job finds it. Every job on that runner reads
+# that bundle, the deploy included, so what keeps it trustworthy is the
+# runner's admission: only the repository's own code runs there, and the
+# machine serves nothing else (bin/provision-runner).
+name: Prepare the job
+description: A home of the job's own on a self-hosted runner; Ruby and the bundle on either kind of runner.
+
+inputs:
+  ruby:
+    description: Set up Ruby
+    default: "true"
+  bundle:
+    description: Install the bundle (needs ruby)
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: A home of the job's own
+      if: runner.environment == 'self-hosted'
+      shell: bash
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/home"
+        echo "HOME=$RUNNER_TEMP/home" >> "$GITHUB_ENV"
+
+    - name: Ruby and the bundle (GitHub's runner)
+      if: runner.environment == 'github-hosted' && inputs.ruby == 'true'
+      uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
+      with:
+        bundler-cache: ${{ inputs.bundle == 'true' }}
+
+    - name: Ruby and the bundle (self-hosted runner)
+      if: runner.environment == 'self-hosted' && inputs.ruby == 'true'
+      shell: bash
+      env:
+        BUNDLE: ${{ inputs.bundle }}
+      run: |
+        wanted="$(sed 's/^ruby-//' .ruby-version)"
+        found="$(ruby -e 'print RUBY_VERSION' 2>/dev/null || true)"
+        if [ "$found" != "$wanted" ]; then
+          echo "::error::This runner's Ruby is ${found:-missing}, and .ruby-version says $wanted: put Ruby $wanted first on the runner's PATH (actions-runner/.path)."
+          exit 1
+        fi
+        if [ "$BUNDLE" = true ]; then
+          echo "BUNDLE_PATH=$RUNNER_TOOL_CACHE/household-bundle" >> "$GITHUB_ENV"
+          echo "BUNDLE_FROZEN=true" >> "$GITHUB_ENV"
+          BUNDLE_PATH="$RUNNER_TOOL_CACHE/household-bundle" BUNDLE_FROZEN=true bundle install --jobs 4 --retry 3
+        fi

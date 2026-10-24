@@ -1,0 +1,248 @@
+// What every calendar card shares, whatever its kind: a mixin each kind's
+// block includes first (`.meal-card { @include calendar-card; … }`), and the
+// blocks that are the same for all, below it.
+@use "variables" as *;
+
+// The circle that says how a day (or the expense on it) ended, and marks it
+// done on a press: empty while pending, filled green when done, red when
+// cancelled, grey when skipped. The glyph inside scales with the circle,
+// and a press anywhere in the target around it counts.
+@mixin status-circle($diameter) {
+  @include hit-area($diameter, $border: 2px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: $diameter;
+  height: $diameter;
+  border-radius: 50%;
+  border: 2px solid $text-muted;
+  flex-shrink: 0;
+  text-decoration: none;
+  color: transparent;
+  font-size: $diameter * 0.44;
+  transition:
+    border-color $motion-quick,
+    background-color $motion-quick,
+    color $motion-quick;
+  cursor: pointer;
+
+  &--completed {
+    border-color: $success-text;
+    background-color: $success-text;
+    color: $surface-sunken;
+  }
+
+  &--cancelled {
+    border-color: $danger-text;
+    background-color: tint($danger-text, "fill");
+    color: $danger-text;
+  }
+
+  &--pending {
+    border-color: $warning-text;
+  }
+
+  &--skipped {
+    border-color: $text-muted;
+    color: $text-muted;
+  }
+
+  &:hover {
+    border-color: $success-text;
+    background-color: tint($success-text, "fill");
+  }
+}
+
+@mixin calendar-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: $radius-md;
+  background-color: $surface-raised;
+
+  // The edge says which section this is; the circle and label say its state
+  border-left: 3px solid var(--section-color);
+  transition: background-color $motion-quick;
+
+  // A day that's over steps back a surface (sunken), and its toggle and
+  // its label say how it ended. Never through opacity: its text keeps its
+  // contrast. An upcoming day reads the same whether it is saved or not.
+  &--completed,
+  &--cancelled,
+  &--skipped {
+    background-color: $surface-sunken;
+  }
+
+  // Only a done day's title is struck through: a skipped dinner must not
+  // read as eaten at a glance, so a skipped or cancelled day is muted and
+  // its circle and status word say how it ended.
+  &--completed [class$="__title"],
+  &--completed [class$="__title-link"],
+  &--completed [class$="__name"],
+  &--completed [class$="__name-link"] {
+    text-decoration: line-through;
+  }
+
+  // The circle that marks the day done, or says it can't be (locked)
+  &__toggle {
+    @include status-circle(1.25rem);
+
+    margin-top: 0.15rem;
+
+    // A day nothing is saved about yet: the circle is drawn, not filled in.
+    &--projected {
+      border-color: $text-muted;
+      border-style: dashed;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  // The word under the title: how a cancelled day ended, in the circle's red
+  // (through the card's state, so it outranks the kind's own muted status)
+  &--cancelled &__status {
+    color: $danger-text;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  // In the week grid a column is narrow, so the card is tighter and nothing
+  // in it is cut: a title wraps over as many lines as it needs, the pills
+  // beside it drop under it when the two don't fit, and a detail line
+  // wraps too. The share and "more" buttons come out when the card is
+  // pointed at or reached by keyboard; whose it is stays in view.
+  @include from("desktop") {
+    .calendar__grid & {
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      padding: 0.3rem 0.4rem;
+
+      // On a small screen a column holds a title and whose it is only one
+      // above the other, so the owner's pill drops to a line of its own
+      // when half the card is not enough for the title; a wider column
+      // keeps the two side by side.
+      &__content {
+        min-width: 50%;
+      }
+
+      &__header {
+        flex-wrap: wrap;
+        gap: 0.1rem 0.25rem;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      // Each kind's card cuts its title with an ellipsis, which suits the
+      // month's wide cards; here a cut title hides what the day is about,
+      // so it wraps, breaking a long word when it must. It keeps most of
+      // its first line beside the kind's icon, so a pill that doesn't fit
+      // after it drops to the next line instead of the title dropping
+      // under the icon.
+      [class$="__title"],
+      [class$="__name"],
+      [class$="__title-link"],
+      [class$="__name-link"] {
+        flex: 1 1 60%;
+        min-width: 60%;
+        font-size: $type-12;
+        line-height: 1.25;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        overflow-wrap: anywhere;
+      }
+
+      // A detail line (a doctor's name, a dose's time) wraps for the same
+      // reason.
+      [class$="__detail"],
+      [class$="__time"] {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        overflow-wrap: anywhere;
+      }
+
+      .card-actions .item-action {
+        display: none;
+      }
+
+      // Its "more" stays while the menu it opened is out, though the
+      // pointer has gone over to the menu, outside the card.
+      &:hover .card-actions,
+      &:focus-within .card-actions,
+      &:has([aria-expanded="true"]) .card-actions {
+        .item-action {
+          display: flex;
+        }
+      }
+    }
+  }
+}
+
+// A kind's title once its day is over, however it ended: muted, the
+// circle and the status saying how it ended, and struck through only when
+// done (the card's own rule above). Used inside the title's own rule:
+// `&__title-link { @include when-over("meal-card") { … } }`.
+@mixin when-over($block) {
+  .#{$block}--completed &,
+  .#{$block}--cancelled &,
+  .#{$block}--skipped & {
+    @content;
+  }
+}
+
+// A card's own actions (Views::Calendar::Cards::Actions), on
+// its right: whose it is when it isn't the viewer's, Share for its owner,
+// and the "more" button of the page's menu of deletes. Each button is a
+// whole target, side by side with no gap, around an icon as small as the
+// owner's pill; its negative margins give back the height the target adds,
+// so the card is no taller for it.
+.card-actions {
+  $pill-height: 1.25rem;
+  $overhang: calc((#{$target-min} - #{$pill-height}) / 2);
+
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+  margin-left: auto;
+
+  .item-action {
+    width: $target-min;
+    height: $target-min;
+    margin: calc(0.15rem - #{$overhang}) 0 calc(-1 * #{$overhang});
+    font-size: $type-10;
+
+    // The button is the whole target already: the wider layer an item
+    // action has elsewhere would reach over its neighbour.
+    &::after {
+      inset: 0;
+    }
+  }
+}
+
+.card-actions__owner {
+  margin-top: 0.15rem;
+  padding: 0 0.35rem;
+  border-radius: $radius-pill;
+  background-color: tint-var(var(--section-color, #{$text-muted}));
+  color: $text;
+  font-size: $type-10;
+  line-height: 1.25rem;
+  white-space: nowrap;
+}
+
+// A toggle the viewer can't use (a linked housemate's item they may only
+// see): the same circle, saying how the day ended as every circle does,
+// only not a pointer. Its tooltip says whose it is.
+[class$="__toggle"].is-locked {
+  cursor: not-allowed;
+}

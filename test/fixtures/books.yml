@@ -1,0 +1,30 @@
+# alice's shelf: one being read, one read and rated; bob's one book, shared
+# with alice (book_shares.yml). carol has none, and sees none of these.
+left_hand:
+  profile: alice
+  title: The Left Hand of Darkness
+  author: Ursula K. Le Guin
+  isbn: "9780441478125"
+  genres: ["Science fiction", "Classics"]
+  status: 1
+  started_on: 2026-09-20
+
+dune:
+  profile: alice
+  title: Dune
+  author: Frank Herbert
+  isbn: "9780441013593"
+  genres: ["Science fiction"]
+  status: 2
+  started_on: 2026-08-01
+  finished_on: 2026-08-20
+  rating: 5
+  cover_id: 12345
+
+hail_mary:
+  profile: bob
+  title: Project Hail Mary
+  author: Andy Weir
+  isbn: "9780593135204"
+  genres: ["Science fiction", "Humor"]
+  status: 0

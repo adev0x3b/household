@@ -1,0 +1,8 @@
+description: Marking many at once — every injection this month so far is taken.
+tags: [coverage, status]
+today: 2026-09-24
+seed: [b12_injection_series]
+messages:
+  - I took all my cobalamin injections this month, on time.
+expect:
+  - statuses: { type: medication, from: 2026-09-01, to: 2026-09-30, status: completed, count: 4 }

@@ -1,0 +1,11 @@
+description: A flour purchase for baking with its price (clearly food, so the assistant doesn't ask whether it is medical).
+tags: [coverage, pantry]
+today: 2026-10-01
+messages:
+  - "I bought 2kg of flour for baking, 3 euros in cash"
+expect:
+  - ingredients: 1
+  - ingredient_purchases: 1
+  - ingredient_purchase_details: { flour: { quantity: 2, unit: "kg", cost: 3, paid: cash, category: groceries } }
+  - ingredient_details: { flour: { quantity: 2, unit: "kg" } }
+  - purchases: 0

@@ -1,0 +1,12 @@
+description: Scenario 44 in Italian — the chat that saved a new one-off dose with only the syringe while saying it saved all three.
+tags: [coverage, supplies]
+today: 2026-10-03
+locale: it
+seed: [b12_weekly]
+messages:
+  - "Ho dimenticato di inserire che forniture userò nella mia iniezione di cobalamina. Userò: 0.12ml di cobalamina, 1 siringa, 1 ago"
+expect:
+  - medication_details: { name: cobalamina, uses: { cobalamina: 0.12, siringhe: 1, aghi: 1 } }
+  - purchases: 3
+  - series: { medication: 1 }
+  - stock: { cobalamina: 18, siringhe: 100, aghi: 200 }

@@ -1,0 +1,10 @@
+description: "A grocery purchase said in Italian; the ingredient keeps the name as said, with its quantity, price and payment."
+tags: [pantry, italian]
+today: 2026-10-01
+locale: it
+messages:
+  - "Ho comprato 2 kg di mele per 4,50 euro, pagato con la carta"
+expect:
+  - ingredients: 1
+  - ingredient_purchases: 1
+  - ingredient_purchase_details: { mele: { quantity: 2, unit: "kg", cost: 4.5, paid: card, category: groceries } }

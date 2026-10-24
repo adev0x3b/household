@@ -1,0 +1,34 @@
+# alice's lease, whole; bob's photo, whole and shared with alice
+# (upload_shares.yml); alice's backup, declared and not yet begun. carol has
+# none. The bytes of a ready one are written by write_upload_file when a
+# test needs them.
+lease:
+  profile: alice
+  name: Lease 2026.pdf
+  content_type: application/pdf
+  byte_size: 11
+  received_bytes: 11
+  status: 2
+  key: 0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0
+  checksum: 7d6f0a6b8f3c2a1e9b4d5c6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b
+  completed_at: <%= 3.days.ago.iso8601 %>
+
+photo:
+  profile: bob
+  name: Balcony.jpg
+  content_type: image/jpeg
+  byte_size: 5
+  received_bytes: 5
+  status: 2
+  key: ffeeddcc-bbaa-9988-7766-554433221100
+  checksum: 1b4f0e9851971998e732078544c96b36c3d01cedf7caa332359d6f1d83567014
+  completed_at: <%= 2.days.ago.iso8601 %>
+
+backup:
+  profile: alice
+  name: backup.tar.gz
+  content_type: application/gzip
+  byte_size: 1000
+  received_bytes: 0
+  status: 0
+  key: 00112233-4455-6677-8899-aabbccddeeff

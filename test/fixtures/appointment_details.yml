@@ -1,0 +1,7 @@
+_fixture:
+  model_class: Appointment::Details
+
+endocrinologist:
+  event: endocrinologist
+  kind: 0
+  counterpart: Dr. Smith

@@ -1,0 +1,15 @@
+glucose_any:
+  analyte: glucose
+  unit: mgdl
+  sex: 0
+  low: "70"
+  high: "100"
+  critical_low: "54"
+  critical_high: "250"
+
+glucose_male:
+  analyte: glucose
+  unit: mgdl
+  sex: 1
+  low: "74"
+  high: "106"

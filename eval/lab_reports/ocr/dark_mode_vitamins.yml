@@ -1,0 +1,7 @@
+# B12 vitamins from a dark-mode app: light text on a dark background.
+rows:
+  - [Cobalamina, "250", pg/mL, "150 - 250"]
+  - [Transferrin, "0,8", ng/mL, "0,2 - 1,5"]
+  - [Omocisteina totale, "0,35", ng/mL, "0,10 - 0,60"]
+  - [Prolattina, "12", ng/mL, "4 - 23"]
+render: { theme: dark }

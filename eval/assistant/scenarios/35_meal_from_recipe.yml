@@ -1,0 +1,10 @@
+description: A dinner planned from a saved recipe; it stays upcoming and the pantry is untouched until it is cooked.
+tags: [pantry, meals]
+today: 2026-10-01
+seed: pantry_recipes
+messages:
+  - "We're having pancakes for dinner tomorrow"
+expect:
+  - meals: 1
+  - meal_details: { date: "2026-10-02", meal_type: dinner, kind: home, status: pending, recipes: [ Pancakes ] }
+  - ingredient_details: { flour: { quantity: 2.5 } }

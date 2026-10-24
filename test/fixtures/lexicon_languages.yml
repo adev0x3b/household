@@ -1,0 +1,7 @@
+# config/lexicons.yml's languages, as db/seeds.rb saves them on a new database.
+<% LexiconLanguage.starting_set.each do |language| %>
+<%= language[:code] %>:
+<% language.each do |column, value| %>
+  <%= column %>: <%= value.to_json %>
+<% end %>
+<% end %>

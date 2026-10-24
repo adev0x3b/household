@@ -1,0 +1,16 @@
+[
+  {
+    "state": "inactive",
+    "description": "",
+    "log_url": "https://github.com/example/household/actions/runs/201",
+    "target_url": "https://github.com/example/household/actions/runs/201",
+    "created_at": "2026-10-13T08:54:00Z"
+  },
+  {
+    "state": "success",
+    "description": "deployed",
+    "log_url": "https://github.com/example/household/actions/runs/201",
+    "target_url": "https://github.com/example/household/actions/runs/201",
+    "created_at": "2026-10-12T21:23:00Z"
+  }
+]

@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# A branch on dev (the deployment runbook, "A branch on dev"). The Deploy
+# workflow runs it for a preview (kamal.yml, after building the branch's
+# image); a person can too, from a checkout on a machine Kamal reaches, with
+# an image that exists for the commit:
+#
+#   bin/preview-dev <sha>            dev runs the commit on the data it has, migrated forward
+#   bin/preview-dev <sha> --fresh    … on a fresh database: dropped, the schema loaded whole,
+#                                    the demo household seeded and the admin made again
+#
+# Fresh is for a branch whose migrations differ from what dev ran (another
+# branch, a migration edited since it ran): the schema is loaded whole, so
+# no migration has to run forward from a state it never saw. The admin
+# is `admin` with the demo's password (bin/rails demo:admin).
+# A stopped dev (the Deploy workflow's stop) starts again here.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+SHA="${1:-}"
+FRESH=false
+[ "${2:-}" = --fresh ] && FRESH=true
+[ -n "$SHA" ] || { sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2; }
+
+# config/database.yml's production databases: the app's, and Solid Cache's, Queue's and Cable's.
+DATABASES="household_production household_production_cache household_production_queue household_production_cable"
+
+say() { printf '\n\033[1m== %s\033[0m\n' "$*"; }
+
+# shellcheck disable=SC2016 # Ruby, not shell
+read -r HOST SSH_USER DB < <(bin/kamal config -d dev | ruby -ryaml -e '
+  c = YAML.unsafe_load($stdin.read)
+  puts [ c[:primary_host], c[:ssh_options][:user], c[:accessories]["db"]["service"] ].join(" ")')
+
+# A stop keeps the database's container, stopped, and Kamal's setup leaves
+# an existing one alone: start it, and wait (a minute at most) until it
+# takes connections. The very first preview has none yet; setup makes it.
+say "Dev's database"
+ssh -o BatchMode=yes "$SSH_USER@$HOST" "if docker container inspect $DB > /dev/null 2>&1; then
+  docker start $DB > /dev/null || exit 1
+  for _ in \$(seq 60); do docker exec $DB pg_isready -U household -q && { echo '$DB takes connections'; exit 0; }; sleep 1; done
+  echo '$DB started but takes no connections' >&2; exit 1
+else echo 'no $DB yet: setup makes it'; fi"
+
+if $FRESH; then
+  say "Dev stops and its databases go"
+  bin/kamal app stop -d dev > /dev/null 2>&1 || true # nothing may run yet
+  # The very first preview has no database container yet: nothing to drop.
+  ssh -o BatchMode=yes "$SSH_USER@$HOST" "if docker container inspect $DB > /dev/null 2>&1; then
+    for db in $DATABASES; do docker exec $DB dropdb -U household --if-exists --force \$db; done
+  else echo 'no $DB yet: nothing to drop'; fi"
+fi
+
+say "Dev boots ${SHA:0:7}"
+# setup = deploy, plus the database container when it is missing (never
+# dropped above: only its databases were). The new version's db:prepare
+# then creates the databases and loads the schema whole, or migrates forward.
+bin/kamal setup -d dev --skip-push --version "$SHA" --lock-wait
+
+if $FRESH; then
+  say "The demo household, and the admin"
+  bin/kamal rails -d dev demo:seed
+  bin/kamal rails -d dev demo:admin
+fi
+
+say "Done: dev runs ${SHA:0:7}$($FRESH && echo ' on fresh data')"

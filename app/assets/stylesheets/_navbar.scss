@@ -1,0 +1,444 @@
+// The top bar and the navigation (Views::Layouts::Navbar): a drawer pulled up
+// from the bottom on a phone, a panel slid in from the left from a tablet
+// up. Both are the one sheet, opened over the page, which keeps its width.
+
+@use "variables" as *;
+
+// The page, kept clear of the fixed top bar and of the phone's bottom bar.
+.app-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  padding-top: calc(#{$navbar-height} + env(safe-area-inset-top, 0px));
+
+  // The phone's bottom bar (_bottom-nav.scss); 0 on desktop
+  padding-bottom: var(--bottom-bar-space);
+  flex: 1;
+  max-width: 100%;
+  overflow-x: hidden;
+
+  // The page takes the focus only as the skip link's target, so that the
+  // next Tab starts in its content. It is no control, so it draws no ring.
+  &:focus {
+    outline: none;
+  }
+}
+
+.navbar-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-topbar;
+  height: $navbar-height;
+  padding: 0 0.75rem;
+  padding-top: env(safe-area-inset-top, 0);
+  background: glass($surface-card);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 0.5px solid tint($text-muted, "fill");
+  display: grid;
+
+  // The page's controls and the bar's own buttons get the width they need
+  // first, gathered at the right; the title takes what's left, never less
+  // than its first letters.
+  grid-template-columns: minmax(2.5rem, 1fr) auto auto;
+  align-items: center;
+  column-gap: 0.5rem;
+}
+
+// The "Household" wordmark. It never shrinks (flex-shrink: 0 on
+// .navbar-logo-link): shown whole, or, on a phone whose bar holds a search
+// or the calendar's month beside the page's buttons, not at all, since
+// there it would be cut or overrun.
+.navbar-topbar-left {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  height: 2.5rem;
+  min-width: 0;
+}
+
+@include until("tablet") {
+  .navbar-topbar:has(.index-search, .calendar-nav) .navbar-logo-link {
+    display: none;
+  }
+}
+
+// The page's controls, next to the bell. The column takes what they ask
+// for and no less than their buttons; a search between them shrinks to
+// what is left rather than spill over the title. Nothing is clipped, so a
+// menu dropped from one of them hangs below the bar.
+.navbar-topbar-controls {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+// The bar's right column: the notifications bell, then the account menu.
+.navbar-topbar-right {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+// The wordmark at the head of the panel, over the bar's own. Nothing to
+// show on a phone, whose drawer is pulled up by its handle.
+.navbar-sheet-brand {
+  display: none;
+  align-items: center;
+  flex-shrink: 0;
+  height: $navbar-height;
+  padding: 0 1.25rem;
+  border-bottom: 0.5px solid tint($text-muted, "fill");
+  text-decoration: none;
+}
+
+.navbar-logo-text {
+  font-size: $type-16;
+  font-weight: 700;
+  color: $accent;
+}
+
+.navbar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: $scrim;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  z-index: $z-drawer-backdrop;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity $motion-sheet;
+  will-change: opacity;
+
+  &.is-visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+// The drawer, as the phone's bottom sheet; the side panel is at the end.
+.navbar-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-drawer;
+  max-height: 90dvh;
+  max-height: 90vh;
+  background-color: $surface-sunken;
+  border-radius: $radius-xxl $radius-xxl 0 0;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(102%);
+  transition: transform $motion-sheet;
+  will-change: transform;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  box-shadow: $shadow-sheet;
+  width: 100%;
+
+  &.is-open {
+    transform: translateY(0);
+  }
+
+  // Pulled by its handle: it follows the finger, no easing in between
+  &.is-dragging {
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// The strip to pull the sheet down by (navbar_controller.js#dragStart): tall
+// enough for a thumb, and the browser never takes the gesture for a scroll.
+.navbar-sheet-handle {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 0 0.625rem;
+  flex-shrink: 0;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+
+  .navbar-sheet.is-dragging & {
+    cursor: grabbing;
+  }
+}
+
+.navbar-handle-pill {
+  width: 2.25rem;
+  height: 5px;
+  background-color: $text-muted;
+  border-radius: $radius-pill;
+}
+
+.navbar-sheet-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  flex: 1;
+  padding: 0.25rem 0 1.25rem;
+}
+
+.navbar-links {
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+// A block's caption ("Sections", "People"), worded like "This device".
+.navbar-caption {
+  margin-top: 0.875rem;
+  padding: 0 0.875rem;
+  color: $text-muted;
+  font-size: $type-11;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.navbar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: $radius-lg;
+  background-color: $surface-card;
+  color: $text;
+  font-size: $type-15;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color $motion-quick;
+
+  &:hover {
+    background-color: $surface-raised;
+  }
+
+  i {
+    width: 1.25rem;
+    text-align: center;
+    color: var(--section-color, $text-muted);
+  }
+}
+
+// A count after a link's words sits at the line's end.
+.navbar-link .count-badge {
+  margin-left: auto;
+}
+
+// The page you're on (aria-current too): filled, with a pink edge. Beats
+// the group children's darker background.
+.navbar-links .navbar-link.is-current {
+  background-color: $surface-raised;
+  box-shadow: inset 3px 0 0 $accent;
+}
+
+// A group: a section's page with its sub-pages folded under it (the header
+// holds a link to the page and a toggle beside it), or a plain folded list
+// (Admin, where the whole header is the toggle).
+.navbar-group {
+  display: flex;
+  flex-direction: column;
+}
+
+// The header: a pill, shaped like a link, holding the link and the toggle —
+// or, as a button, the toggle itself.
+.navbar-group-header {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  border-radius: $radius-lg;
+  background-color: $surface-card;
+  overflow: hidden;
+}
+
+button.navbar-group-header {
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border: none;
+  color: $text;
+  font-size: $type-15;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color $motion-quick;
+
+  &:hover {
+    background-color: $surface-raised;
+  }
+
+  > i:first-child {
+    width: 1.25rem;
+    text-align: center;
+    color: var(--section-color, $text-muted);
+  }
+}
+
+// The section's link fills the pill; the pill carries the shape
+.navbar-links .navbar-group-link {
+  flex: 1;
+  min-width: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+// The pill clips what spills out of it, so the focus ring of its link and
+// its toggle is drawn inside their edges.
+.navbar-group-header > :focus-visible {
+  outline: 2px solid $accent;
+  outline-offset: -2px;
+}
+
+// The toggle beside it, parted by a hairline
+.navbar-group-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.75rem;
+  padding: 0;
+  border: none;
+  border-left: 1px solid tint($text-muted, "fill");
+  background: transparent;
+  color: $text-muted;
+  cursor: pointer;
+  transition: background-color $motion-quick;
+
+  &:hover {
+    background-color: $surface-raised;
+  }
+}
+
+.navbar-group-label {
+  flex: 1;
+  text-align: left;
+}
+
+.navbar-group-chevron {
+  color: $text-muted;
+  font-size: $type-13;
+  transition: transform $motion-settle;
+  will-change: transform;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.navbar-group.is-open .navbar-group-chevron {
+  transform: rotate(180deg);
+}
+
+.navbar-group-children {
+  max-height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  transition:
+    max-height $motion-settle,
+    margin-top $motion-settle;
+  will-change: max-height, margin-top;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  .navbar-link {
+    margin-left: 0.75rem;
+    background-color: $surface-sunken;
+  }
+}
+
+.navbar-group.is-open .navbar-group-children {
+  margin-top: 0.375rem;
+}
+
+// The bar's burger, which opens the panel. A phone has the bottom bar's
+// Menu tab for that, so the burger shows from a tablet up only.
+.navbar-burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: 0.25rem;
+  border: none;
+  border-radius: $radius-md;
+  background: transparent;
+  color: $text-muted;
+  font-size: $type-16;
+  cursor: pointer;
+  transition: background-color $motion-quick;
+
+  &:hover,
+  &.is-active {
+    background-color: tint($accent, "fill");
+    color: $text;
+  }
+}
+
+// From a tablet up the sheet is a panel the height of the window, slid in
+// from the left over the page and the top bar, so a page keeps its whole
+// width for its content. The handle is a thumb's, so it goes; the backdrop
+// and the script are the same as on a phone.
+@include from("tablet") {
+  .navbar-burger {
+    display: flex;
+  }
+
+  .navbar-sheet {
+    top: 0;
+    right: auto;
+    width: $sidebar-width;
+    height: 100dvh;
+    height: 100vh;
+    max-height: none;
+    border-radius: 0;
+    border-right: 0.5px solid tint($text-muted, "fill");
+    transform: translateX(-105%);
+    padding-bottom: 0;
+
+    &.is-open {
+      transform: translateX(0);
+    }
+  }
+
+  .navbar-sheet-brand {
+    display: flex;
+  }
+
+  .navbar-sheet-handle {
+    display: none;
+  }
+
+  .navbar-sheet-scroll {
+    padding-top: 0.75rem;
+  }
+}

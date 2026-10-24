@@ -1,0 +1,11 @@
+description: "A grocery purchase can be undone with the Undo button; the stock goes back to what it was and the cost is removed."
+tags: [pantry, undo]
+today: 2026-10-01
+seed: pantry_basics
+messages:
+  - "I bought another 1kg of flour for 2 euros, paid by card"
+  - "!undo"
+expect:
+  - undone_changes: 1
+  - ingredient_purchases: 0
+  - ingredient_details: { flour: { quantity: 2.5, unit: "kg" } }

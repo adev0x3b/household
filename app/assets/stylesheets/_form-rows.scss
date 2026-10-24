@@ -1,0 +1,198 @@
+@use "variables" as *;
+
+// The rows a form adds and takes away one at a time (Components::NestedFields):
+// a lab result's values, a meal's recipes, a dose's supplies, a recipe's steps
+// and ingredients, and in their own partials a reminder and a dose time. Each block includes these mixins, so the rows look the same
+// on every form and a change to the shape is made once.
+
+@mixin added-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+@mixin added-row($align: center) {
+  display: flex;
+  align-items: $align;
+  gap: 0.375rem;
+}
+
+// "Add a value", "Add a step" (Components::AddRowButton): a quiet button
+// under the rows it adds to, pink when the pointer is on it.
+.add-row-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: $radius-md;
+  background-color: $surface-raised;
+  color: $text;
+  font-size: $type-13;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color $motion-quick,
+    color $motion-quick;
+
+  &:hover {
+    background-color: $accent;
+    color: $surface-sunken;
+  }
+}
+
+.lab-entries {
+  margin-bottom: 1rem;
+
+  &__label {
+    margin-bottom: 0.375rem;
+  }
+
+  &__rows {
+    @include added-rows;
+  }
+}
+
+.lab-entry-row {
+  @include added-row;
+
+  &__field {
+    flex: 1;
+    min-width: 0;
+
+    input {
+      width: 100%;
+    }
+
+    &--value {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    &--unit {
+      flex: 0 0 5rem;
+    }
+  }
+}
+
+.meal-recipes {
+  margin-bottom: 1rem;
+
+  &__rows {
+    @include added-rows;
+  }
+}
+
+.meal-recipe-row {
+  @include added-row;
+
+  &__field {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.supply-consumptions {
+  margin-bottom: 1rem;
+
+  &__rows {
+    @include added-rows;
+  }
+}
+
+.supply-consumption-row {
+  @include added-row;
+
+  &__field {
+    flex: 1;
+    min-width: 0;
+
+    input {
+      width: 100%;
+    }
+
+    &--quantity {
+      flex: 0 0 5rem;
+    }
+  }
+}
+
+.recipe-steps-field {
+  &__rows {
+    @include added-rows;
+  }
+}
+
+// A step is a paragraph, so its remove button sits at the top of the row.
+.recipe-step-row {
+  @include added-row(flex-start);
+
+  &__field {
+    flex: 1;
+    min-width: 0;
+
+    textarea {
+      width: 100%;
+      min-height: 2.5rem;
+    }
+  }
+}
+
+.recipe-ingredients-field {
+  margin-top: 0.75rem;
+
+  &__rows {
+    @include added-rows;
+  }
+}
+
+.recipe-ingredient-row {
+  @include added-row;
+
+  &__field {
+    flex: 1;
+    min-width: 0;
+
+    input {
+      width: 100%;
+    }
+
+    &--quantity {
+      flex: 0 0 4rem;
+    }
+
+    &--unit {
+      flex: 0 0 5rem;
+    }
+  }
+}
+
+// The words over a row's fields (NestedFields#headings), in the row's own
+// layout so each sits over its field; the spacer stands where each row has
+// its remove button.
+.nested-fields__headings {
+  color: $text;
+  font-size: $type-13;
+  font-weight: 600;
+}
+
+.nested-fields__spacer {
+  flex: 0 0 1.875rem;
+}
+
+// What the server refused in a row (NestedFields#row), on a line of its own
+// under the row's fields: only a refused row wraps, so the others keep
+// their fields on one line however narrow the screen.
+.nested-fields .is-invalid {
+  flex-wrap: wrap;
+}
+
+.nested-fields__error {
+  flex: 0 0 100%;
+  font-size: $type-12;
+  line-height: 1.35;
+  color: $danger-text;
+}

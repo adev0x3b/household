@@ -1,0 +1,21 @@
+# bin/kamal … -d production: https://$PRODUCTION_HOST<mount path> (config/deploy.yml).
+
+proxy:
+  host: <%= ENV.fetch("PRODUCTION_HOST") %>
+
+env:
+  clear:
+    APP_HOST: <%= ENV.fetch("PRODUCTION_HOST") %>
+    DB_HOST: household-db
+
+# Uploads and lexicon extracts, and what bin/docker-secrets made on the first
+# boot. Named without the destination, unlike the other destinations' volumes.
+volumes:
+  - household_storage:/rails/storage
+  - household_secrets:/rails/secrets
+
+accessories:
+  db:
+    service: household-db
+    volumes:
+      - household_db:/var/lib/postgresql/data

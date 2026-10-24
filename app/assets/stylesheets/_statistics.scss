@@ -1,0 +1,557 @@
+// The dashboards: what needs attention, the KPI tiles, then reports of
+// charts and tables. The chart tokens are exposed as --stat-* custom
+// properties because chart_controller.js reads a chart's colours from
+// them. A status tone always comes with an icon and a label.
+
+@use "sass:map";
+@use "variables" as *;
+
+// A status tone as a word, an icon, an edge or a tint: the text tone of
+// its hue. A chart draws the solid tone instead (the --stat-* properties).
+$stat-tones: (
+  "good": $success-text,
+  "warning": $warning-text,
+  "critical": $danger-text,
+  "neutral": $text-faint
+);
+
+@mixin stat-surface {
+  background-color: $stat-surface;
+  border: 1px solid tint($text-muted, "fill");
+  border-radius: $radius-lg;
+}
+
+// Tinted pill: the tone colours the icon and a faint background, and the
+// text stays light, because a tone's own word on its own tint falls under
+// AA.
+@mixin stat-tone-pill($color) {
+  background-color: tint($color, "fill");
+  color: $text;
+
+  i {
+    color: $color;
+  }
+}
+
+// The palette chart_controller.js reads: on every dashboard, and on the
+// evals' pages, which use the same tiles and charts.
+.statistics,
+.evals {
+  --stat-surface: #{$stat-surface};
+  --stat-series-1: #{$stat-series-1};
+  --stat-series-2: #{$stat-series-2};
+  --stat-series-3: #{$stat-series-3};
+  --stat-series-4: #{$stat-series-4};
+  --stat-series-5: #{$stat-series-5};
+  --stat-series-6: #{$stat-series-6};
+  --stat-good: #{$success-solid};
+  --stat-warning: #{$warning-solid};
+  --stat-critical: #{$danger-solid};
+  --stat-neutral: #{$text-faint};
+  --stat-ink-secondary: #{$text-muted};
+  --stat-ink-muted: #{$text-faint};
+  --stat-grid: #{$stat-grid};
+  --stat-axis: #{$stat-axis};
+}
+
+.statistics {
+  @include page-width("wide");
+
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: $text;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    font-size: $type-24;
+    font-weight: 700;
+    line-height: 1.2;
+    color: $text;
+  }
+
+  &__period {
+    font-size: $type-14;
+    color: $text-muted;
+  }
+
+  &__kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+
+    @include from("desktop") {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  &__frame {
+    display: block;
+  }
+}
+
+.stat-member-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__label {
+    color: $text-muted;
+  }
+
+  &__select {
+    min-height: 2.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: $radius-md;
+    border: 1px solid tint($text-muted, "edge");
+    background-color: $stat-surface;
+    color: $text;
+    font-size: $type-14;
+  }
+}
+
+.stat-attention {
+  @include stat-surface;
+
+  padding: 0.75rem;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: $type-16;
+    font-weight: 700;
+    color: $text;
+
+    i {
+      color: $warning-text;
+    }
+  }
+
+  &__count {
+    min-width: 1.5rem;
+    padding: 0 0.4rem;
+    border-radius: $radius-pill;
+    background-color: tint($warning-text, "fill");
+    font-size: $type-12;
+    text-align: center;
+  }
+
+  // Beside an item's name: how many days of its series are in that state
+  &__times {
+    margin-left: 0.4rem;
+    padding: 0 0.4rem;
+    border-radius: $radius-pill;
+    background-color: tint($text-muted, "fill");
+    font-size: $type-11;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  // The row is its link, with the press that settles it beside, outside
+  // the link's own tap area.
+  &__item {
+    display: flex;
+    align-items: center;
+    border-left: 3px solid $text-faint;
+    border-radius: $radius-md;
+    background-color: tint($text, "faint");
+
+    @each $tone in ("critical", "warning") {
+      &--#{$tone} {
+        border-left-color: map.get($stat-tones, $tone);
+
+        .stat-attention__icon {
+          color: map.get($stat-tones, $tone);
+        }
+      }
+    }
+  }
+
+  &__link {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 2.75rem;
+    color: $text;
+
+    &:hover {
+      background-color: tint($text, "faint");
+      color: $text;
+    }
+  }
+
+  &__icon {
+    width: 1.25rem;
+    text-align: center;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    font-size: $type-14;
+  }
+
+  &__detail {
+    color: $text-muted;
+    font-size: $type-13;
+  }
+
+  &__chevron {
+    color: $text-faint;
+    font-size: $type-12;
+  }
+
+  &__resolve {
+    display: flex;
+    padding-right: 0.5rem;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+
+  // Settles the whole list: a quiet text button, for a press that is rarely
+  // wanted and never urgent.
+  &__resolve-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid tint($text-muted, "edge");
+    border-radius: $radius-pill;
+    background: none;
+    color: $text-muted;
+    font-size: $type-13;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color $motion-quick,
+      color $motion-quick;
+
+    &:hover,
+    &:focus-visible {
+      background-color: tint($accent, "fill");
+      color: $accent;
+    }
+  }
+}
+
+.stat-tile {
+  @include stat-surface;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+  padding: 0.875rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__icon {
+    color: $text-faint;
+  }
+
+  &__label {
+    flex: 1;
+    min-width: 0;
+    font-size: $type-13;
+    font-weight: 600;
+    color: $text-muted;
+  }
+
+  &__hint {
+    color: $text-faint;
+    cursor: help;
+  }
+
+  &__value {
+    font-size: $type-28;
+    font-weight: 700;
+    line-height: 1.1;
+    color: $text;
+    overflow-wrap: anywhere;
+  }
+
+  &__footnote {
+    font-size: $type-12;
+    color: $text-faint;
+  }
+}
+
+// The change against the previous period: the colour says whether it is
+// good or bad for this metric, not its sign.
+.stat-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  align-self: flex-start;
+  padding: 0.125rem 0.5rem;
+  border-radius: $radius-pill;
+  font-size: $type-12;
+  font-weight: 600;
+
+  &--improving {
+    @include stat-tone-pill($success-text);
+  }
+
+  &--worsening {
+    @include stat-tone-pill($danger-text);
+  }
+
+  &--neutral,
+  &--flat {
+    @include stat-tone-pill($text-faint);
+  }
+
+  &--none {
+    padding-left: 0;
+    color: $text-faint;
+    font-weight: 400;
+  }
+}
+
+.stat-report {
+  @include stat-surface;
+
+  padding: 1rem;
+
+  &__header {
+    margin-bottom: 1rem;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: $type-18;
+    font-weight: 700;
+    color: $text;
+
+    i {
+      color: var(--section-color, $text-muted);
+    }
+  }
+
+  &__description {
+    margin-top: 0.25rem;
+    font-size: $type-13;
+    color: $text-muted;
+  }
+
+  &__subtitle {
+    margin: 1.25rem 0 0.5rem;
+    font-size: $type-15;
+    font-weight: 600;
+    color: $text;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__charts {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+
+    @include from("tablet") {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  &--loading {
+    min-height: 14rem;
+    background-image: linear-gradient(90deg, transparent, tint($text, "faint"), transparent);
+    background-size: 200% 100%;
+    animation: stat-shimmer 1.4s ease-in-out infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+}
+
+@keyframes stat-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+// A chart's canvas, drawn by chart_controller.js.
+.stat-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+
+  &__caption {
+    font-size: $type-13;
+    font-weight: 600;
+    color: $text-muted;
+  }
+
+  &__canvas {
+    position: relative;
+    height: 14rem;
+  }
+
+  &--tall &__canvas {
+    height: 18rem;
+  }
+
+  &--sparkline &__canvas {
+    height: 2.25rem;
+  }
+}
+
+.stat-table .stat-chart--sparkline {
+  width: 6rem;
+}
+
+// A narrow screen has no room for a wide table's columns, so each row of
+// one becomes a stacked card (Components::Statistics::DataTable says
+// which); a narrow table stays a table.
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $type-14;
+  color: $text;
+
+  &__wrapper {
+    overflow-x: auto;
+  }
+
+  th {
+    padding: 0.5rem;
+    border-bottom: 1px solid $stat-axis;
+    color: $text-faint;
+    font-size: $type-12;
+    font-weight: 600;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__cell {
+    padding: 0.5rem;
+    border-bottom: 1px solid $stat-grid;
+    vertical-align: middle;
+
+    &--numeric {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+  }
+
+  th.stat-table__cell--numeric {
+    text-align: right;
+  }
+
+  @include until("narrow") {
+    &--stacking thead {
+      display: none;
+    }
+
+    &--stacking &__row {
+      display: block;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid $stat-axis;
+    }
+
+    &--stacking &__cell {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.25rem 0;
+      border-bottom: none;
+      text-align: right;
+
+      &::before {
+        content: attr(data-label);
+        color: $text-faint;
+        font-size: $type-12;
+        text-align: left;
+      }
+    }
+  }
+}
+
+.stat-inline-metric {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  &__label {
+    color: $text-muted;
+    font-size: $type-14;
+  }
+
+  &__value {
+    font-size: $type-24;
+    color: $text;
+  }
+}
+
+.stat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  &__item {
+    display: flex;
+    gap: 0.75rem;
+    font-size: $type-14;
+  }
+
+  &__date {
+    min-width: 4.5rem;
+    color: $text-muted;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__text {
+    color: $text;
+  }
+}

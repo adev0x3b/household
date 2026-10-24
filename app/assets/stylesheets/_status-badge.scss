@@ -1,0 +1,29 @@
+@use "variables" as *;
+@use "statistics" as stats;
+
+// A status as a small pill: the tone's icon and a word, on any page that
+// states how something stands (a lab flag, an upload, a deploy, a run).
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: $radius-pill;
+  font-size: $type-12;
+  font-weight: 600;
+  white-space: nowrap;
+
+  @each $tone, $color in stats.$stat-tones {
+    &--#{$tone} {
+      @include stats.stat-tone-pill($color);
+    }
+  }
+}
+
+// A status's icon or word in its tone outside a pill: a mark in a grid, a
+// step's icon, a result that failed (Components::StatusLook#mark).
+@each $tone, $color in stats.$stat-tones {
+  .status-tone--#{$tone} {
+    color: $color;
+  }
+}

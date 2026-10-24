@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+# A release behind the maintenance page, for a version whose migration the
+# running one can't survive (docs/architecture/delivery.md, "A deploy without a gap"). The Deploy
+# workflow runs it (Run workflow → release); a person can too, from a
+# checkout of main on a machine Kamal reaches:
+#
+#   bin/release-stopped production <sha>                       the release
+#   bin/release-stopped staging <sha> --with-production-data   its rehearsal
+#   bin/release-stopped demo <sha>                             the demo's deploy of such a version
+#
+# The demo has no release of its own: its data starts over every night, so
+# its deploy goes behind the page by itself, unrehearsed, when it meets such
+# a migration (kamal.yml).
+#
+# 1. The image is pulled while the old version still serves.
+# 2. The maintenance page goes up and the job worker stops: from here on
+#    nothing writes to the database.
+# 3. The database is dumped on the machine (~deploy/backups/release/).
+# 4. The migration runs in a one-off container of the new image, timed.
+# 5. The new version boots, the smoke test reads it, the page comes down.
+# If anything from 3 on fails, the dump goes back, the old version boots and
+# the page comes down: nothing is lost, since nothing could be written.
+#
+# The rehearsal does the same on staging with a copy of production's
+# database, made on the machine (production's data never leaves it), and
+# keeps staging's job worker stopped while it holds production's people.
+# Then staging gets its own data back, migrated too: a second rehearsal.
+#
+# The smoke test reads RELEASE_SMOKE_PATHS (default the health check and the
+# sign-in page, under MOUNT_PATH) inside the new web container, while the
+# page is still up (kamal-proxy answers 503 for everything but the health
+# check then). In GitHub Actions the outcome also goes to the run's summary,
+# and to RELEASE_RESULT_FILE when set (key=value lines: outcome=passed with
+# migration_seconds, downtime_seconds and before; or outcome=failed with
+# reason and running), which kamal.yml turns into the deployment's status.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+DEST="${1:-}"
+NEW="${2:-}"
+REHEARSAL=false
+[ "${3:-}" = --with-production-data ] && REHEARSAL=true
+case "$DEST" in production | staging | demo) ;; *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2 ;; esac
+[ -n "$NEW" ] || { echo "the commit to release is needed" >&2; exit 2; }
+if $REHEARSAL && [ "$DEST" != staging ]; then echo "only staging rehearses with production's data" >&2; exit 2; fi
+if $REHEARSAL; then WHAT="Rehearsal on production's data of"; else WHAT="Release of"; fi
+
+MOUNT="${MOUNT_PATH:-}"
+SMOKE_PATHS="${RELEASE_SMOKE_PATHS:-${MOUNT%/}/up ${MOUNT%/}/profiles/sign_in}"
+MESSAGE="Household is being updated: back in a minute. — Household si sta aggiornando: torna tra un minuto."
+
+say() { printf '\n\033[1m== %s\033[0m\n' "$*"; }
+summary() { [ -z "${GITHUB_STEP_SUMMARY:-}" ] || printf '%s\n' "$@" >> "$GITHUB_STEP_SUMMARY"; }
+result() { [ -z "${RELEASE_RESULT_FILE:-}" ] || printf '%s\n' "$@" > "$RELEASE_RESULT_FILE"; }
+seconds() { date +%s; }
+
+# Where the destination lives, as Kamal sees it: the machine, its ssh user,
+# the database's container, the public name and the service (the smoke test's).
+# Kamal reads the configuration itself, since its files are ERB templates
+# that no YAML parser reads as they are; the environment is bin/kamal's.
+config() {
+  # shellcheck disable=SC2016 # Ruby, not shell
+  DEST="$1" bundle exec ruby -rdotenv -rkamal -e '
+    dest = ENV["DEST"]
+    Dotenv.load(File.join(Dir.home, ".config", "household", "#{dest}.env"), ".kamal/env")
+    c = Kamal::Configuration.create_from(config_file: Pathname.new("config/deploy.yml"), destination: dest)
+    puts [ c.primary_host, c.ssh.user, c.accessory("db").service_name, c.primary_role.proxy.hosts.first, c.service ].join(" ")'
+}
+# Read before use, so a configuration that doesn't load stops the script here.
+destination="$(config "$DEST")"
+read -r HOST SSH_USER DB APP_HOST SERVICE <<< "$destination"
+remote() { ssh -o BatchMode=yes "$SSH_USER@$HOST" "$@"; }
+if $REHEARSAL; then production="$(config production)"; read -r _ _ PRODUCTION_DB _ _ <<< "$production"; fi
+
+OLD="$(bin/kamal app version -d "$DEST" -q | sed -n '/./{p;q}')"
+[ -n "$OLD" ] || { echo "nothing runs on $DEST: deploy it the ordinary way first" >&2; exit 1; }
+STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+BEFORE="backups/release/$STAMP-$DEST-before-${NEW:0:12}.dump" # in deploy's home on the machine
+OWN="backups/release/$STAMP-staging-own.dump"                  # rehearsal: staging's own data
+STATE=serving # serving → down (page up) → changed (the database may differ from before)
+
+# The database back from a dump on the machine, into an empty one.
+restore() {
+  remote "docker exec $DB dropdb -U household --force household_production &&
+          docker exec $DB createdb -U household household_production &&
+          docker exec -i $DB pg_restore -U household --no-owner -d household_production < $1"
+}
+
+# Back to how it was: the database (once it may have changed), the old
+# version booted afresh, the page down. Then the run fails.
+undo() {
+  say "Undoing: $1"
+  if [ "$STATE" = changed ]; then
+    if $REHEARSAL; then restore "$OWN" && remote "rm -f $OWN $BEFORE"; else restore "$BEFORE"; fi
+  fi
+  if [ "$STATE" != serving ]; then
+    bin/kamal setup -d "$DEST" --skip-push --version "$OLD" > /dev/null
+    bin/kamal app live -d "$DEST" > /dev/null
+  fi
+  echo "::error title=Release ${NEW:0:7} on $DEST::$1 — undone: $DEST runs ${OLD:0:7} on the database as it was."
+  summary "### ❌ ${NEW:0:7} on $DEST: $1" "Undone: $DEST runs \`${OLD:0:7}\` on the database as it was."
+  result "outcome=failed" "reason=$1" "running=$OLD"
+  exit 1
+}
+
+say "$WHAT ${NEW:0:7} on $DEST (running ${OLD:0:7})"
+bin/kamal build pull -d "$DEST" --version "$NEW" > /dev/null
+remote "mkdir -p backups/release"
+if $REHEARSAL; then
+  remote "docker exec $DB pg_dump -U household -Fc household_production > $OWN"
+  echo "staging's own data: ~$SSH_USER/$OWN"
+fi
+
+say "Maintenance page up, job worker stopped"
+down_at="$(seconds)"
+STATE=down
+bin/kamal app maintenance -d "$DEST" --message "$MESSAGE" > /dev/null || undo "the maintenance page didn't go up"
+bin/kamal app stop -d "$DEST" -r job > /dev/null || undo "the job worker didn't stop"
+
+if $REHEARSAL; then
+  say "Staging gets a copy of production's database (on the machine)"
+  STATE=changed
+  remote "docker exec $DB dropdb -U household --force household_production &&
+          docker exec $DB createdb -U household household_production &&
+          docker exec $PRODUCTION_DB pg_dump -U household -Fc household_production | docker exec -i $DB pg_restore -U household --no-owner -d household_production" ||
+    undo "production's database didn't copy into staging's"
+fi
+
+say "Dump: ~$SSH_USER/$BEFORE"
+remote "docker exec $DB pg_dump -U household -Fc household_production > $BEFORE" || undo "the dump failed"
+
+say "Migrating with ${NEW:0:7}"
+STATE=changed
+log="$(mktemp)"
+started="$(seconds)"
+if ! bin/kamal app exec -d "$DEST" --version "$NEW" -r web "bin/rails db:migrate" > "$log" 2>&1; then
+  sed 's/\x1b\[[0-9;]*m//g' "$log" | grep -vE '^\s*$' | tail -20 >&2
+  undo "the migration failed"
+fi
+migration_seconds=$(( $(seconds) - started ))
+# The migration's own lines (== …, a say("…") without a call in it), not each schema statement.
+report="$(sed 's/\x1b\[[0-9;]*m//g' "$log" | grep -E '^(==|-- [^(]*$)' || true)"
+rm -f "$log"
+printf '%s\n' "$report"
+
+say "Booting ${NEW:0:7}"
+bin/kamal setup -d "$DEST" --skip-push --version "$NEW" > /dev/null || undo "${NEW:0:7} didn't boot"
+# Production's people stay away from staging's reminders.
+if $REHEARSAL; then bin/kamal app stop -d "$DEST" -r job > /dev/null; fi
+
+say "Smoke test inside $SERVICE-web-$DEST-${NEW:0:12}…, as $APP_HOST"
+for path in $SMOKE_PATHS; do
+  code="$(remote "docker exec $SERVICE-web-$DEST-$NEW curl -s -o /dev/null -w '%{http_code}' -H 'Host: $APP_HOST' http://localhost$path")" || code=000
+  echo "$path: $code"
+  if ! { [ "$code" -ge 200 ] && [ "$code" -lt 400 ]; }; then undo "$path answered $code"; fi
+done
+
+bin/kamal app live -d "$DEST" > /dev/null || undo "the maintenance page didn't come down"
+downtime=$(( $(seconds) - down_at ))
+STATE=serving
+
+if $REHEARSAL; then
+  say "Staging gets its own data back, migrated too"
+  bin/kamal app maintenance -d staging --message "$MESSAGE" > /dev/null
+  { restore "$OWN" && bin/kamal app exec -d staging --reuse -r web "bin/rails db:migrate" > /dev/null 2>&1; } ||
+    { echo "::error title=Rehearsal of ${NEW:0:7}::It passed on production's data, but staging's own data didn't restore or migrate: staging stays behind its maintenance page, its data in ~$SSH_USER/$OWN." >&2
+      result "outcome=failed" "reason=passed on production's data, but staging's own data didn't restore or migrate" "running=$NEW"; exit 1; }
+  bin/kamal app boot -d staging --version "$NEW" > /dev/null
+  bin/kamal app live -d staging > /dev/null
+  remote "rm -f $OWN $BEFORE" # production's data doesn't stay on staging's side
+fi
+
+say "Done: ${NEW:0:7} on $DEST, the migration took ${migration_seconds}s, behind the page ${downtime}s"
+if $REHEARSAL; then
+  result "outcome=passed" "migration_seconds=$migration_seconds" "downtime_seconds=$downtime"
+else
+  result "outcome=passed" "migration_seconds=$migration_seconds" "downtime_seconds=$downtime" "before=~$SSH_USER/$BEFORE"
+fi
+summary "### ✅ $WHAT \`${NEW:0:7}\` on $DEST" \
+        "- migration: **${migration_seconds}s**, behind the maintenance page: **${downtime}s**" \
+        "- before it: \`~$SSH_USER/$BEFORE\`" \
+        '' '```' "$report" '```'

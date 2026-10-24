@@ -1,0 +1,12 @@
+description: '"Add tuna to the grocery list" with one list in use means that list — not a new list, not a question, not last month''s finished one.'
+tags: [pantry]
+locale: it
+today: 2026-10-16
+seed: [lista_spesa]
+messages:
+  - "Aggiungi tonno alla lista della spesa"
+expect:
+  - saves: 1
+  - grocery_lists: 2
+  - grocery_list_items: { "lista spesa": { total_items: 2, checked_items: 0 }, "settembre": { total_items: 1, checked_items: 0 } }
+  - reply_language: it

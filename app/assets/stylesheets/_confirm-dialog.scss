@@ -1,0 +1,64 @@
+// The app's confirm dialog (Components::ConfirmDialog): a question and two
+// buttons over everything, in the browser's top layer, with the modal's
+// surface, buttons and shape: a sheet from the bottom edge on a phone, a
+// dialog hanging under the top bar from a tablet up.
+
+@use "variables" as *;
+
+.confirm-dialog {
+  width: 100%;
+  max-width: none;
+  margin: auto 0 0;
+
+  // No padding of its own: a click on the dialog itself is then a click on
+  // its backdrop (confirm_dialog_controller.js#backdropClick).
+  padding: 0;
+  border: none;
+  border-radius: $radius-lg $radius-lg 0 0;
+  background-color: $surface-card;
+  box-shadow: $shadow-dialog;
+  color: $text;
+
+  @include from("tablet") {
+    width: calc(100% - 2rem);
+    max-width: 24rem;
+    margin: calc(#{$navbar-height} + 2.5rem) auto auto;
+    border-radius: $radius-lg;
+  }
+
+  &::backdrop {
+    background-color: $scrim;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+
+    @include from("tablet") {
+      padding: 1.5rem;
+    }
+  }
+
+  &__question {
+    margin: 0;
+    font-size: $type-16;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+
+    // A phone gives the two buttons the sheet's width between them.
+    @include until("tablet") {
+      > * {
+        flex: 1;
+      }
+    }
+  }
+}

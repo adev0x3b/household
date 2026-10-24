@@ -1,0 +1,14 @@
+flour_item:
+  grocery_list: weekly_shop
+  ingredient: flour
+  quantity: 1
+  unit: kg
+  checked: false
+
+eggs_item:
+  grocery_list: weekly_shop
+  ingredient: eggs
+  quantity: 6
+  unit: pcs
+  checked: true
+  checked_at: 2026-03-01 10:00:00

@@ -1,0 +1,137 @@
+// Transaction card (Views::Calendar::Cards::TransactionCard): what
+// every card has (calendar-card), and the amount, its kind and what it pays for.
+
+@use "variables" as *;
+@use "calendar-card" as *;
+
+.transaction-card {
+  @include calendar-card;
+
+  &__title,
+  &__title-link {
+    font-size: $type-13;
+    font-weight: 500;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__title {
+    @include when-over("transaction-card") {
+      color: $text-muted;
+    }
+  }
+
+  &__title-link {
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      color: $accent;
+      text-decoration: underline;
+    }
+
+    @include when-over("transaction-card") {
+      color: $text-muted;
+
+      &:hover {
+        color: $accent;
+      }
+    }
+  }
+
+  &__kind {
+    font-size: $type-10;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.1rem 0.3rem;
+    border-radius: $radius-xs;
+    flex-shrink: 0;
+
+    // Which way the money goes is a fact the word carries: an expense is not
+    // an error and income is not something done, so neither takes a tone.
+    background-color: tint($text-muted, "fill");
+    color: $text;
+  }
+
+  &__amount {
+    display: block;
+    font-size: $type-11;
+    font-weight: 700;
+    color: $text;
+    margin-top: 0.1rem;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.15rem;
+  }
+
+  &__meta-item,
+  &__detail,
+  &__status,
+  &__completion {
+    display: block;
+    font-size: $type-10;
+  }
+
+  &__meta-item {
+    color: $text;
+    background-color: tint($section-assistant, "fill");
+    border-radius: $radius-pill;
+    padding: 0.1rem 0.35rem;
+  }
+
+  &__detail {
+    display: block;
+    color: $text-muted;
+    margin-top: 0.1rem;
+  }
+
+  &__status {
+    display: block;
+    color: $text-muted;
+    margin-top: 0.1rem;
+
+    &--completed {
+      color: $success-text;
+    }
+  }
+
+  &__completion {
+    display: block;
+    font-weight: 600;
+    margin-top: 0.1rem;
+
+    &--early {
+      color: $success-text;
+    }
+
+    &--late {
+      color: $danger-text;
+    }
+
+    &--on-time {
+      color: $text-muted;
+    }
+  }
+}
+
+@include from("tablet") {
+  .transaction-card {
+    padding: 0.4rem 0.625rem;
+  }
+
+  .transaction-card__title,
+  .transaction-card__title-link {
+    font-size: $type-14;
+  }
+
+  .transaction-card__amount {
+    font-size: $type-12;
+  }
+}

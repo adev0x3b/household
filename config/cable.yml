@@ -1,0 +1,21 @@
+# Solid Cable in development too: notifications are broadcast from the job
+# worker (bin/jobs) and the eval process, which the in-process async adapter
+# would never carry to the web server's sockets.
+development:
+  adapter: solid_cable
+  connects_to:
+    database:
+      writing: cable
+  polling_interval: 0.1.seconds
+  message_retention: 1.day
+
+test:
+  adapter: test
+
+production:
+  adapter: solid_cable
+  connects_to:
+    database:
+      writing: cable
+  polling_interval: 0.1.seconds
+  message_retention: 1.day

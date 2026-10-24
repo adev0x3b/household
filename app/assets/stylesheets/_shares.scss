@@ -1,0 +1,53 @@
+// Sharing a thing with housemates (Views::Shares::Modal, Views::Shares::List)
+
+@use "variables" as *;
+
+// A card's line on whose it is (Views::Shares::Whose).
+.share-whose {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
+  font-size: $type-13;
+  color: $text-muted;
+}
+
+// The housemate to share with, above the people who have it already.
+.share-picker {
+  margin-bottom: 1.25rem;
+}
+
+// Who has it, each with the button that stops sharing (Components::ItemAction).
+.share-list {
+  &__label {
+    font-size: $type-12;
+    font-weight: 600;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.375rem;
+  }
+
+  &__people {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__person {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.25rem 0.25rem 0.25rem 0.75rem;
+    background-color: $surface-raised;
+    border-radius: $radius-md;
+  }
+
+  &__name {
+    font-size: $type-14;
+    color: $text;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}

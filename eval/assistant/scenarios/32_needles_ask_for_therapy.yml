@@ -1,0 +1,11 @@
+description: Needles with no therapy mentioned could be either; the assistant asks, and the answer saves them as supplies for the therapy.
+tags: [pantry, supplies, ambiguous]
+today: 2026-10-01
+messages:
+  - "I bought 100 needles"
+  - "For my B12 therapy, 12 euros by card"
+expect:
+  - purchases: 1
+  - purchase_details: { needles: { quantity: 100, cost: 12, paid: card, therapy: B12 } }
+  - ingredient_purchases: 0
+  - ingredients: 0

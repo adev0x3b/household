@@ -1,0 +1,34 @@
+@use "variables" as *;
+
+// The assistant's settings (Views::Assistant::Settings::Show). The page,
+// cards, choice cards, fields and footer are the shared report pieces
+// (_report.scss); what's here is the page's own layout.
+
+.assistant-settings__connection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+}
+
+// The first setup's Test press, under the model, with its answer beside it
+// where there is room and under it on a phone.
+.assistant-settings__test {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.assistant-settings .report-choice strong i {
+  width: 1.1rem;
+  color: $text-muted;
+}
+
+// Every column of the usage table after the household's is a figure, so
+// they line up on the right. As specific as Bulma's own alignment of a
+// table's cells and later in the cascade, so it wins.
+.assistant-settings__usage :is(th, td):not(:first-child) {
+  text-align: right;
+}

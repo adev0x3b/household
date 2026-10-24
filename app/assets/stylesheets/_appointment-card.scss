@@ -1,0 +1,140 @@
+// Appointment card (Views::Calendar::Cards::AppointmentCard): what
+// every card has (calendar-card), and who it is with, the fee, the kind's
+// icon. Its section modifier (--healthcare / --agenda, _sections.scss)
+// colours its edge and that icon.
+
+@use "variables" as *;
+@use "calendar-card" as *;
+
+.appointment-card {
+  @include calendar-card;
+
+  &__kind-icon {
+    color: var(--section-color, $text-muted);
+    font-size: $type-12;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: $type-13;
+    font-weight: 500;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @include when-over("appointment-card") {
+      color: $text-muted;
+    }
+  }
+
+  &__title-link {
+    font-size: $type-13;
+    font-weight: 500;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      color: $accent;
+      text-decoration: underline;
+    }
+
+    @include when-over("appointment-card") {
+      color: $text-muted;
+
+      &:hover {
+        color: $accent;
+      }
+    }
+  }
+
+  &__detail {
+    display: block;
+    font-size: $type-10;
+    color: $text-muted;
+    margin-top: 0.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__completion {
+    display: block;
+    font-size: $type-10;
+    font-weight: 600;
+    margin-top: 0.1rem;
+
+    &--early {
+      color: $success-text;
+    }
+
+    &--late {
+      color: $danger-text;
+    }
+
+    &--on-time {
+      color: $text-muted;
+    }
+  }
+
+  &__cost-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.3rem;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+    color: $text-muted;
+    font-size: $type-10;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: $radius-pill;
+    white-space: nowrap;
+    transition:
+      background-color $motion-quick,
+      color $motion-quick;
+
+    &:hover {
+      color: $accent;
+      background-color: tint($accent, "fill");
+    }
+
+    &--set {
+      background-color: $surface-raised;
+      color: $text;
+      padding: 0.1rem 0.4rem;
+
+      &:hover {
+        color: $accent;
+      }
+    }
+  }
+
+  &__status {
+    display: block;
+    font-size: $type-10;
+    color: $text-muted;
+    margin-top: 0.1rem;
+
+    &--completed {
+      color: $success-text;
+    }
+  }
+}
+
+@include from("tablet") {
+  .appointment-card {
+    padding: 0.4rem 0.625rem;
+  }
+
+  .appointment-card__title,
+  .appointment-card__title-link {
+    font-size: $type-14;
+  }
+}

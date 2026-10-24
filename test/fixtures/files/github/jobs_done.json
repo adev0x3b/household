@@ -1,0 +1,21 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 1,
+      "name": "staging / deploy staging",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/example/household/actions/runs/0/job/1",
+      "started_at": "2026-10-13T09:00:00Z",
+      "completed_at": "2026-10-13T09:03:00Z",
+      "steps": [
+        {
+          "name": "Kamal deploy staging",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

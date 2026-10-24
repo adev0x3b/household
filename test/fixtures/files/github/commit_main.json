@@ -1,0 +1,18 @@
+{
+  "sha": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+  "html_url": "https://github.com/example/household/commit/a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+  "author": {
+    "login": "example"
+  },
+  "commit": {
+    "message": "Show a paused eval run as paused on the page that follows\n\nMore about it.",
+    "author": {
+      "name": "adev",
+      "date": "2026-10-13T08:40:00Z"
+    },
+    "committer": {
+      "name": "GitHub",
+      "date": "2026-10-13T08:40:00Z"
+    }
+  }
+}

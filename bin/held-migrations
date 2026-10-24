@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# The migrations one version adds over another that need the app stopped
+# (docs/architecture/delivery.md, "A deploy without a gap"): new files in db/migrate that use
+# safety_assured with no "# zero-downtime: <why>" line (the rule is
+# lib/held_migrations.rb, shared with the app's deployment page). Prints
+# them, one a line. Exit status: 0 none, 1 some (the release is one click:
+# Run workflow → release, or the app's Release button), anything else an
+# error (treat it as held).
+#
+#   bin/held-migrations <the version that runs> <the version to deploy>
+#
+# CI's clones are shallow: a commit this one lacks is fetched from origin.
+# Plain Ruby, no Bundler: it runs before the app's dependencies exist.
+require_relative "../lib/held_migrations"
+
+from, to = ARGV
+unless from && to && ARGV.size == 2
+  warn "usage: bin/held-migrations <the version that runs> <the version to deploy>"
+  exit 2
+end
+
+def git(*args)
+  output = IO.popen([ "git", *args ], err: File::NULL, &:read)
+  [ output.to_s, $?.success? ]
+end
+
+[ from, to ].each do |sha|
+  next if system("git", "cat-file", "-e", "#{sha}^{commit}", out: File::NULL, err: File::NULL)
+
+  system("git", "fetch", "--quiet", "--depth=1", "origin", sha) or (warn "can't find or fetch #{sha}"; exit 2)
+end
+
+added, ok = git("diff", "--name-only", "--diff-filter=A", from, to, "--", "db/migrate")
+(warn "can't compare #{from} with #{to}"; exit 2) unless ok
+
+held = HeldMigrations.among(added.lines(chomp: true)) do |path|
+  source, ok = git("show", "#{to}:#{path}")
+  (warn "can't read #{path} at #{to}"; exit 2) unless ok
+  source
+end
+
+puts held
+exit(held.empty? ? 0 : 1)

@@ -1,0 +1,12 @@
+b12:
+  profile: alice
+  name: B12
+  notes: Vitamin replacement therapy
+  section: healthcare
+  status: 0
+
+fibromyalgia:
+  profile: bob
+  name: Fibromyalgia treatment
+  section: healthcare
+  status: 0

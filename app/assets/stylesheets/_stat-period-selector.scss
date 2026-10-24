@@ -1,0 +1,131 @@
+// The dates a dashboard reports on (Components::Statistics::PeriodSelector):
+// a button naming the period, and the menu it opens, with the shortcuts
+// over two dates to apply. Same surface as an item's "more" menu.
+
+@use "variables" as *;
+
+.stat-period-selector {
+  position: relative;
+  display: inline-flex;
+
+  &__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.25rem;
+    padding: 0.25rem 0.875rem;
+    border: 1px solid tint($text-muted, "edge");
+    border-radius: $radius-md;
+    background-color: $stat-surface;
+    color: $text;
+    font-size: $type-14;
+    cursor: pointer;
+    transition: border-color $motion-quick;
+
+    i:first-child {
+      color: $text-muted;
+    }
+
+    &:hover,
+    &[aria-expanded="true"] {
+      border-color: $accent;
+    }
+  }
+
+  &__chevron {
+    font-size: $type-11;
+    color: $text-muted;
+  }
+
+  &__menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    z-index: $z-menu;
+    min-width: 15rem;
+    padding: 0.25rem 0;
+    background-color: $surface-sunken;
+    border: 1px solid $surface-raised;
+    border-radius: $radius-md;
+    box-shadow: $shadow-popover;
+
+    &.is-open {
+      display: block;
+    }
+  }
+
+  &__shortcut {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.875rem;
+    color: $text;
+    font-size: $type-14;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover,
+    &:focus-visible {
+      background-color: tint($accent, "subtle");
+      color: $accent;
+    }
+
+    // The period shown now, so the chosen shortcut reads as pressed
+    &.is-current {
+      background-color: tint($accent, "fill");
+      color: $accent;
+    }
+  }
+
+  // Two dates of one's own, parted from the shortcuts by a hairline
+  &__custom {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    padding: 0.75rem 0.875rem 0.625rem;
+    border-top: 1px solid tint($text-muted, "fill");
+  }
+
+  &__field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: $text-muted;
+    font-size: $type-13;
+  }
+
+  &__date-input {
+    appearance: none;
+    min-width: 0;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid tint($text-muted, "edge");
+    border-radius: $radius-sm;
+    background-color: tint($text, "subtle");
+    color: $text;
+    color-scheme: dark;
+    font-size: $type-13;
+  }
+
+  &__apply {
+    align-self: flex-end;
+    padding: 0.375rem 0.875rem;
+    border: none;
+    border-radius: $radius-pill;
+    background-color: tint($accent, "fill");
+    color: $accent;
+    font-size: $type-13;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color $motion-quick,
+      color $motion-quick;
+
+    &:hover {
+      background-color: $accent;
+      color: $surface-sunken;
+    }
+  }
+}

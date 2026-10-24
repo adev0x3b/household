@@ -1,0 +1,9 @@
+weekly_shop:
+  profile: alice
+  name: Weekly shop
+  status: 0
+
+dinner_party:
+  profile: bob
+  name: Dinner party
+  status: 1

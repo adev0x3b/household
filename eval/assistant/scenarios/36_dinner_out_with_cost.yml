@@ -1,0 +1,10 @@
+description: Eating out has no recipe, just a place, a cost and a payment method; it is done (it was last night) and filed under dining out.
+tags: [pantry, meals]
+today: 2026-10-01
+seed: pantry_recipes
+messages:
+  - "We had dinner at Trattoria Roma last night, 45 euros on card"
+expect:
+  - meals: 1
+  - meal_details: { date: "2026-09-30", name: "Trattoria Roma", meal_type: dinner, kind: eating_out, status: completed, cost: 45, paid: card, category: dining_out }
+  - ingredient_details: { flour: { quantity: 2.5 } }

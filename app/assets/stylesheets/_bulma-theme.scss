@@ -1,0 +1,16 @@
+@use "bulma_sass/utilities/initial-variables" as iv;
+@use "bulma_sass/themes/light";
+@use "bulma_sass/themes/dark";
+@use "bulma_sass/themes/setup";
+
+// Bulma's dark scheme, the app's only one, set on the root whatever the
+// system prefers. Bulma's own entry point would also ship its light scheme
+// twice over and a switch between the two that nothing here uses. The dark
+// theme only overrides some of the light theme's variables, so the light
+// one goes underneath it, and the setup derives the rest from both, as
+// Bulma's [data-theme=dark] block does.
+#{iv.$variables-host} {
+  @include light.light-theme;
+  @include dark.dark-theme;
+  @include setup.setup-theme;
+}

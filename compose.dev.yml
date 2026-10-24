@@ -1,0 +1,24 @@
+# PostgreSQL for working on the app, on a machine without one of its own:
+#
+#   docker compose -f compose.dev.yml up -d
+#
+# It takes the role and password from .env, the file the app reads too, and
+# answers on localhost, where PGHOST in .env points the app. The role is a
+# superuser, as the app's needs to be: the migrations create extensions, and
+# the tests disable foreign-key triggers while fixtures load. It serves this
+# machine alone. The data is kept in a volume until `down --volumes`.
+name: household-dev
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${HOUSEHOLD_DATABASE_USERNAME:-household}
+      POSTGRES_PASSWORD: ${HOUSEHOLD_DATABASE_PASSWORD:?a password for the database, as HOUSEHOLD_DATABASE_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:${PGPORT:-5432}:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:

@@ -1,0 +1,201 @@
+@use "variables" as *;
+
+.toast-container {
+  // Where a toast slides in from: down from above at the top of the page.
+  --toast-slide: -16px;
+
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: $z-toast;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  width: 90%;
+  max-width: 480px;
+}
+
+// On a phone, above the bottom bar, as a snackbar: the top bar (the bell,
+// the account menu) stays pressable while a toast shows, and the newest
+// sits nearest the thumb.
+@include until("tablet") {
+  .toast-container {
+    --toast-slide: 16px;
+
+    top: auto;
+    bottom: calc(var(--bottom-bar-space) + 12px);
+    flex-direction: column-reverse;
+  }
+}
+
+// A toast's kind is its edge, its icon and a wash of the kind's colour over
+// the raised surface, strong enough to read as that colour at a glance and
+// still a surface $text clears AA on (the palette test measures it). A
+// notice has no outcome to colour, so it keeps the plain surface and the
+// neutral edge.
+$toast-tones: (
+  "success": $success-text,
+  "alert": $danger-text
+);
+
+.toast {
+  pointer-events: auto;
+
+  // Swiped sideways to dismiss: the browser keeps only vertical scrolling.
+  touch-action: pan-y;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid tint($text-muted, "fill");
+  border-left-width: 4px;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background-color: $surface-raised;
+  box-shadow: $shadow-toast;
+  animation: toast-slide-in 0.3s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+
+  @each $kind, $color in $toast-tones {
+    &--#{$kind} {
+      border-left-color: $color;
+      background-color: wash($color, $surface-raised, "edge");
+
+      .toast__icon {
+        color: $color;
+      }
+    }
+  }
+
+  &--notice {
+    border-left-color: $text-muted;
+
+    .toast__icon {
+      color: $text-muted;
+    }
+  }
+}
+
+.toast__body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  color: $text;
+}
+
+.toast__icon {
+  font-size: $type-18;
+  flex-shrink: 0;
+}
+
+.toast__message {
+  flex: 1;
+  font-size: $type-15;
+  font-weight: 500;
+  line-height: 1.35;
+  color: $text;
+}
+
+.toast__close {
+  flex-shrink: 0;
+  width: $target-min;
+  height: $target-min;
+  border: none;
+  border-radius: 50%;
+  background: tint($text, "fill");
+  color: $text;
+  font-size: $type-12;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background $motion-quick;
+  padding: 0;
+
+  &:hover {
+    background: tint($text, "edge");
+  }
+}
+
+.toast__detail {
+  padding: 0 14px 10px;
+  font-size: $type-14;
+  line-height: 1.4;
+  color: $text-muted;
+
+  ul {
+    margin: 4px 0 0 16px;
+    padding: 0;
+  }
+}
+
+.toast__progress {
+  height: 3px;
+  width: 100%;
+  appearance: none;
+  border: none;
+  display: block;
+  background: tint($text, "fill");
+
+  &::-webkit-progress-bar {
+    background: tint($text, "fill");
+  }
+
+  // The bar follows the timer's ticks, so it moves evenly between them.
+  &::-webkit-progress-value {
+    background: tint($text, "edge");
+    transition: width 0.1s linear;
+  }
+
+  &::-moz-progress-bar {
+    background: tint($text, "edge");
+    transition: width 0.1s linear;
+  }
+}
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--toast-slide));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toast.is-removing {
+  animation: toast-slide-out 0.25s ease-in forwards;
+}
+
+// Without motion a toast appears and goes in place. It still fades out,
+// over the same time, because the controller removes it when its
+// animation ends.
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+
+  .toast.is-removing {
+    animation: toast-fade-out 0.25s ease-in forwards;
+  }
+}
+
+@keyframes toast-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(var(--toast-slide));
+  }
+}

@@ -1,0 +1,11 @@
+description: >
+  Stopping a series ends it after today; its past doses stay on the calendar. (Removing the
+  repeat instead would hide every past dose but the first.)
+tags: [coverage, repeats]
+today: 2026-09-24
+seed: [b12_injection_series]
+messages:
+  - I've stopped the cobalamin injections after today's, don't schedule any more.
+expect:
+  - repeats: { type: medication, name: cobalamin, frequency: weekly, ends: 2026-09-24 }
+  - series: { medication: 1 }

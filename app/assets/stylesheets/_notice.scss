@@ -1,0 +1,31 @@
+@use "variables" as *;
+
+// A few lines that ask for the reader's attention (Components::Notice),
+// tinted by how much: news, something to do, something that went wrong.
+.notice {
+  padding: 0.6rem 0.75rem;
+  border-radius: $radius-md;
+  background: tint($text-faint, "fill");
+  font-size: $type-14;
+  overflow-wrap: anywhere;
+
+  // A link in running text is underlined, never told by colour alone.
+  a {
+    color: $accent;
+    text-decoration: underline;
+  }
+
+  ul {
+    margin-top: 0.25rem;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  &--action {
+    background: tint($warning-text, "fill");
+  }
+
+  &--critical {
+    background: tint($danger-text, "fill");
+  }
+}

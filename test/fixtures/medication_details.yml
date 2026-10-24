@@ -1,0 +1,34 @@
+_fixture:
+  model_class: Medication::Details
+
+methotrexate:
+  event: methotrexate
+  kind: 0
+  quantity: 0.50
+  unit: ml
+  area: 0
+  side: 0
+
+# The second dose was injected in the other side.
+methotrexate_taken:
+  event: methotrexate
+  occurrence: methotrexate_taken
+  side: 1
+
+cobalamin:
+  event: cobalamin
+  kind: 0
+  quantity: 0.25
+  unit: ml
+  area: 0
+  side: 0
+
+levothyroxine:
+  event: levothyroxine
+  kind: 1
+  quantity: 50
+  unit: mcg
+
+metformin:
+  event: metformin
+  kind: 1

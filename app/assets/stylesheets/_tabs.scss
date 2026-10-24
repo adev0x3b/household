@@ -1,0 +1,49 @@
+@use "variables" as *;
+
+// Tabs between the pages of one area (Components::Tabs): the statistics
+// topics, the evals' Scenarios · Runs. Pills that scroll sideways on a
+// narrow screen; the current one is filled.
+
+.tabs-nav {
+  // Tabs never take the color of the page they sit on, only their own
+  --section-color: initial;
+
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+
+  // Swiped sideways on a narrow screen; a scrollbar would sit on the pills.
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: $radius-pill;
+    border: 1px solid tint($text-muted, "edge");
+    color: $text-muted;
+    font-size: $type-14;
+    white-space: nowrap;
+
+    // A tab for a section wears its color; the others their text color
+    i {
+      color: var(--section-color, currentColor);
+    }
+
+    &:hover {
+      color: $text;
+      border-color: $accent;
+    }
+
+    &.is-current {
+      background-color: tint($accent, "fill");
+      border-color: $accent;
+      color: $text;
+    }
+  }
+}

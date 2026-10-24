@@ -1,0 +1,91 @@
+{
+  "total_count": 2,
+  "jobs": [
+    {
+      "id": 2011,
+      "name": "staging / deploy staging",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/example/household/actions/runs/0/job/2011",
+      "started_at": "2026-10-13T09:00:00Z",
+      "completed_at": null,
+      "steps": [
+        {
+          "name": "Check the repository's settings",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout code",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Resolve the version",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check CI built that image",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Ruby",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Join the tailnet",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up SSH to the machine",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "What runs there",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Record the deployment",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Look for a migration that needs the app stopped",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Kamal deploy staging",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "name": "Smoke test",
+          "status": "queued",
+          "conclusion": null
+        },
+        {
+          "name": "Record how it went",
+          "status": "queued",
+          "conclusion": null
+        }
+      ]
+    },
+    {
+      "id": 2012,
+      "name": "production / deploy production",
+      "status": "queued",
+      "conclusion": null,
+      "html_url": "https://github.com/example/household/actions/runs/0/job/2012",
+      "started_at": "2026-10-13T09:00:00Z",
+      "completed_at": null,
+      "steps": []
+    }
+  ]
+}

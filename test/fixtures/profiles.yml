@@ -1,0 +1,34 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+alice:
+  household: example
+  email: "alice@example.com"
+  username: "alice"
+  first_name: Alice
+  last_name: Example
+  encrypted_password: "$2a$12$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+bob:
+  household: example
+  email: "bob@example.com"
+  username: "bob"
+  first_name: Bob
+  last_name: Example
+  encrypted_password: "$2a$12$yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+
+carol:
+  household: example
+  email: "carol@example.com"
+  username: "carol"
+  first_name: Carol
+  last_name: Example
+  encrypted_password: "$2a$12$zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+
+# In another household: never offered, never shareable with the others.
+outsider:
+  household: elsewhere
+  email: "dave@example.com"
+  username: "dave"
+  first_name: Dave
+  last_name: Elsewhere
+  encrypted_password: "$2a$12$wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"

@@ -1,0 +1,36 @@
+@use "variables" as *;
+
+// One field of a form (Components::Field), and the controls of a form's
+// rows. A value the server refused and a required field the modal's form
+// found empty are the same problem, so they take the same colour; the words
+// under the field or the row say which it is.
+@mixin refused {
+  border-color: tint($danger-text, "strong");
+  box-shadow: 0 0 0 1px tint($danger-text, "fill");
+}
+
+.input[aria-invalid="true"],
+.textarea[aria-invalid="true"],
+.select select[aria-invalid="true"] {
+  @include refused;
+}
+
+.field.is-missing {
+  .input,
+  .textarea,
+  .select select {
+    @include refused;
+  }
+}
+
+.field.is-invalid .label,
+.field.is-missing .label--required {
+  color: $danger-text;
+}
+
+.field__error {
+  margin-top: 0.35rem;
+  font-size: $type-12;
+  line-height: 1.35;
+  color: $danger-text;
+}

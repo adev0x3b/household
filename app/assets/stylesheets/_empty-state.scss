@@ -1,0 +1,18 @@
+@use "variables" as *;
+
+// One muted line where a chart, a table or a list has nothing to show. In a
+// grid of cards it takes the whole row, not the first card's place. Muted
+// text, not the dashboards' fainter ink, because the line also sits in
+// modals, on the raised surface where that ink falls under AA.
+.empty-state {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 1.5rem 0;
+  justify-content: center;
+  color: $text-muted;
+  font-size: $type-14;
+  text-align: center;
+}

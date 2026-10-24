@@ -1,0 +1,67 @@
+# Stored days. Statuses: pending 0, in_progress 1, completed 2, cancelled 3, skipped 4.
+groceries_due:
+  event: groceries
+  date: 2026-03-02
+  status: 0
+
+groceries_done:
+  event: groceries
+  date: 2026-03-09
+  status: 2
+  completed_at: 2026-03-09 10:00:00
+
+endocrinologist_due:
+  event: endocrinologist
+  date: 2026-03-02
+  status: 0
+
+endocrinologist_done:
+  event: endocrinologist
+  date: 2026-03-09
+  status: 2
+  completed_at: 2026-03-09 10:00:00
+
+methotrexate_due:
+  event: methotrexate
+  date: 2026-03-02
+  status: 0
+
+methotrexate_taken:
+  event: methotrexate
+  date: 2026-03-09
+  status: 2
+  completed_at: 2026-03-09 10:00:00
+
+levothyroxine_due:
+  event: levothyroxine
+  date: 2026-03-16
+  status: 0
+
+metformin_morning:
+  event: metformin
+  date: 2026-03-02
+  time: "08:00"
+  anchor: CM
+  status: 0
+
+electricity_due:
+  event: electricity_bill
+  date: 2026-03-02
+  status: 0
+
+electricity_paid:
+  event: electricity_bill
+  date: 2026-03-09
+  status: 2
+  completed_at: 2026-03-09 11:00:00
+
+bloodwork_due:
+  event: bloodwork
+  date: 2026-03-02
+  status: 0
+
+bloodwork_done:
+  event: bloodwork
+  date: 2026-03-09
+  status: 2
+  completed_at: 2026-03-09 10:00:00

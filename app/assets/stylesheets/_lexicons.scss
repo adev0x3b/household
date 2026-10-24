@@ -1,0 +1,239 @@
+@use "variables" as *;
+@use "statistics" as stats;
+
+// Admin: the lexicon's languages and their import reports
+// (Views::Admin::Lexicons::*). The page, its status card, sections, notices,
+// tables and pills are the shared report pieces (_report.scss); what's here
+// is the lexicon's own content. Mobile-first: rows stack.
+
+.lexicons__attribution {
+  color: $text-muted;
+  font-size: $type-14;
+  overflow-wrap: anywhere;
+
+  a {
+    color: $accent;
+    text-decoration: underline;
+  } // in running text: not by color alone
+}
+
+.lexicons__list,
+.lexicons__checks,
+.lexicons__history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lexicons__row {
+  @include stats.stat-surface;
+
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.35rem 0.75rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+}
+
+.lexicons__name {
+  color: $text;
+  font-weight: 600;
+
+  &:hover {
+    color: $accent;
+  }
+}
+
+.lexicons__code {
+  color: $text-muted;
+  font-family: monospace;
+}
+
+.lexicons__facts {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  font-size: $type-14;
+}
+
+.lexicons__actions {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+}
+
+.lexicons__failure {
+  grid-column: 1;
+  color: $text-muted;
+  font-size: $type-14;
+  overflow-wrap: anywhere;
+
+  strong {
+    color: $text;
+  }
+}
+
+.lexicons__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.lexicons__step {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr auto auto;
+  gap: 0 0.5rem;
+  align-items: baseline;
+}
+
+.lexicons__step-name {
+  font-weight: 600;
+}
+
+.lexicons__step-status,
+.lexicons__step-seconds {
+  color: $text-muted;
+  font-size: $type-13;
+}
+
+.lexicons__step-detail {
+  grid-column: 2 / -1;
+  color: $text-muted;
+  font-size: $type-14;
+  overflow-wrap: anywhere;
+}
+
+.lexicons__step--failed .lexicons__step-detail {
+  color: $text;
+}
+
+.lexicons__check {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+  font-size: $type-14;
+
+  code {
+    color: $text;
+    background: none;
+    overflow-wrap: anywhere;
+  }
+}
+
+.lexicons__check-got {
+  color: $text-muted;
+}
+
+.lexicons__history li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: $type-14;
+
+  a {
+    color: $accent;
+  }
+
+  &.is-current a {
+    color: $accent;
+    font-weight: 600;
+  }
+}
+
+.lexicons__minor {
+  color: $text;
+  font-size: $type-15;
+  font-weight: 600;
+}
+
+.lexicons__grid tbody th {
+  white-space: nowrap;
+}
+
+.lexicons__grid--picks td {
+  text-align: left;
+}
+
+.lexicons__control {
+  background: tint($text-muted, "subtle");
+}
+
+.lexicons__failures {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: $type-14;
+
+  li {
+    padding-left: 0.75rem;
+    border-left: 2px solid tint($danger-text, "strong");
+  }
+}
+
+.lexicons__failure-text,
+.lexicons__tools {
+  color: $text-muted;
+  overflow-wrap: anywhere;
+}
+
+.lexicons__tools {
+  font-family: monospace;
+  font-size: $type-13;
+}
+
+// The test cases: a hint and the Add button, then the page of cases.
+.lexicons__cases-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+
+  .report-hint {
+    flex: 1;
+  }
+}
+
+.lexicons__cases {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lexicons__case {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid $stat-grid;
+
+  &:first-child {
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+.lexicons__case-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.lexicons__case-title {
+  overflow-wrap: anywhere;
+}
+
+.lexicons__case-sentence {
+  color: $text-muted;
+  font-size: $type-14;
+  overflow-wrap: anywhere;
+}
+
+.lexicons__case-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.lexicons__case--confirmed .lexicons__case-title strong {
+  color: $success-text;
+}

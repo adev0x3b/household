@@ -1,0 +1,10 @@
+description: >
+  Scenario 15 without the hedge: today is Thursday and "Tuesday" alone has to mean the
+  visit that already happened (the only dentist visit there is), not a visit five days off.
+tags: [hard, fees, appointments]
+today: 2026-09-24
+seed: [dentist_sep22_paid_60]
+messages:
+  - The dentist on Tuesday was 80 euros, not 60.
+expect:
+  - appointment: { provider: Dentist, date: 2026-09-22, fee: 80 }

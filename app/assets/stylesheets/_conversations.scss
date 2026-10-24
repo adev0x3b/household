@@ -1,0 +1,538 @@
+@use "variables" as *;
+
+// Messages between housemates (Views::Conversations::*).
+// The list of conversations, and one conversation full-height on a phone:
+// header, scrolling thread, composer pinned below — the assistant's shape.
+
+.conversation-list {
+  @include page-width("column");
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 2rem;
+  color: $text;
+}
+
+.conversation-list__heading {
+  margin-top: 0.75rem;
+  color: $text-muted;
+  font-size: $type-13;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+// A housemate with no conversation yet: a button (opening it makes one),
+// drawn as the row.
+.conversation-row__form {
+  display: block;
+}
+
+.conversation-row--start {
+  width: 100%;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.conversation-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.5rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: $radius-lg;
+  background: $surface-card;
+  color: $text;
+  text-decoration: none;
+  transition: background-color $motion-quick;
+
+  &:hover,
+  &:focus-visible {
+    background: $surface-raised;
+    color: $text;
+  }
+
+  &--unread .conversation-row__title,
+  &--unread .conversation-row__preview {
+    color: $text;
+    font-weight: 600;
+  }
+}
+
+.conversation-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: tint-var(var(--section-color, #{$text-muted}));
+  color: var(--section-color, $text-muted);
+}
+
+.conversation-row__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.conversation-row__title {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.conversation-row__preview {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: $text-muted;
+  font-size: $type-14;
+}
+
+.conversation-row__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.conversation-row__time {
+  color: $text-muted;
+  font-size: $type-12;
+}
+
+.conversation-row__unread {
+  min-width: 1.25rem;
+  padding: 0 0.375rem;
+  border-radius: $radius-pill;
+  background: $accent;
+  color: $surface-sunken;
+  font-size: $type-12;
+  font-weight: 700;
+  line-height: 1.25rem;
+  text-align: center;
+}
+
+.conversation {
+  display: flex;
+  flex-direction: column;
+  height: calc(
+    100dvh -
+      #{$navbar-height} - env(safe-area-inset-top, 0px) - var(--demo-banner-height, 0px) - var(--bottom-bar-space, 0px)
+  );
+  color: $text;
+
+  @include page-width("column");
+}
+
+.conversation__header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid tint($text-muted, "fill");
+}
+
+// The thread scrolls; the messages region itself is layout-transparent so
+// a page of earlier messages put before it lines up with the rest.
+.conversation__scroll {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0.75rem 0.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.conversation__messages {
+  display: contents;
+}
+
+// The empty line sits in the middle of the scroller, and only while
+// nothing has been said: the first message, sent or arriving live, is
+// appended beside it.
+.conversation__messages > .empty-state {
+  margin: auto 0;
+
+  &:not(:only-child) {
+    display: none;
+  }
+}
+
+.conversation__older {
+  align-self: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: $radius-xl;
+  color: $accent;
+  font-size: $type-13;
+
+  &:hover {
+    background: tint($accent, "fill");
+  }
+
+  &--start {
+    color: $text-muted;
+  }
+}
+
+.conversation__seen {
+  align-self: flex-end;
+  color: $text-muted;
+  font-size: $type-12;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+
+  &--mine {
+    align-self: flex-end;
+    align-items: flex-end;
+  }
+
+  &--theirs {
+    align-self: flex-start;
+    align-items: flex-start;
+  }
+
+  &--deleted .message__bubble {
+    background: transparent;
+    border: 1px dashed tint($text-muted, "edge");
+  }
+}
+
+.message__main {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  max-width: 100%;
+
+  .message--mine & {
+    flex-direction: row-reverse;
+  }
+}
+
+.message__bubble {
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: $radius-xl;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+
+  .message--mine & {
+    background: $surface-raised;
+    border-bottom-right-radius: $radius-xs;
+  }
+
+  .message--theirs & {
+    background: $surface-card;
+    border-bottom-left-radius: $radius-xs;
+  }
+}
+
+.message__sender {
+  display: block;
+  margin-bottom: 0.125rem;
+  color: var(--section-color, $text-muted);
+  font-size: $type-12;
+  font-weight: 600;
+}
+
+.message__text {
+  white-space: pre-wrap;
+
+  &--deleted {
+    color: $text-muted;
+    font-style: italic;
+  }
+}
+
+.message__link {
+  color: $accent;
+  text-decoration: underline;
+
+  &:hover {
+    color: $accent-pressed;
+  }
+}
+
+.message__time {
+  display: block;
+  margin-top: 0.125rem;
+  color: $text-muted;
+  font-size: $type-11;
+  text-align: right;
+}
+
+.message__pictures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 0.375rem;
+}
+
+.message__picture-link {
+  display: block;
+  max-width: 100%;
+}
+
+.message__picture {
+  display: block;
+  max-width: 100%;
+  max-height: 18rem;
+  border-radius: $radius-lg;
+  object-fit: cover;
+}
+
+.message__pictures--several .message__picture {
+  width: 7rem;
+  height: 7rem;
+}
+
+// React and unsend: faint next to the bubble, plain on hover or focus.
+.message__tools {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+  opacity: 0.55;
+  transition: opacity $motion-quick;
+
+  .message:hover &,
+  .message:focus-within &,
+  &:has([aria-expanded="true"]) {
+    opacity: 1;
+  }
+}
+
+// The quick emoji (Views::Conversations::ReactionPicker), drawn once for
+// the page and placed by its controller over the message pressed.
+.reaction-picker {
+  display: none;
+  position: fixed;
+  z-index: $z-picker;
+  max-width: calc(100vw - 2rem);
+  padding: 0.375rem;
+  border-radius: $radius-xxl;
+  background: $surface-sunken;
+  border: 1px solid $surface-raised;
+  box-shadow: $shadow-popover;
+
+  &.is-open {
+    display: block;
+  }
+
+  &__form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.125rem;
+  }
+
+  &__emoji {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    font-size: $type-20;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: tint($accent, "fill");
+    }
+  }
+}
+
+.message__reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+
+  // Always in the bubble (a reaction updates this region alone); nothing to show, no room taken.
+  &:empty {
+    display: none;
+  }
+}
+
+// Its form is only the way the button posts: the button is the chip.
+.message__reaction-form {
+  display: contents;
+}
+
+.message__reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 1.75rem;
+  padding: 0 0.5rem;
+  border-radius: $radius-pill;
+  border: 1px solid tint($text-muted, "fill");
+  background: $surface-card;
+  color: $text;
+  font: inherit;
+  font-size: $type-14;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    border-color: tint($accent, "edge");
+    color: $text;
+  }
+
+  &--mine {
+    border-color: $accent;
+    background: tint($accent, "fill");
+  }
+}
+
+.message__reaction-emoji,
+.message__reaction-count {
+  text-decoration: none;
+}
+
+.message__reaction-count {
+  color: $text-muted;
+  font-size: $type-12;
+  font-weight: 600;
+
+  .message__reaction--mine & {
+    color: $accent;
+  }
+}
+
+.conversation-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem calc(0.625rem + var(--page-bottom-inset, 0px));
+  border-top: 1px solid tint($text-muted, "fill");
+  background: glass($surface-card);
+}
+
+.conversation-composer__row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.conversation-composer__input {
+  flex: 1;
+  resize: none;
+  min-height: 2.5rem;
+  max-height: 10rem;
+  padding: 0.5rem 0.875rem;
+  border: 2px solid tint($text-muted, "edge");
+  border-radius: $radius-xxl;
+  background: $surface-sunken;
+  color: $text;
+  font: inherit;
+  line-height: 1.4;
+
+  &:focus {
+    outline: none;
+    border-color: $accent;
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.conversation-composer__send,
+.conversation-composer__attach {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.conversation-composer__send {
+  background: $accent;
+  color: $surface-sunken;
+
+  &:hover {
+    background: $accent-pressed;
+  }
+}
+
+.conversation-composer__attach {
+  background: transparent;
+  color: $text-muted;
+  border: 2px solid tint($text-muted, "edge");
+
+  &:hover {
+    background: tint($accent, "fill");
+    color: $accent;
+  }
+}
+
+// The pictures about to go: thumbnails, each with its own remove button.
+.conversation-composer__preview {
+  max-width: 100%;
+}
+
+.conversation-composer__preview-images {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem 0.25rem 0;
+  overflow-x: auto;
+}
+
+.conversation-composer__preview-item {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.conversation-composer__preview-image {
+  display: block;
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: cover;
+  border-radius: $radius-lg;
+  border: 2px solid tint($text-muted, "edge");
+}
+
+.conversation-composer__preview-remove {
+  position: absolute;
+  top: -0.375rem;
+  right: -0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  border-radius: 50%;
+  background: $surface-sunken;
+  color: $text;
+  box-shadow: $shadow-chip;
+  cursor: pointer;
+
+  &:hover {
+    background: $danger-text;
+    color: $surface-sunken;
+  }
+}

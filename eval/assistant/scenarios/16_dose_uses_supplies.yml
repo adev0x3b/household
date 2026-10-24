@@ -1,0 +1,9 @@
+description: Taking a dose with the supplies it used — the dose is done and the stock goes down.
+tags: [coverage, supplies, status]
+today: 2026-09-24
+seed: [b12_injection_series]
+messages:
+  - I just took my cobalamin shot, I used one needle and one syringe.
+expect:
+  - record_status: { type: medication, date: 2026-09-24, name: cobalamin, status: completed }
+  - stock: { needles: 99, syringes: 49 }

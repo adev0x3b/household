@@ -1,0 +1,10 @@
+description: Money from a household member is linked to their profile (so settlements see it), not typed as free text. The payment method is required, so the second message answers it; the title is never asked for. Marco will see the payment, so it waits for the Apply button.
+tags: [coverage, payments]
+today: 2026-09-24
+seed: [household_member]
+messages:
+  - Marco paid me 50 euros for his half of the rent today.
+  - By bank transfer.
+  - "!confirm"
+expect:
+  - member_payment: { member: Marco, amount: 50, kind: income }

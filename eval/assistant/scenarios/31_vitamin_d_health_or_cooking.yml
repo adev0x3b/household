@@ -1,0 +1,11 @@
+description: Vitamin D could be a supplement for therapy or food; the assistant asks once, and the answer sends it to supplies, not the pantry.
+tags: [pantry, supplies, ambiguous]
+today: 2026-10-01
+messages:
+  - "I bought vitamin D"
+  - "It's for my health, my B12 therapy: 1 box for 10 euros, paid by card"
+expect:
+  - purchases: 1
+  - purchase_details: { "vitamin d": { quantity: 1, cost: 10, paid: card } }
+  - ingredient_purchases: 0
+  - ingredients: 0

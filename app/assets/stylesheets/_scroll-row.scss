@@ -1,0 +1,30 @@
+// A row that scrolls sideways (Components::ScrollRow): the edge with more
+// behind it fades out, as scroll_hint_controller.js marks it, so a chip cut
+// there reads as "more this way" and not as cut. A mask reads only alpha,
+// so its opaque stop is whatever colour is current.
+
+@use "variables" as *;
+
+$scroll-row-fade: 2.5rem;
+
+.scroll-row {
+  min-width: 0;
+
+  &.is-more-end > * {
+    mask-image: linear-gradient(to right, currentcolor calc(100% - #{$scroll-row-fade}), transparent);
+  }
+
+  &.is-more-start > * {
+    mask-image: linear-gradient(to right, transparent, currentcolor #{$scroll-row-fade});
+  }
+
+  &.is-more-start.is-more-end > * {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      currentcolor #{$scroll-row-fade},
+      currentcolor calc(100% - #{$scroll-row-fade}),
+      transparent
+    );
+  }
+}

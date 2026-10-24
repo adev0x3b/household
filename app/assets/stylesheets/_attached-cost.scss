@@ -1,0 +1,47 @@
+// The expense paid for a day, as a line inside that day's calendar card
+// (Views::Calendar::Cards::AttachedCost)
+
+@use "variables" as *;
+@use "calendar-card" as *;
+
+.attached-cost {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+
+  // Room for the toggle's target, which reaches past its small circle,
+  // so that it never covers the line above.
+  margin-top: 0.3rem;
+  font-size: $type-10;
+
+  &__toggle {
+    @include status-circle(0.9rem);
+  }
+
+  &__amount {
+    font-weight: 700;
+    color: $accent;
+    text-decoration: none;
+    white-space: nowrap;
+
+    .attached-cost--cancelled &,
+    .attached-cost--skipped & {
+      text-decoration: line-through;
+    }
+  }
+
+  a.attached-cost__amount:hover {
+    text-decoration: underline;
+  }
+
+  &__detail {
+    color: $text-muted;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    .attached-cost--completed & {
+      color: $success-text;
+    }
+  }
+}

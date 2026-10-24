@@ -1,0 +1,14 @@
+_fixture:
+  model_class: Task::Details
+
+groceries:
+  event: groceries
+  priority: 0
+
+water_the_plants:
+  event: water_the_plants
+  priority: 1
+
+prescription:
+  event: prescription
+  priority: 0

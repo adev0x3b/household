@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Images are built once, by CI (.github/workflows/ci.yml), and deployed by
+# their tag: building on this machine is what this setup exists to avoid.
+echo "Images are built by CI: deploy one with --skip-push --version <sha>." >&2
+exit 1

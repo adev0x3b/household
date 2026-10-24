@@ -1,0 +1,9 @@
+# Each household's own conversation, which everyone in it joins when they
+# join the household (Profile).
+example_chat:
+  household: example
+  kind: household
+
+elsewhere_chat:
+  household: elsewhere
+  kind: household

@@ -1,0 +1,216 @@
+// The account menu (Views::Layouts::Navbar::AccountMenu): an avatar in the top
+// bar that drops who's signed in, the Household page, "This device"
+// (.navbar-device, _pwa.scss), the language, and Log out last.
+
+@use "variables" as *;
+
+// Not positioned on purpose (like .notifications): the panel hangs from the
+// top bar itself, from its right edge.
+.account-menu {
+  display: flex;
+}
+
+.account-menu__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: none;
+  border-radius: $radius-md;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color $motion-quick;
+
+  &:active {
+    background-color: tint($accent, "fill");
+  }
+
+  // Open: the avatar is ringed, like a pressed button
+  &[aria-expanded="true"] .account-menu__avatar {
+    box-shadow: 0 0 0 2px $accent;
+  }
+}
+
+.account-menu__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $accent, $accent-pressed);
+  color: $surface-sunken;
+  font-size: $type-13;
+  flex-shrink: 0;
+}
+
+.account-menu__panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0.75rem;
+  z-index: $z-menu;
+  width: min(20rem, calc(100vw - 1.5rem));
+  max-height: min(32rem, 80dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background-color: $surface-sunken;
+  border: 1px solid $surface-raised;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-popover;
+
+  &.is-open {
+    display: block;
+  }
+
+  // "This device" sits in a group of its own, flush with the others
+  .navbar-device {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
+}
+
+.account-menu__who {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid $surface-card;
+
+  .account-menu__avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: $type-18;
+  }
+}
+
+.account-menu__meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.account-menu__name {
+  font-size: $type-16;
+  font-weight: 700;
+  color: $text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-menu__household {
+  color: $text-muted;
+  font-size: $type-13;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-menu__group {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid $surface-card;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.account-menu__caption {
+  margin: 0 0 0.25rem 0.75rem;
+  color: $text-muted;
+  font-size: $type-11;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+// A row that opens a page: like a drawer link, pink-edged when it's the page you're on
+.account-menu__link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: $radius-md;
+  color: $text;
+  font-size: $type-15;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color $motion-quick;
+
+  &:hover {
+    background-color: $surface-card;
+  }
+
+  i {
+    width: 1.25rem;
+    text-align: center;
+    color: $text-muted;
+  }
+
+  &.is-current {
+    background-color: $surface-raised;
+    box-shadow: inset 3px 0 0 $accent;
+  }
+}
+
+.account-menu__form {
+  display: block;
+  margin: 0;
+}
+
+// One language; the current one is pink and checked
+.account-menu__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: $radius-md;
+  background: transparent;
+  color: $text;
+  font-size: $type-14;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color $motion-quick;
+
+  &:hover {
+    background-color: $surface-card;
+  }
+
+  &.is-current {
+    color: $accent;
+  }
+}
+
+.account-menu__logout {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: none;
+  border-radius: $radius-md;
+  background: transparent;
+  color: $danger-text;
+  font-size: $type-15;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color $motion-quick;
+
+  i {
+    width: 1.25rem;
+    text-align: center;
+  }
+
+  &:hover,
+  &:active {
+    background-color: tint($danger-text, "subtle");
+  }
+}

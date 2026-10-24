@@ -1,0 +1,16 @@
+description: >
+  A second visit with the same doctor a week after the one already booked: the first turn stops
+  on the possible duplicate (nothing saved), the user says to go ahead in words, and the model
+  confirms by calling again with confirm — no button involved. (The very same visit on the very
+  same day is refused outright, see Operations::Create#same_day_duplicate!.)
+tags: [appointments, confirm]
+today: 2026-09-22
+seed: [moretti_oct2]
+messages:
+  - Book another appointment with Moretti on October 9th at 11:00, 50 euros by card.
+  - Yes, go ahead — it's a second visit, a week after the first.
+expect:
+  - asks: 1
+  - saves: 2
+  - appointments: 2
+  - appointment: { provider: Moretti, date: 2026-10-09, time: "11:00", fee: 50 }

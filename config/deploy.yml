@@ -1,0 +1,214 @@
+# Household on one machine, deployed by Kamal (docs/architecture/delivery.md). Four
+# destinations share this file: `-d production`, `-d staging`, `-d demo` and
+# `-d dev` each add config/deploy.<destination>.yml, and nothing runs without one.
+#
+# What is particular to an installation comes from the environment — the
+# Deploy workflow's repository variables, or .kamal/env for bin/kamal by
+# hand (.kamal/env.example lists them):
+#   DEPLOY_HOST              the machine, as SSH reaches it (each destination's
+#                            GitHub environment names its own: the deployment
+#                            runbook, "Moving a destination")
+#   KAMAL_REGISTRY_USERNAME  the GHCR owner the image belongs to
+#   PRODUCTION_HOST, STAGING_HOST, DEV_HOST   each destination's public name
+#   DEMO_HOST                the public demo's, where this installation has one
+#   GITHUB_REPOSITORY        owner/name, for the app's delivery console
+#   SOURCE_REPOSITORY        the code's owner/name, where the pipeline's repository is another
+#   MOUNT_PATH               a path the app is served under ("/love"; empty, the domain's root)
+# and what a destination allows and carries — the installation's settings
+# (env.clear below) and its keys (env.secret) — from
+# ~/.config/household/<destination>.env by hand (bin/kamal loads it first) or
+# from the destination's GitHub environment in CI (the deployment runbook,
+# "Settings, per destination").
+#
+# Nothing is built here: CI builds one image per commit, on the runner
+# `RUNS_ON` names (GitHub's or the household's), ghcr.io/<owner>/household:<sha>,
+# and every deploy pulls it by that tag (--skip-push --version <sha>;
+# .kamal/hooks/pre-build refuses a local build). The Deploy workflow runs Kamal
+# on that runner too, which joins the tailnet for the job if it isn't on it and
+# reaches this machine over SSH as `deploy` (bin/provision machine).
+#
+# kamal-proxy holds 127.0.0.1:8080, where the Cloudflare Tunnel points (TLS
+# ends at Cloudflare), and sends each request to the destination its host
+# names. A deploy starts the new web container, waits for its health check, moves
+# the traffic, then stops the old one: no gap. It migrates while the old
+# version still serves, so a migration must suit both (strong_migrations).
+
+service: household # = the image's `service` label (Dockerfile): Kamal checks it on every pull
+
+image: <%= ENV.fetch("KAMAL_REGISTRY_USERNAME") %>/household
+
+require_destination: true
+minimum_version: 2.12.0
+
+# The assistant's Ollama, when it runs on this machine, is
+# http://host.docker.internal:11434 from inside. Each container's memory is
+# capped where the destination asks it (WEB_MEMORY, JOB_MEMORY, DB_MEMORY;
+# each destination's file gives its default), so destinations that share a
+# machine can't starve each other.
+servers:
+  web:
+    hosts:
+      - <%= ENV.fetch("DEPLOY_HOST") %>
+    options:
+      add-host: host.docker.internal:host-gateway
+<%- if ENV["WEB_MEMORY"].present? -%>
+      memory: "<%= ENV["WEB_MEMORY"] %>"
+<%- end -%>
+  # Solid Queue: the jobs and config/recurring.yml. Boots once web is
+  # healthy, so after the migrations.
+  job:
+    hosts:
+      - <%= ENV.fetch("DEPLOY_HOST") %>
+    cmd: bin/jobs
+    options:
+      add-host: host.docker.internal:host-gateway
+<%- if ENV["JOB_MEMORY"].present? -%>
+      memory: "<%= ENV["JOB_MEMORY"] %>"
+<%- end -%>
+
+# GHCR, private. CI pulls with the job's GITHUB_TOKEN; by hand on this
+# machine, `gh auth token` (.kamal/secrets-common).
+registry:
+  server: ghcr.io
+  username: <%= ENV.fetch("KAMAL_REGISTRY_USERNAME") %>
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# Kamal wants one even with nothing to build.
+builder:
+  arch: amd64
+
+ssh:
+  user: deploy
+  forward_agent: false
+  # The host key is checked by the machine's name alone: HostKeyAlias in
+  # ~/.ssh/config, written by the Deploy workflow on its runner and by
+  # bin/provision for whoever deploys by hand.
+  config:
+    - ~/.ssh/config
+
+proxy:
+  app_port: 80 # Thruster, in front of Puma
+  healthcheck:
+    path: <%= ENV["MOUNT_PATH"].to_s.chomp("/") %>/up
+    interval: 2
+    timeout: 5
+  # A response goes to the client as it comes: kamal-proxy would otherwise
+  # spool the whole of it to its disk first, and a 10 GB download from the
+  # Files section would wait for that. Request bodies stay buffered: the
+  # Files section sends chunks of 16 MB (Upload::CHUNK_SIZE), well under
+  # the 1 GB default and the Cloudflare tunnel's 100 MB.
+  buffering:
+    responses: false
+  # Only when kamal-proxy is created (the first deploy on the machine); a
+  # change needs `bin/kamal proxy reboot -d production`, a blip for both.
+  run:
+    bind_ips:
+      - 127.0.0.1
+    http_port: 8080
+    https_port: 8443
+
+env:
+  # Each destination adds APP_HOST (config.hosts, mail links, Action Cable's
+  # origin) and DB_HOST: none here, so a destination can't reach the other's database.
+  clear:
+    RAILS_LOG_LEVEL: info
+    # Solid Queue worker processes for the "*" queues, besides the assistant's own.
+    JOB_CONCURRENCY: 1
+    # Thruster's deadlines are for the whole request and the whole response
+    # (Go's http.Server). The Files section needs more than its 30 s: a
+    # 16 MB chunk over a slow link, a 10 GB download that takes an hour
+    # (0: no deadline; Cloudflare and kamal-proxy still drop idle connections).
+    HTTP_READ_TIMEOUT: 300
+    HTTP_WRITE_TIMEOUT: 0
+    # The installation's settings (Platform's switches, budgets and Files quota,
+    # the assistant's fallbacks until /assistant/settings is saved), on and
+    # unlimited unless the environment says otherwise, under these same
+    # names: ~/.config/household/<destination>.env for bin/kamal by hand, the
+    # destination's GitHub environment for the Deploy workflow. Each
+    # destination's file overrides the defaults (the demo's turn things off).
+    # Set here, a limit is only where /admin/settings starts on a new
+    # database: the page decides once something is saved there. `.presence`,
+    # never `fetch`: the workflow passes an unset variable as "".
+    ASSISTANT: "<%= ENV["ASSISTANT"].presence || "on" %>"
+    UPLOADS: "<%= ENV["UPLOADS"].presence || "on" %>"
+    PICTURES: "<%= ENV["PICTURES"].presence || "on" %>"
+    INVITATIONS: "<%= ENV["INVITATIONS"].presence || "on" %>"
+    PUSH_NOTIFICATIONS: "<%= ENV["PUSH_NOTIFICATIONS"].presence || "on" %>"
+    # A household's messages to the assistant, and Open Library lookups, in a day; "" is no limit.
+    ASSISTANT_MESSAGES_PER_DAY: "<%= ENV["ASSISTANT_MESSAGES_PER_DAY"].presence %>"
+    BOOK_LOOKUPS_PER_DAY: "<%= ENV["BOOK_LOOKUPS_PER_DAY"].presence %>"
+    # What a household may keep in Files (Platform.files_quota); each destination's volume decides.
+    FILES_QUOTA: <%= ENV["FILES_QUOTA"].presence || "50GB" %>
+    # The accounts anyone enters without a password: the demo's three on the demo and dev, none elsewhere.
+    OPEN_ACCOUNTS: "<%= ENV["OPEN_ACCOUNTS"].presence %>"
+    # The assistant's provider, model and Ollama (on this machine, host.docker.internal from inside).
+    ASSISTANT_PROVIDER: "<%= ENV["ASSISTANT_PROVIDER"].presence || "ollama" %>"
+    ASSISTANT_MODEL: "<%= ENV["ASSISTANT_MODEL"].presence || "qwen3:8b" %>"
+    OLLAMA_BASE_URL: "<%= ENV["OLLAMA_BASE_URL"].presence || "http://host.docker.internal:11434" %>"
+    # What the delivery console links to: the repositories and every
+    # destination's address, under the same mount path (Deployment.url). The
+    # demo's is also where /demo sends a visitor from any other copy.
+    GITHUB_REPOSITORY: <%= ENV.fetch("GITHUB_REPOSITORY") %>
+    SOURCE_REPOSITORY: <%= ENV["SOURCE_REPOSITORY"].presence || ENV.fetch("GITHUB_REPOSITORY") %>
+    PRODUCTION_HOST: <%= ENV.fetch("PRODUCTION_HOST") %>
+    STAGING_HOST: <%= ENV.fetch("STAGING_HOST") %>
+    DEV_HOST: <%= ENV.fetch("DEV_HOST") %>
+    # Empty where this installation has no demo: Kamal wants a string, the app reads it as none.
+    DEMO_HOST: "<%= ENV["DEMO_HOST"] %>"
+    MOUNT_PATH: "<%= ENV["MOUNT_PATH"].to_s.chomp("/") %>" # empty: the domain's root
+    # The clock before sign-in and for work done for no one in particular
+    # (config.time_zone); a signed-in request runs on its viewer's.
+    TIME_ZONE: <%= ENV["TIME_ZONE"].presence || "UTC" %>
+  secret:
+    - HOUSEHOLD_DATABASE_PASSWORD:POSTGRES_PASSWORD
+    # The destination's keys (.kamal/secrets-common names them), each only
+    # where the environment has it: an absent key stays absent in the
+    # container rather than arriving as "".
+<%- %w[ANTHROPIC_API_KEY OPENAI_API_KEY GOOGLE_BOOKS_API_KEY DEMO_PASSWORD DEPLOY_DISPATCH_TOKEN].each do |name| -%>
+<%- if ENV[name].present? -%>
+    - <%= name %>
+<%- end -%>
+<%- end -%>
+
+# Postgres, one per destination (each file names its container and volume):
+# not published, reached by name on the `kamal` network. The app's
+# db:prepare makes the other three databases (cache, queue, cable).
+accessories:
+  db:
+    image: postgres:16
+    host: <%= ENV.fetch("DEPLOY_HOST") %>
+<%- if ENV["DB_MEMORY"].present? -%>
+    options:
+      memory: "<%= ENV["DB_MEMORY"] %>"
+<%- end -%>
+    env:
+      clear:
+        POSTGRES_USER: household
+        POSTGRES_DB: household_production
+      secret:
+        - POSTGRES_PASSWORD
+
+# The old and the new version's fingerprinted assets, both, during a deploy.
+asset_path: /rails/public/assets
+
+# The first boot of a version migrates before /up answers.
+deploy_timeout: 180
+
+# Old containers and images kept for a quick look back. Kamal's prune counts
+# the destinations together, so 10 is a couple each; rolling back pulls from GHCR anyway.
+retain_containers: 10
+
+logging:
+  options:
+    max-size: 10m
+    max-file: "3"
+
+# bin/kamal <alias> -d <destination>. Every exec names the web role: the
+# job container would run it a second time.
+aliases:
+  console: app exec -i --reuse -r web "bin/rails console"
+  shell: app exec -i --reuse -r web bash
+  rails: app exec --reuse -r web bin/rails
+  logs: app logs -f
+  dbc: accessory exec db -i --reuse "psql -U household household_production"

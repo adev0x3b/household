@@ -1,0 +1,144 @@
+# One image of one commit, built here and pushed to GHCR tagged with its
+# sha: ghcr.io/<owner>/household:<sha>. CI calls it for every commit on
+# main that passed (ci.yml); the Deploy workflow for a branch about to be
+# previewed on dev (deploy.yml). Where the pipeline runs from a private
+# repository of its own, a preview is a branch of the code's repository,
+# and its image goes to a package named after the pipeline's, which stays
+# private: ghcr.io/<owner>/<repository>:<sha>. The same build either way —
+# so what dev ran is what main will run once the branch is merged, rebuilt
+# then from the merge commit as every main commit is.
+# Only a commit on main may reach staging or production (kamal.yml checks),
+# whatever images exist.
+#
+# The build pushes what production will run, so it runs where only the
+# repository's own code runs: GitHub's runner, or the household's own
+# (RUNS_ON), a machine apart from the one that serves the app. A
+# branch's preview is built inside the Deploy workflow, which runs on main:
+# so no step here comes from the branch (only its Dockerfile, inside
+# BuildKit), and its layers go to a cache of their own, never read by main's
+# builds.
+name: Image
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: "The commit or branch to build"
+        type: string
+        required: true
+      repository:
+        description: "The repository it is in (owner/name; blank: this one)"
+        type: string
+        default: ""
+      lane:
+        description: "main (a commit on main, from CI) or preview (a branch, for dev): whose layer cache the build writes"
+        type: string
+        required: true
+    outputs:
+      sha:
+        description: "The commit built, in full: the image's tag"
+        value: ${{ jobs.build.outputs.sha }}
+
+jobs:
+  build:
+    runs-on: ${{ fromJSON(vars.RUNS_ON || '"ubuntu-latest"') }}
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      sha: ${{ steps.commit.outputs.sha }}
+    env:
+      PACKAGE: ${{ inputs.lane == 'preview' && github.event.repository.name || 'household' }}
+    steps:
+      - name: Refuse an unknown lane
+        if: inputs.lane != 'main' && inputs.lane != 'preview'
+        env:
+          LANE: ${{ inputs.lane }}
+        run: |
+          echo "::error::The lane is main or preview, not '$LANE'."
+          exit 1
+
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ inputs.repository || github.repository }}
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      # A branch's name resolves to its head here, once: the tag, the
+      # GIT_SHA inside the image and the deploy that follows all name it.
+      - name: The commit
+        id: commit
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # On the household's runner, the registry login goes in the job's home.
+      - name: Prepare the job
+        uses: ./.github/actions/prepare
+        with:
+          ruby: "false"
+
+      # GitHub's runner starts empty: a builder for this job, its layers in
+      # GitHub's cache.
+      - name: Set up Docker Buildx (GitHub's runner)
+        if: runner.environment == 'github-hosted'
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # The household's runner keeps one builder per lane, and its layers with
+      # it, from one build to the next: fetching them from GitHub's cache took
+      # longer than the build. The builder is a container on the machine; the
+      # job's home only names it, so a job with a fresh home finds the same
+      # one. BuildKit's own garbage collection keeps its disk in bounds.
+      - name: The lane's builder (the household's runner)
+        if: runner.environment == 'self-hosted'
+        env:
+          BUILDER: household-${{ inputs.lane }}
+        run: docker buildx create --name "$BUILDER" --driver docker-container --bootstrap --use
+
+      - name: Log in to GitHub's container registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The source label links the package to the repository that built it
+      # on its first push, so that repository's Deploy workflow token can
+      # pull it while it is private.
+      # The Dockerfile labels it service=household, which Kamal checks.
+      # Layers: on GitHub's runner a preview starts from main's and keeps its
+      # own, and main reads and writes main's alone; on the household's, each
+      # lane's builder holds its own.
+      - name: Build and push ghcr.io/${{ github.repository_owner }}/${{ env.PACKAGE }}:${{ steps.commit.outputs.sha }}
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ env.PACKAGE }}:${{ steps.commit.outputs.sha }}
+          build-args: GIT_SHA=${{ steps.commit.outputs.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ steps.commit.outputs.sha }}
+          provenance: false
+          sbom: false
+          cache-from: |
+            ${{ runner.environment == 'github-hosted' && 'type=gha,scope=main' || '' }}
+            ${{ runner.environment == 'github-hosted' && inputs.lane == 'preview' && 'type=gha,scope=preview' || '' }}
+          cache-to: ${{ runner.environment == 'github-hosted' && format('type=gha,mode=max,scope={0}', inputs.lane) || '' }}
+
+      # The newest 50 images of a commit stay in GHCR: weeks of main to roll
+      # back to, with the branches previewed in between. A version that also
+      # carries a release's tag (release.yml) is never removed, since copies
+      # of their own pull it by that tag for good. A version left with no tag
+      # at all, by a commit built again, counts among the 50.
+      - name: Remove old images
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSIONS: users/${{ github.repository_owner }}/packages/container/${{ env.PACKAGE }}/versions
+        run: |
+          listed="$(gh api --paginate "$VERSIONS?per_page=100" \
+            --jq '.[] | select(all(.metadata.container.tags[]; test("^[0-9a-f]{40}$"))) | "\(.created_at) \(.id)"')"
+          sort -r <<< "$listed" | tail -n +51 | while read -r _created id; do
+            gh api --method DELETE "$VERSIONS/$id" > /dev/null
+            echo "Removed version $id"
+          done

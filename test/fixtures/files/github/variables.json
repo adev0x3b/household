@@ -1,0 +1,9 @@
+{
+  "total_count": 1,
+  "variables": [
+    {
+      "name": "DEPLOY_KNOWN_HOSTS",
+      "value": "deploy-host ssh-ed25519 AAAA…"
+    }
+  ]
+}

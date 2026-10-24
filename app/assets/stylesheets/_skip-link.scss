@@ -1,0 +1,29 @@
+// The first stop of every signed-in page for someone using a keyboard:
+// "Skip to content", out of sight until it has the focus, then shown over
+// the whole top bar, so a press of Enter passes the bar and its menus. It
+// covers the bar rather than a corner of it: half covered, a control
+// beside it (the search) would be left a sliver too narrow to press.
+
+@use "variables" as *;
+
+.skip-link {
+  @include visually-hidden;
+
+  &:focus-visible {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: $z-skip-link;
+    display: flex;
+    align-items: center;
+    width: auto;
+    height: calc(#{$navbar-height} + env(safe-area-inset-top, 0px));
+    margin: 0;
+    padding: env(safe-area-inset-top, 0) 1.25rem 0;
+    overflow: visible;
+    clip-path: none;
+    background-color: $accent;
+    color: $surface-sunken;
+    font-weight: 600;
+    text-decoration: none;
+  }
+}

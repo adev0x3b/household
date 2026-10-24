@@ -1,0 +1,46 @@
+@use "variables" as *;
+@use "form-rows" as *;
+
+// "Times" on the medication form (Views::Medications::DoseTimesFields): a
+// stepper "− 2 + times a day" and one row per dose, "[with dinner ▾] [20:00]
+// ×".
+
+.dose-times {
+  margin-bottom: 0.75rem;
+
+  .label i {
+    color: $text-muted;
+  }
+
+  &__stepper {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0.375rem 0;
+  }
+
+  &__count {
+    min-width: 1.5rem;
+    text-align: center;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: $text;
+  }
+
+  &__per-day {
+    color: $text-muted;
+    font-size: $type-14;
+  }
+
+  &__rows {
+    @include added-rows;
+  }
+
+  &__row {
+    @include added-row;
+  }
+
+  &__time {
+    flex: 0 0 7rem;
+  }
+}

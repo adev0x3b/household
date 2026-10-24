@@ -1,0 +1,23 @@
+#!/bin/bash -e
+# Every container of the image starts here (Dockerfile ENTRYPOINT): the
+# secrets Rails needs are made on the first boot (bin/docker-secrets; every
+# Rails process then reads them, see config/application.rb), the database is
+# waited for, and the web server migrates it before serving. See docs/architecture/delivery.md.
+
+bin/docker-secrets
+
+# Postgres in its own container (Kamal's db accessory) may still be coming
+# up, after a reboot or on a destination's first deploy: wait for it.
+if [ -n "${DB_HOST:-}" ]; then
+  until pg_isready -h "$DB_HOST" -q; do
+    echo "waiting for the database at $DB_HOST…"
+    sleep 1
+  done
+fi
+
+# If running the rails server then create or migrate existing database
+if [ "${*: -2:1}" == "./bin/rails" ] && [ "${*: -1:1}" == "server" ]; then
+  ./bin/rails db:prepare
+fi
+
+exec "${@}"

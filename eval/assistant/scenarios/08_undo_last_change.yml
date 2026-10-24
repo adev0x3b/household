@@ -1,0 +1,9 @@
+description: A saved purchase can be undone with the Undo button.
+tags: [purchases, undo]
+today: 2026-09-22
+messages:
+  - For my B12 therapy I bought 100 needles for 12 euros, paid by card
+  - "!undo"
+expect:
+  - undone_changes: 1
+  - purchases: 0

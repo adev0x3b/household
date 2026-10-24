@@ -1,0 +1,13 @@
+description: Medical supplies for a therapy are supplies, not groceries; the prices and payment come in the follow-up.
+tags: [coverage, supplies]
+today: 2026-10-01
+messages:
+  - "I bought 100 needles and 50 syringes for my B12 therapy"
+  - "The needles were 12 euros and the syringes 8, paid by card"
+expect:
+  - purchases: 2
+  - purchase_details:
+      needles: { quantity: 100, cost: 12, paid: card, therapy: B12 }
+      syringes: { quantity: 50, cost: 8, paid: card, therapy: B12 }
+  - ingredient_purchases: 0
+  - ingredients: 0

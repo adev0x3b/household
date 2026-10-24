@@ -1,0 +1,86 @@
+// Collections — a section's index and a collection's page (a therapy in
+// Healthcare). The page's wrapper carries `section--<section>`.
+
+@use "variables" as *;
+
+.collections {
+  @include page-width("grid");
+
+  padding: 0.75rem;
+
+  &__list {
+    @include card-grid;
+  }
+}
+
+.collection-card {
+  &__name {
+    font-size: $type-16;
+    font-weight: 600;
+    color: $text;
+    text-decoration: none;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+}
+
+.collection-show {
+  @include page-width("column");
+
+  padding: 0.75rem;
+
+  &__events-title {
+    font-size: $type-14;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: $text-muted;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.collection-event-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: $radius-md;
+  background-color: $surface-raised;
+  margin-bottom: 0.375rem;
+  text-decoration: none;
+
+  &:hover {
+    background-color: $accent;
+
+    * {
+      color: $surface-sunken;
+    }
+  }
+
+  &__icon {
+    color: var(--section-color, $text-muted);
+    font-size: $type-12;
+    flex-shrink: 0;
+  }
+
+  &__type {
+    font-size: $type-11;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--section-color, $text-muted);
+  }
+
+  &__label {
+    flex: 1;
+    font-size: $type-13;
+    color: $text;
+  }
+
+  &__date {
+    font-size: $type-12;
+    color: $text-muted;
+  }
+}

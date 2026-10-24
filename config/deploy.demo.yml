@@ -1,0 +1,45 @@
+# bin/kamal … -d demo: https://$DEMO_HOST<mount path> (config/deploy.yml). The
+# public demo: main's head right after staging took it, on a database of its
+# own that starts over every night (Demo::ResetJob), with no access gate in
+# front. Its three accounts are open to anyone (OPEN_ACCOUNTS, /demo),
+# so what a public playground mustn't do is off here (Platform): no uploads
+# or public links, no pictures, no invitations, no push, and a day's budget
+# for the assistant and for Open Library. Everything else is the app as it
+# is: nothing of the demo is code.
+
+proxy:
+  host: <%= ENV.fetch("DEMO_HOST") %>
+
+env:
+  clear:
+    APP_HOST: <%= ENV.fetch("DEMO_HOST") %>
+    DB_HOST: household-demo-db
+    # The demo's defaults (config/deploy.yml has every setting, on and
+    # unlimited); its environment may still say otherwise, under the same names.
+    FILES_QUOTA: <%= ENV["FILES_QUOTA"].presence || "64MB" %> # the seeder's few files; nobody uploads here
+    OPEN_ACCOUNTS: "<%= ENV["OPEN_ACCOUNTS"].presence || "alex.demo,sam.demo,robin.demo" %>"
+    UPLOADS: "<%= ENV["UPLOADS"].presence || "off" %>"
+    PICTURES: "<%= ENV["PICTURES"].presence || "off" %>"
+    INVITATIONS: "<%= ENV["INVITATIONS"].presence || "off" %>"
+    PUSH_NOTIFICATIONS: "<%= ENV["PUSH_NOTIFICATIONS"].presence || "off" %>"
+    ASSISTANT_MESSAGES_PER_DAY: "<%= ENV["ASSISTANT_MESSAGES_PER_DAY"].presence || "30" %>"
+    BOOK_LOOKUPS_PER_DAY: "<%= ENV["BOOK_LOOKUPS_PER_DAY"].presence || "50" %>"
+
+volumes:
+  - household_demo_storage:/rails/storage
+  - household_demo_secrets:/rails/secrets
+
+# Capped unless its environment says otherwise, so the demo can't starve production on the same machine.
+servers:
+  web:
+    options:
+      memory: "<%= ENV["WEB_MEMORY"].presence || "1GB" %>"
+  job:
+    options:
+      memory: "<%= ENV["JOB_MEMORY"].presence || "1GB" %>"
+
+accessories:
+  db:
+    service: household-demo-db
+    volumes:
+      - household_demo_db:/var/lib/postgresql/data

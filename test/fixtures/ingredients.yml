@@ -1,0 +1,17 @@
+flour:
+  profile: alice
+  name: Flour
+  quantity: 2.5
+  unit: kg
+
+eggs:
+  profile: alice
+  name: Eggs
+  quantity: 12
+  unit: pcs
+
+olive_oil:
+  profile: bob
+  name: Olive oil
+  quantity: 1
+  unit: liter

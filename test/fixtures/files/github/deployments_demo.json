@@ -1,0 +1,19 @@
+[
+  {
+    "id": 311,
+    "sha": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "ref": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "task": "deploy",
+    "environment": "demo",
+    "created_at": "2026-10-13T09:05:00Z",
+    "updated_at": "2026-10-13T09:05:00Z",
+    "description": "deploy demo a1a1a1a",
+    "payload": {
+      "action": "deploy",
+      "destination": "demo",
+      "requested_by": "CI: Show a paused eval run as paused on the page that follows",
+      "run_url": "https://github.com/example/household/actions/runs/210",
+      "running_before": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2"
+    }
+  }
+]

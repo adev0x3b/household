@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Prepares the release a promotion to production makes (docs/architecture/delivery.md,
+# "Releases"): decides whether the commit is a new release and which version,
+# then writes its notes and the files it carries into a directory:
+#
+#   <directory>/notes.md     the release's page
+#   <directory>/assets/      release.json, compose.yml, install.sh, SHA256SUMS
+#
+#   bin/release <commit> <directory> --image ghcr.io/<owner>/household --digest sha256:<…>
+#               [--downtime-seconds N] [--on YYYY-MM-DD]
+#
+# The version's month is the day's, in UTC, unless --on names the day: the
+# workflow plans a release, builds for minutes, then writes it again, and the
+# version must not change with the month in between. Prints, for the
+# workflow's outputs, either version=, tag=, previous= and on= lines, or one
+# skip= line saying why the commit makes no release. Exit
+# status: 0 either way, 2 an error. It reads the checkout it runs in, whose
+# history and tags must be whole. Plain Ruby, no Bundler: it runs before the
+# app's dependencies exist.
+require "date"
+require "fileutils"
+require "optparse"
+
+root = File.expand_path("..", __dir__)
+require File.join(root, "lib", "held_migrations")
+require File.join(root, "lib", "releases")
+%w[version repository plan notes assets].each { require File.join(root, "lib", "releases", _1) }
+
+options = {}
+usage = "usage: bin/release <commit> <directory> --image <name> --digest sha256:<…> [--downtime-seconds N] [--on DATE]"
+parser = OptionParser.new(usage) do |opts|
+  opts.on("--image NAME") { options[:image] = _1 }
+  opts.on("--digest DIGEST", /\Asha256:[0-9a-f]{64}\z/) { options[:digest] = _1 }
+  opts.on("--downtime-seconds SECONDS", Integer) { options[:downtime_seconds] = _1 }
+  opts.on("--on DATE", /\A\d{4}-\d{2}-\d{2}\z/) { options[:on] = Date.iso8601(_1) }
+end
+
+begin
+  commit, directory = parser.parse(ARGV)
+  raise OptionParser::MissingArgument, parser.banner unless commit && directory && options[:image] && options[:digest]
+rescue OptionParser::ParseError, Date::Error => error
+  warn error.message
+  exit 2
+end
+
+begin
+  repository = Releases::Repository.new(Dir.pwd)
+  plan = Releases::Plan.new(repository, commit, on: options[:on] || Time.now.utc.to_date)
+  if (reason = plan.reason_to_skip)
+    puts "skip=#{reason}"
+    exit 0
+  end
+
+  image = "#{options[:image]}:#{plan.version}@#{options[:digest]}"
+  assets = Releases::Assets.new(repository, plan, image: image, downtime_seconds: options[:downtime_seconds])
+  FileUtils.mkdir_p(File.join(directory, "assets"))
+  notes = Releases::Notes.new(plan, image: image, downtime_seconds: options[:downtime_seconds])
+  File.write(File.join(directory, "notes.md"), notes.to_s)
+  files = assets.files
+  files.each { |name, content| File.write(File.join(directory, "assets", name), content) }
+  FileUtils.chmod(0o755, File.join(directory, "assets", "install.sh")) if files.key?("install.sh")
+  assets.missing.each { warn _1 }
+
+  puts "version=#{plan.version}", "tag=#{plan.version.tag}", "previous=#{plan.previous&.tag}", "on=#{plan.on.iso8601}"
+rescue Releases::Error => error
+  warn error.message
+  exit 2
+end

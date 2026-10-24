@@ -1,0 +1,21 @@
+description: The failure from chat 50 — one message with a lab report AND the doctor's ranges; both must be saved.
+tags: [labs, ranges]
+today: 2026-09-23
+messages:
+  - |-
+    I just got the following lab report:
+
+    Cobalamin: 250
+    Homocysteine: 0.8
+    Calcium 3
+    Vitamin D 20
+
+    My doctor said the references for Cobalamin in pg/mL are 150 low 250 high 80 critically low 300 critically high. Vitamin D is good between 20 and 50. Homocysteine is good below 0.8, perfect at 0 so there is no critically low. 0.8 is normal, 1 is high, 1.4 is critically high. Calcium is low because it needs to be between 8.5 and 10
+  - The test was done a week ago
+expect:
+  - lab_results: 1
+  - lab_values: { Cobalamin: 250, Homocysteine: 0.8, Calcium: 3, Vitamin D: 20 }
+  # Only Cobalamin's unit is said (pg/mL). A range needs a unit, so the
+  # others are asked for, not guessed; guessed ones aren't checked here.
+  - ranges:
+      Cobalamin: { low: 150, high: 250, critical_low: 80, critical_high: 300 }

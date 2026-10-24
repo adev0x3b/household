@@ -1,0 +1,364 @@
+// The bookshelf — the shelf (a cover grid under the status pills and the
+// genre chips), one book's page, its form and the barcode scanner. The
+// section color comes from _sections.scss.
+
+@use "variables" as *;
+
+.books {
+  @include page-width("grid");
+
+  padding: 0.75rem;
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  // The title beside the sort and shelf pickers: one row when they fit
+  &__header > .page-header {
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  // Covers are what the eye picks a book by: a grid, two across on a phone.
+  &__grid {
+    @include card-grid(9.5rem);
+
+    margin-top: 0.75rem;
+  }
+}
+
+// The sort and whose-shelf pickers, next to the title.
+.book-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__field {
+    display: inline-flex;
+  }
+}
+
+// Genres on the shelf, one chip each; the picked one is filled.
+.genre-chips {
+  display: flex;
+  gap: 0.375rem;
+  overflow-x: auto;
+  margin-top: 0.625rem;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.genre-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: $radius-pill;
+  border: 1px solid tint($text-muted, "edge");
+  color: $text-muted;
+  font-size: $type-13;
+  white-space: nowrap;
+  text-decoration: none;
+
+  &:hover {
+    color: $text;
+    border-color: $accent;
+  }
+
+  &.is-current {
+    background-color: tint($accent, "fill");
+    border-color: $accent;
+    color: $text;
+  }
+
+  &__count {
+    font-size: $type-12;
+  }
+}
+
+// A cover (Views::Books::Cover): the image laid over a spine-like stand-in,
+// which shows wherever the image doesn't.
+.book-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background-color: $surface-raised;
+
+  &__image {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 100%;
+    padding: 0.75rem;
+    border-left: 0.375rem solid var(--section-color, $text-muted);
+    color: var(--section-color, $text-muted);
+    text-align: center;
+
+    i {
+      font-size: $type-24;
+    }
+  }
+
+  &__placeholder-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: $text-muted;
+    font-size: $type-12;
+    line-height: 1.25;
+  }
+
+  &--l {
+    max-width: 14rem;
+  }
+}
+
+.book-card {
+  &__cover-link {
+    display: block;
+    border-radius: $radius-md;
+
+    &:focus-visible {
+      outline: 2px solid $accent;
+      outline-offset: 2px;
+    }
+  }
+
+  &__title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: $type-15;
+    font-weight: 600;
+    line-height: 1.25;
+    color: $text;
+    text-decoration: none;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  &__author {
+    margin-top: 0.125rem;
+    font-size: $type-13;
+    color: $text-muted;
+    overflow-wrap: anywhere;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.5rem;
+  }
+
+  // Filled stars against empty ones say the rating; they need no colour.
+  &__rating {
+    font-size: $type-12;
+    letter-spacing: 0.1em;
+    color: $text;
+  }
+
+  &__genres {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.375rem;
+    font-size: $type-12;
+    color: $text-muted;
+  }
+}
+
+.book-show {
+  @include page-width("column");
+
+  padding: 0.75rem;
+
+  // The details' column may be narrower than its widest line (the status
+  // pills scroll sideways), so it never pushes the page, or the cover above
+  // it on a phone, past the screen's edge.
+  &__main {
+    display: grid;
+    grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
+    gap: 1rem;
+    margin-top: 0.75rem;
+    padding: 1rem;
+    border-radius: $radius-lg;
+    background-color: $surface-card;
+  }
+
+  @include until("narrow") {
+    &__main {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__cover {
+      width: 10rem;
+      justify-self: center;
+    }
+  }
+
+  &__author {
+    margin-bottom: 0.75rem;
+    font-size: $type-16;
+    color: $text-muted;
+  }
+
+  &__facts {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1rem;
+    margin-top: 1rem;
+    font-size: $type-14;
+
+    dt {
+      color: $text-muted;
+    }
+
+    dd {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      color: $text;
+    }
+  }
+
+  &__fact {
+    display: contents;
+  }
+
+  &__rating {
+    letter-spacing: 0.1em;
+    color: $text;
+  }
+
+  &__notes {
+    margin-top: 1rem;
+    font-size: $type-14;
+    white-space: pre-line;
+  }
+
+  &__section-title {
+    margin-bottom: 0.25rem;
+    font-size: $type-12;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: $text-muted;
+  }
+
+  &__shared,
+  &__attribution {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.75rem;
+    font-size: $type-13;
+    color: $text-muted;
+
+    a {
+      color: $accent;
+    }
+  }
+}
+
+// The form: the ISBN with its lookup button, the two dates side by side, and
+// the cover the lookup found.
+.book-form {
+  &__isbn {
+    margin-bottom: 0;
+  }
+
+  &__lookup {
+    gap: 0.375rem;
+  }
+
+  &__dates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  &__cover {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+
+    .book-cover {
+      width: 5rem;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.scanner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__viewport {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: $radius-lg;
+    overflow: hidden;
+    background-color: $surface-sunken;
+  }
+
+  &__video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  // Where to hold the barcode
+  &__viewfinder {
+    position: absolute;
+    inset: 22% 12%;
+    border: 2px solid var(--section-color, $text-muted);
+    border-radius: $radius-md;
+    pointer-events: none;
+  }
+
+  &__status {
+    min-height: 1.5em;
+    font-size: $type-14;
+    text-align: center;
+    color: $text-muted;
+  }
+
+  &__fallback {
+    text-align: center;
+  }
+
+  &__photo {
+    gap: 0.5rem;
+  }
+}

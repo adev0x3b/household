@@ -1,0 +1,11 @@
+# Secret scanning (bin/gitleaks, run by CI and bin/ci over every commit):
+# gitleaks' own rules, and the test data that only looks like a secret.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Test data shaped like secrets: the stored names of fixture uploads, a fake push subscription's auth"
+paths = [
+  '''^test/fixtures/uploads\.yml$''',
+  '''^test/support/push_builders\.rb$''',
+]

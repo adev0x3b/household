@@ -1,0 +1,11 @@
+metformin_breakfast:
+  event: metformin
+  time: "08:00"
+  anchor: CM
+  position: 0
+
+metformin_dinner:
+  event: metformin
+  time: "19:30"
+  anchor: CV
+  position: 1

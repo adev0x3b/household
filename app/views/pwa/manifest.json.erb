@@ -1,0 +1,26 @@
+<%= raw JSON.pretty_generate(
+  id: pwa_scope,
+  name: t("pwa.manifest.name"),
+  short_name: t("pwa.manifest.short_name"),
+  description: t("pwa.manifest.description"),
+  lang: I18n.locale.to_s,
+  dir: "ltr",
+  start_url: pwa_scope,
+  scope: pwa_scope,
+  display: "standalone",
+  display_override: [ "standalone", "minimal-ui" ],
+  orientation: "portrait",
+  theme_color: Theme::SURFACE,
+  background_color: Theme::PAGE,
+  categories: [ "productivity", "lifestyle", "health", "finance" ],
+  icons: [
+    { src: "/icon-192.png", type: "image/png", sizes: "192x192", purpose: "any" },
+    { src: "/icon-512.png", type: "image/png", sizes: "512x512", purpose: "any" },
+    { src: "/icon-maskable-512.png", type: "image/png", sizes: "512x512", purpose: "maskable" },
+    { src: "/icon.svg", type: "image/svg+xml", sizes: "any", purpose: "any" }
+  ],
+  shortcuts: [
+    { name: t("navbar.links.calendar"), url: calendar_path, icons: [ { src: "/icon-192.png", sizes: "192x192" } ] },
+    { name: t("navbar.links.assistant"), url: assistant_path, icons: [ { src: "/icon-192.png", sizes: "192x192" } ] }
+  ]
+) %>

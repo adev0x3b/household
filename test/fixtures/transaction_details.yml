@@ -1,0 +1,23 @@
+_fixture:
+  model_class: Transaction::Details
+
+# The bill is about the grocery task series; each paid day about that day.
+electricity_bill:
+  event: electricity_bill
+  kind: 1
+  category: 5
+  amount_cents: 12500
+  currency: EUR
+  counterparty: Utility Company
+  payment_method: 0
+  about: groceries (Event)
+
+electricity_due:
+  event: electricity_bill
+  occurrence: electricity_due
+  about: groceries_due (Occurrence)
+
+electricity_paid:
+  event: electricity_bill
+  occurrence: electricity_paid
+  about: groceries_done (Occurrence)

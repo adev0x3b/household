@@ -1,0 +1,5 @@
+# bin/bundler-audit checks every gem in Gemfile.lock against the Ruby advisory
+# database. An advisory that can't reach this app goes on the list below, with
+# a line saying why.
+
+ignore: []

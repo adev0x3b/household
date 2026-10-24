@@ -1,0 +1,10 @@
+description: Milk bought while only Oat milk is in the pantry is a new ingredient; the oat milk's stock stays as it was.
+tags: [pantry, stock]
+today: 2026-10-01
+seed: pantry_basics
+messages:
+  - "I bought 1 liter of milk for 1.50 euros, paid cash"
+expect:
+  - ingredients: 4
+  - ingredient_purchases: 1
+  - ingredient_details: { "oat milk": { quantity: 1, unit: "l" } }

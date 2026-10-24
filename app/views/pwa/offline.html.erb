@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <title><%= t("pwa.offline.title") %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="<%= Theme::SURFACE %>">
+    <%= stylesheet_link_tag "application" %>
+  </head>
+  <body>
+    <main class="offline-page">
+      <img class="offline-page__icon" src="/icon-192.png" alt="" width="96" height="96">
+      <h1 class="offline-page__title"><%= t("pwa.offline.title") %></h1>
+      <p class="offline-page__body"><%= t("pwa.offline.body") %></p>
+      <%# The service worker answers the failed page's own address with this
+          page, so an empty link is that address: trying again asks for it. %>
+      <a class="button is-primary" href=""><%= t("pwa.offline.retry") %></a>
+    </main>
+  </body>
+</html>

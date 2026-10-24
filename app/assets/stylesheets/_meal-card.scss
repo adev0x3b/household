@@ -1,0 +1,117 @@
+// Meal card (Views::Calendar::Cards::MealCard): what every card has
+// (calendar-card), and the kind's icon — home, eating out, ordered in.
+
+@use "variables" as *;
+@use "calendar-card" as *;
+
+.meal-card {
+  @include calendar-card;
+
+  &__kind-icon {
+    color: var(--section-color, $text-muted);
+    font-size: $type-12;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-size: $type-13;
+    font-weight: 500;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @include when-over("meal-card") {
+      color: $text-muted;
+    }
+  }
+
+  &__title-link {
+    font-size: $type-13;
+    font-weight: 500;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      color: $accent;
+      text-decoration: underline;
+    }
+
+    @include when-over("meal-card") {
+      color: $text-muted;
+
+      &:hover {
+        color: $accent;
+      }
+    }
+  }
+
+  &__position {
+    font-size: $type-10;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.1rem 0.3rem;
+    border-radius: $radius-xs;
+    flex-shrink: 0;
+    background-color: $section-assistant;
+    color: $surface-sunken;
+  }
+
+  &__detail {
+    font-size: $type-10;
+    color: $text-muted;
+    margin-top: 0.1rem;
+  }
+
+  &__low-stock-icon {
+    font-size: $type-10;
+    color: $warning-text;
+    flex-shrink: 0;
+  }
+
+  &__completion {
+    display: block;
+    font-size: $type-10;
+    font-weight: 600;
+    margin-top: 0.1rem;
+
+    &--early {
+      color: $success-text;
+    }
+
+    &--late {
+      color: $danger-text;
+    }
+
+    &--on-time {
+      color: $text-muted;
+    }
+  }
+
+  &__status {
+    display: block;
+    font-size: $type-10;
+    color: $text-muted;
+    margin-top: 0.1rem;
+
+    &--completed {
+      color: $success-text;
+    }
+  }
+}
+
+@include from("tablet") {
+  .meal-card {
+    padding: 0.4rem 0.625rem;
+  }
+
+  .meal-card__name,
+  .meal-card__title-link {
+    font-size: $type-14;
+  }
+}

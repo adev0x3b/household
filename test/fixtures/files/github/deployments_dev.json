@@ -1,0 +1,21 @@
+[
+  {
+    "id": 320,
+    "sha": "e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7",
+    "ref": "e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7",
+    "task": "preview",
+    "environment": "dev",
+    "created_at": "2026-10-13T08:00:00Z",
+    "updated_at": "2026-10-13T08:00:00Z",
+    "description": "preview dev e7e7e7e",
+    "payload": {
+      "action": "preview",
+      "destination": "dev",
+      "requested_by": "alex from the app #8: the bell rings twice",
+      "run_url": "https://github.com/example/household/actions/runs/196",
+      "running_before": "9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a",
+      "branch": "fix-the-bell",
+      "fresh": true
+    }
+  }
+]

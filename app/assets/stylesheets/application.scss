@@ -1,0 +1,207 @@
+@use "sass:color";
+@use "variables" as *;
+
+// Bulma's palette and controls take the app's own colours. Nothing in the
+// app is "info", so that one is the neutral rather than a colour of its own.
+@use "bulma_sass/utilities" with (
+  $primary: $accent,
+  $link: $accent,
+  $info: $text-muted,
+  $success: $success-text,
+  $warning: $warning-text,
+  $danger: $danger-text,
+  $control-border-width: 2px
+);
+
+/*! bulma.io v1.0.4 | MIT License | github.com/jgthms/bulma */
+// Bulma (with the overridden utilities), without its components: the app
+// draws its own card, modal, message, navbar and pagination, whose class
+// names Bulma's would style too, and doesn't use the rest (breadcrumb,
+// dropdown, menu, panel, tabs). Its grid and helpers are left out too: no
+// view lays out with its columns, and the one helper the views use,
+// .is-sr-only, is defined below.
+@use "bulma-theme";
+@use "bulma_sass/base";
+@use "bulma_sass/elements";
+@use "bulma_sass/form";
+@use "bulma_sass/layout";
+@use "bulma_sass/base/skeleton";
+@use "sections";
+@use "calendar";
+@use "task-card";
+@use "statistics";
+@use "stat-period-selector";
+@use "home";
+@use "transaction-card";
+@use "attached-cost";
+@use "appointment-card";
+@use "medication-card";
+@use "meal-card";
+@use "lab-test-result-card";
+@use "collections";
+@use "card";
+@use "item-action";
+@use "item-menu";
+@use "action-control";
+@use "status-badge";
+@use "count-badge";
+@use "empty-state";
+@use "progress-bar";
+@use "analytes";
+@use "supplies";
+@use "ingredients";
+@use "recipes";
+@use "grocery-lists";
+@use "books";
+@use "uploads";
+@use "conversations";
+@use "scroll-row";
+@use "segmented-filter";
+@use "shares";
+@use "pagination";
+@use "index-search";
+@use "page-controls";
+@use "tabs";
+@use "page-header";
+@use "notice";
+@use "panel";
+@use "disclosure";
+@use "report";
+@use "skip-link";
+@use "navbar";
+@use "account-menu";
+@use "bottom-nav";
+@use "notifications";
+@use "pwa";
+@use "form-rows";
+@use "field";
+@use "reminders";
+@use "event-fields";
+@use "dose-times";
+@use "devise";
+@use "setup";
+@use "modal";
+@use "confirm-dialog";
+@use "toast";
+@use "assistant";
+@use "assistant-evals";
+@use "assistant-settings";
+@use "lexicons";
+@use "households";
+@use "links";
+@use "deployment";
+@use "demo-banner";
+
+// The app has one theme, dark (_bulma-theme.scss), and Bulma's own
+// neutrals (inputs, borders, dropdowns) take the brand's navy hue instead
+// of blue-grey.
+:root {
+  --bulma-scheme-h: #{color.channel($surface-page, "hue", $space: hsl)};
+  --bulma-scheme-s: #{color.channel($surface-page, "saturation", $space: hsl)};
+
+  color-scheme: dark;
+  accent-color: $accent;
+
+  // The scripts that watch the same widths (the navigation drawer) read
+  // them from here rather than keep a copy.
+  @each $name, $width in $breakpoints {
+    --breakpoint-#{$name}: #{$width};
+  }
+}
+
+html {
+  background-color: $surface-page;
+  scrollbar-color: tint($text-muted, "edge") $surface-page;
+
+  // What the browser scrolls into view (the next Tab stop, a day jumped
+  // to) stops clear of the fixed top bar and the phone's bottom bar,
+  // never under them.
+  scroll-padding-top: calc(#{$navbar-height} + env(safe-area-inset-top, 0px));
+  scroll-padding-bottom: var(--bottom-bar-space);
+}
+
+body {
+  background-color: transparent;
+  color: $text;
+}
+
+// Ambient light behind every page: the canvas is lit from the top, a
+// soft violet glow from one corner and a fainter navy one from the other,
+// over a base that deepens toward the bottom. The violet is the
+// assistant's hue, thin enough to warm the navy without reading as the
+// assistant; the other corner is the raised surface's own colour. Neither
+// is the brand pink, which would put the colour that means "act" behind
+// everything. Depth still comes from the surfaces; this only keeps the
+// canvas from being one flat tone. It is a fixed layer of its own (not
+// background-attachment: fixed, which repaints on every
+// scroll on phones), so it stays put while the page scrolls. Anything
+// sitting directly on the page must still clear AA on its brightest spot,
+// the top-left corner.
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: $z-behind;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 55% at 0% 0%, tint($section-assistant, "fill"), transparent 70%),
+    radial-gradient(ellipse 80% 45% at 100% 0%, tint($surface-raised, "edge"), transparent 70%),
+    linear-gradient(180deg, $surface-sunken 0%, $surface-page 55%);
+}
+
+// A group of fields under one name (a fieldset and its legend, the way a
+// screen reader announces it) is as wide as the form, never its widest
+// content (Bulma has already taken its border off).
+fieldset {
+  min-width: 0;
+}
+
+// An element with the hidden attribute is hidden, whatever its own rule
+// says. The browser's `[hidden] { display: none }` has the weight of one
+// attribute, the same as one class, and an author's `.row { display: flex }`
+// comes later in the cascade, so it would win and the attribute would do
+// nothing. Nothing may show what the markup has hidden, hence the one
+// !important in these stylesheets.
+[hidden] {
+  display: none !important;
+}
+
+// Secondary text anywhere, e.g. "nobody to share with" in a share panel
+.text-muted {
+  color: $text-muted;
+}
+
+// Words for assistive technology only: a label the layout shows another
+// way, the name of an icon-only control, a chart's table.
+.is-sr-only {
+  @include visually-hidden;
+}
+
+* {
+  scrollbar-color: tint($text-muted, "edge") transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+*::-webkit-scrollbar-track {
+  background: $surface-sunken;
+  border-radius: $radius-pill;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: tint($text-muted, "edge");
+  border: 2px solid $surface-sunken;
+  border-radius: $radius-pill;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: tint($text-muted, "strong");
+}
+
+*::-webkit-scrollbar-corner {
+  background: $surface-sunken;
+}

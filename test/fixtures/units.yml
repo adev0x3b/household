@@ -1,0 +1,19 @@
+mgdl:
+  household: example
+  name: mg/dL
+
+miul:
+  household: example
+  name: mIU/L
+
+kg:
+  household: example
+  name: kg
+
+pcs:
+  household: example
+  name: pcs
+
+liter:
+  household: example
+  name: l

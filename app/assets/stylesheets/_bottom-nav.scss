@@ -1,0 +1,111 @@
+// The phone's bottom navigation bar (Views::Layouts::Navbar::BottomBar): Home,
+// Calendar, Assistant, Messages (its unread count) and Menu, which opens the
+// drawer. Shown on a phone only; from a tablet up the top bar's burger opens it.
+//
+// --bottom-bar-space is what the bar takes from the bottom of the page: the
+// pages' bottom padding (.app-content), and what a full-height page (the
+// assistant, a conversation) subtracts. 0 on desktop. --page-bottom-inset is
+// the phone's home-indicator inset for a page's own last row (a composer):
+// where the bar is shown it carries that inset itself, so the page doesn't
+// pay it twice.
+
+@use "variables" as *;
+@use "count-badge";
+
+:root {
+  --bottom-bar-height: 0px;
+  --bottom-bar-space: 0px;
+  --page-bottom-inset: env(safe-area-inset-bottom, 0px);
+}
+
+.bottom-nav {
+  display: none;
+  position: fixed;
+  inset: auto 0 0;
+
+  // Under a modal, which covers it (a modal is a focused task that wants the
+  // room), and under the drawer's backdrop and sheet.
+  z-index: $z-bottom-nav;
+  grid-template-columns: repeat(5, 1fr);
+  height: var(--bottom-bar-space);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  background: glass($surface-card);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-top: 0.5px solid tint($text-muted, "fill");
+}
+
+// Shown on phones only; the base rule above hides it, so this must follow it
+@include until("tablet") {
+  :root {
+    --bottom-bar-height: 3.5rem;
+    --bottom-bar-space: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom, 0px));
+    --page-bottom-inset: 0px;
+  }
+
+  .bottom-nav {
+    display: grid;
+  }
+}
+
+// One tab: an icon over its label, a 44px target. The current one (and the
+// Menu tab while the drawer is open) is pink: you are here / you act on it.
+.bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: $text-muted;
+  font: inherit;
+  font-size: $type-10;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &.is-current,
+  &.is-active {
+    color: $accent;
+
+    .bottom-nav__icon {
+      background-color: tint($accent, "fill");
+    }
+
+    i {
+      color: $accent;
+    }
+  }
+}
+
+// The icon in a pill, where the count sits on its shoulder
+.bottom-nav__icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 1.75rem;
+  border-radius: $radius-pill;
+  transition: background-color $motion-quick;
+
+  i {
+    font-size: $type-18;
+    color: var(--section-color, currentColor);
+  }
+}
+
+.bottom-nav__label {
+  line-height: 1;
+}
+
+.bottom-nav .count-badge {
+  @include count-badge.on-corner;
+
+  top: -0.25rem;
+  left: calc(50% + 0.25rem);
+}

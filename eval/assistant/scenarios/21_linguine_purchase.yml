@@ -1,0 +1,10 @@
+description: One food item with a price in cents and how it was paid (common food, so no question about the kind).
+tags: [coverage, pantry]
+today: 2026-10-01
+messages:
+  - "I bought 500g of linguine for 99 cents, paid cash"
+expect:
+  - ingredients: 1
+  - ingredient_purchases: 1
+  - ingredient_purchase_details: { linguine: { quantity: 500, unit: "g", cost: 0.99, paid: cash, category: groceries } }
+  - ingredient_details: { linguine: { quantity: 500, unit: "g" } }

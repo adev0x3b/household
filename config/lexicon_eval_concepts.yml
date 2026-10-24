@@ -1,0 +1,19 @@
+# The supplies every language's import is tested against the agent with
+# (Lexicon::AgentEval) — written once, in English, never per language: the
+# model writes each one in a new language (Lexicon::EvalCases), the way a
+# speaker would label the box. Test subjects, not matching data: nothing
+# here is used to match names.
+#
+#   concept  the English noun (singular)
+#   plural   its English plural, as a supply saved in English is named
+#   means    what it is, so the model translates the right sense
+- { concept: needle, plural: needles, means: "the thin hollow needle put on a syringe to inject" }
+- { concept: syringe, plural: syringes, means: "the plastic syringe used to inject a medicine" }
+- { concept: gauze, plural: gauze, means: "sterile cotton gauze pads for covering a wound" }
+- { concept: plaster, plural: plasters, means: "a small adhesive bandage put on a small cut (band-aid)" }
+- { concept: glove, plural: gloves, means: "disposable latex gloves" }
+- { concept: vial, plural: vials, means: "a small glass bottle holding an injectable medicine" }
+- { concept: bandage, plural: bandages, means: "a strip of cloth wrapped around a wound" }
+- { concept: lancet, plural: lancets, means: "the tiny blade that pricks a finger for a blood glucose test" }
+- { concept: test strip, plural: test strips, means: "the strip a blood glucose meter reads a drop of blood from" }
+- { concept: cotton wool, plural: cotton wool, means: "cotton wool used to clean the skin" }

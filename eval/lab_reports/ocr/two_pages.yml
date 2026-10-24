@@ -1,0 +1,11 @@
+# One report in two screenshots (several attachments in one message).
+rows:
+  - [Colesterolo totale, "195", mg/dL, "< 200"]
+  - [Colesterolo HDL, "52", mg/dL, "> 40"]
+  - [Colesterolo LDL, "120", mg/dL, "< 130"]
+  - [Trigliceridi, "110", mg/dL, "< 150"]
+  - [AST, "24", U/L, "< 35"]
+  - [GGT, "18", U/L, "< 55"]
+  - [Creatinina, "0,85", mg/dL, "0,50 - 1,10"]
+  - [Glicemia, "88", mg/dL, "70 - 100"]
+render: { pages: 2 }

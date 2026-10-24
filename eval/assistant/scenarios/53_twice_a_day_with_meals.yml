@@ -1,0 +1,10 @@
+description: A medication taken twice a day, with breakfast and dinner — one daily series with its two times, not two medications.
+tags: [coverage, repeats]
+today: 2026-09-24
+messages:
+  - I'm starting metformin, 500 mg twice a day with breakfast and dinner.
+expect:
+  - series: { medication: 1 }
+  - repeats: { type: medication, name: metformin, frequency: daily }
+  - times: { name: metformin, times: [breakfast, dinner] }
+  - medication_details: { name: metformin, kind: pill, quantity: 500, unit: mg }

@@ -1,0 +1,296 @@
+# A release: what a promotion to production publishes for the people who
+# run a copy of their own (docs/architecture/delivery.md, "Releases"). The Deploy
+# workflow starts it, from the pipeline's repository, once production runs
+# a new version and its smoke test passed: the commit gets a calendar
+# version (v2026.11.1), its image is published under that version and
+# :stable for amd64 (production's own image, not built again) and arm64
+# (built here, from the same commit), and a GitHub Release carries its
+# notes, release.json, compose.yml pinned to the image, install.sh and
+# SHA256SUMS.
+#
+# Run without `publish` (Actions → Release → Run workflow, or `gh workflow
+# run release.yml -f commit=<sha>`) it is a dry run: it prepares the same
+# files for that commit, pinned to production's amd64 image since it builds
+# nothing, and keeps them as the run's artifact. It tags and publishes
+# nothing. Only the repository's owner publishes, which the Deploy workflow
+# does with the owner's deploy token.
+#
+# What writes the tag and the image runs main's code: the jobs that run a
+# script check out main. The release commit's own files (compose.yml,
+# install.sh, its migrations) are read from git, never run; its Dockerfile
+# runs only inside BuildKit, as every build's.
+name: Release
+
+run-name: "${{ inputs.publish && 'Release' || 'Dry run of a release' }} of ${{ inputs.commit }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "The commit production now runs, in full (a dry run: any commit)"
+        type: string
+        required: true
+      downtime_seconds:
+        description: "How long production was behind its maintenance page, when the promotion was a release that needed the app stopped"
+        type: string
+        default: ""
+      publish:
+        description: "Build for arm64, tag the image and publish the release (unchecked: a dry run)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  # The version, the notes and the files, from main's bin/release over the
+  # whole history. Read-only: a dry run stops here.
+  prepare:
+    runs-on: ${{ fromJSON(vars.RUNS_ON || '"ubuntu-latest"') }}
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      tag: ${{ steps.plan.outputs.tag }}
+      on: ${{ steps.plan.outputs.on }}
+      commit: ${{ steps.image.outputs.commit }}
+      digest: ${{ steps.image.outputs.digest }}
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/household
+    steps:
+      # Anyone with write access can start a workflow; a release speaks for
+      # the project, so the owner's alone is published.
+      - name: Refuse a release by anyone but the owner
+        if: inputs.publish && github.actor != github.repository_owner
+        env:
+          ACTOR: ${{ github.actor }}
+        run: |
+          echo "::error::Only ${GITHUB_REPOSITORY_OWNER} publishes a release; $ACTOR can run a dry run."
+          exit 1
+
+      # Every commit and tag: the release looks back to the one before it.
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Ruby alone: bin/release runs without the bundle.
+      - name: Prepare the job
+        uses: ./.github/actions/prepare
+        with:
+          bundle: "false"
+
+      # The image CI built for the commit, by the digest production pulled.
+      - name: The image production runs
+        id: image
+        env:
+          REQUESTED: ${{ inputs.commit }}
+          REGISTRY_TOKEN: ${{ github.token }}
+        run: |
+          commit="$(git rev-parse --verify --quiet "$REQUESTED^{commit}")" || { echo "::error::There's no commit $REQUESTED in this repository."; exit 1; }
+          echo "$REGISTRY_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin > /dev/null
+          if ! manifest="$(docker buildx imagetools inspect "$IMAGE:$commit" --format '{{json .Manifest}}')"; then
+            echo "::error::There's no image for ${commit:0:7}: CI builds one for every commit it passes on main."
+            exit 1
+          fi
+          # The manifest as JSON, read by Ruby: the runners' buildx prints its
+          # text summary for a field such as .Manifest.Digest, and they have no jq.
+          digest="$(ruby -rjson -e 'puts JSON.parse(ARGV[0]).fetch("digest")' "$manifest")"
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare the release
+        id: plan
+        env:
+          COMMIT: ${{ steps.image.outputs.commit }}
+          DIGEST: ${{ steps.image.outputs.digest }}
+          DOWNTIME: ${{ inputs.downtime_seconds }}
+        run: |
+          plan="$(bin/release "$COMMIT" "$RUNNER_TEMP/release" --image "$IMAGE" --digest "$DIGEST" ${DOWNTIME:+--downtime-seconds "$DOWNTIME"})"
+          echo "$plan" >> "$GITHUB_OUTPUT"
+          skip="$(sed -n 's/^skip=//p' <<< "$plan")"
+          if [ -n "$skip" ]; then
+            echo "::notice title=No release::$skip"
+          else
+            version="$(sed -n 's/^version=//p' <<< "$plan")"
+            echo "::notice title=Release $version::${COMMIT:0:7}, production's image $DIGEST"
+            cat "$RUNNER_TEMP/release/notes.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Keep the release's files
+        if: steps.plan.outputs.version != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release
+          path: ${{ runner.temp }}/release/
+          retention-days: 14
+
+  # The same commit built for arm64 (a Raspberry Pi, an Apple machine),
+  # once per release. On a runner of another architecture QEMU runs the
+  # build, which takes far longer than CI's own. ARM64_RUNS_ON names an arm
+  # runner where there is one: GitHub's are free for a public repository.
+  arm64:
+    needs: prepare
+    if: inputs.publish && needs.prepare.outputs.version != ''
+    runs-on: ${{ fromJSON(vars.ARM64_RUNS_ON || vars.RUNS_ON || '"ubuntu-latest"') }}
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.commit }}
+          persist-credentials: false
+
+      # On the household's runner, the registry login goes in the job's home.
+      - name: A home of the job's own
+        if: runner.environment == 'self-hosted'
+        run: |
+          install -d -m 700 "$RUNNER_TEMP/home"
+          echo "HOME=$RUNNER_TEMP/home" >> "$GITHUB_ENV"
+
+      - name: QEMU, for a runner that isn't arm64
+        if: runner.arch != 'ARM64'
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx (GitHub's runner)
+        if: runner.environment == 'github-hosted'
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # Main's builder on the household's runner (image.yml): a release is
+      # a commit on main, as trusted as what wrote its layers.
+      - name: Main's builder (the household's runner)
+        if: runner.environment == 'self-hosted'
+        run: docker buildx create --name household-main --driver docker-container --bootstrap --use
+
+      - name: Log in to GitHub's container registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Tagged with the version, so the old images' cleanup never takes it.
+      - name: Build and push ghcr.io/${{ github.repository_owner }}/household:${{ needs.prepare.outputs.version }}-arm64
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/household:${{ needs.prepare.outputs.version }}-arm64
+          build-args: GIT_SHA=${{ needs.prepare.outputs.commit }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ needs.prepare.outputs.commit }}
+          provenance: false
+          sbom: false
+
+  # The image under the version and :stable, both architectures; the files
+  # written again for that image; the tag and the release. Only Deploy asks
+  # for it, after production's smoke test passed.
+  publish:
+    needs: [ prepare, arm64 ]
+    if: inputs.publish && needs.prepare.outputs.version != ''
+    runs-on: ${{ fromJSON(vars.RUNS_ON || '"ubuntu-latest"') }}
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      packages: write
+      id-token: write # the attestations' signing identity
+      attestations: write
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/household
+      VERSION: ${{ needs.prepare.outputs.version }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+      ON: ${{ needs.prepare.outputs.on }}
+      COMMIT: ${{ needs.prepare.outputs.commit }}
+      AMD64: ${{ needs.prepare.outputs.digest }}
+      ARM64: ${{ needs.arm64.outputs.digest }}
+      DOWNTIME: ${{ inputs.downtime_seconds }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prepare the job
+        uses: ./.github/actions/prepare
+        with:
+          bundle: "false"
+
+      # Production's own manifest for amd64, untouched: what a copy pulls on
+      # amd64 is the very image production runs. Each architecture's
+      # manifest also carries a tag of the version's, so the old images'
+      # cleanup never takes one a release still needs. Given one image,
+      # imagetools would wrap it in an index of its own unless told not to.
+      - name: Tag the image ${{ needs.prepare.outputs.version }} and stable
+        id: index
+        env:
+          REGISTRY_TOKEN: ${{ github.token }}
+        run: |
+          echo "$REGISTRY_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin > /dev/null
+          digest_of() { ruby -rjson -e 'puts JSON.parse(ARGV[0]).fetch("digest")' "$(docker buildx imagetools inspect "$1" --format '{{json .Manifest}}')"; }
+          docker buildx imagetools create --prefer-index=false --tag "$IMAGE:$VERSION-amd64" "$IMAGE@$AMD64"
+          if [ "$(digest_of "$IMAGE:$VERSION-amd64")" != "$AMD64" ]; then
+            echo "::error::$IMAGE:$VERSION-amd64 isn't production's $AMD64."
+            exit 1
+          fi
+          docker buildx imagetools create --tag "$IMAGE:$VERSION" --tag "$IMAGE:stable" "$IMAGE@$AMD64" "$IMAGE@$ARM64"
+          index="$(digest_of "$IMAGE:$VERSION")"
+          if [[ ! "$index" =~ ^sha256:[0-9a-f]{64}$ ]] || [ "$(digest_of "$IMAGE:stable")" != "$index" ]; then
+            echo "::error::$IMAGE:$VERSION and :stable don't name one image ($index)."
+            exit 1
+          fi
+          echo "digest=$index" >> "$GITHUB_OUTPUT"
+
+      # The files once more, pinned to both architectures. The day the
+      # release was planned on keeps its version.
+      - name: The release's files
+        env:
+          INDEX: ${{ steps.index.outputs.digest }}
+        run: |
+          plan="$(bin/release "$COMMIT" "$RUNNER_TEMP/release" --image "$IMAGE" --digest "$INDEX" --on "$ON" ${DOWNTIME:+--downtime-seconds "$DOWNTIME"})"
+          if ! grep -qx "version=$VERSION" <<< "$plan"; then
+            printf '::error::The release was planned as %s, and is now:\n%s\n' "$VERSION" "$plan"
+            exit 1
+          fi
+
+      # Who built what, signed by GitHub: `gh attestation verify` checks the
+      # image or a file against this repository. GitHub keeps attestations
+      # for a public repository alone.
+      - name: Attest the image
+        if: ${{ !github.event.repository.private }}
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ steps.index.outputs.digest }}
+          push-to-registry: true
+
+      - name: Attest the files
+        if: ${{ !github.event.repository.private }}
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ runner.temp }}/release/assets/*
+
+      # The tag is made with the release, on the commit production runs.
+      - name: Publish ${{ needs.prepare.outputs.tag }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd "$RUNNER_TEMP/release"
+          gh release create "$TAG" assets/* --repo "$GITHUB_REPOSITORY" --target "$COMMIT" \
+            --title "Household $VERSION" --notes-file notes.md --latest
+          echo "::notice title=Released $VERSION::$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG"

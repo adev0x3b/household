@@ -1,0 +1,123 @@
+// The analytes: the index and one analyte's page with its reference ranges.
+
+@use "variables" as *;
+
+.analytes {
+  @include page-width("grid");
+
+  padding: 0.75rem;
+
+  &__list {
+    @include card-grid;
+  }
+}
+
+.analyte-card {
+  &__name {
+    font-size: $type-16;
+    font-weight: 600;
+    color: $text;
+    text-decoration: none;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  &__ranges {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__range {
+    display: flex;
+    align-items: baseline;
+    gap: 0.375rem;
+    font-size: $type-12;
+  }
+
+  &__range-sex {
+    flex-shrink: 0;
+    font-size: $type-11;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: $text-muted;
+  }
+
+  &__range-bounds {
+    color: $text-muted;
+  }
+}
+
+.analyte-show {
+  @include page-width("column");
+
+  padding: 0.75rem;
+}
+
+.reference-ranges {
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  &__title {
+    font-size: $type-14;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: $text-muted;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.reference-range-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: $radius-md;
+  background-color: $surface-card;
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  &__sex {
+    font-size: $type-11;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: $text-muted;
+  }
+
+  &__unit {
+    font-size: $type-12;
+    color: $text-muted;
+  }
+
+  &__bounds {
+    font-size: $type-13;
+    color: $text;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+}

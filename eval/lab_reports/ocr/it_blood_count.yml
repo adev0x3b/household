@@ -1,0 +1,8 @@
+# An Italian blood count, decimal commas, as a light-mode phone screenshot.
+rows:
+  - [Emoglobina, "13,5", g/dL, "12,0 - 16,0"]
+  - [Globuli rossi, "4,52", 10^6/uL, "4,20 - 5,40"]
+  - [Globuli bianchi, "6,8", 10^3/uL, "4,0 - 10,0"]
+  - [Piastrine, "245", 10^3/uL, "150 - 400"]
+  - [Ematocrito, "41,2", "%", "36,0 - 46,0"]
+  - [MCV, "88", fL, "80 - 100"]

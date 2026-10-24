@@ -1,0 +1,20 @@
+[
+  {
+    "number": 46,
+    "title": "Ring the bell once per message",
+    "state": "open",
+    "draft": false,
+    "html_url": "https://github.com/example/household/pull/46",
+    "user": {
+      "login": "example"
+    },
+    "created_at": "2026-10-13T08:05:00Z",
+    "head": {
+      "ref": "fix-the-bell",
+      "sha": "f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8f8"
+    },
+    "base": {
+      "ref": "main"
+    }
+  }
+]

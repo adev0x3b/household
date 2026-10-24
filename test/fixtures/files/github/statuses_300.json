@@ -1,0 +1,9 @@
+[
+  {
+    "state": "success",
+    "description": "restarted",
+    "log_url": "https://github.com/example/household/actions/runs/201",
+    "target_url": "https://github.com/example/household/actions/runs/201",
+    "created_at": "2026-10-11T18:04:00Z"
+  }
+]

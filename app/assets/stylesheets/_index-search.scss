@@ -1,0 +1,63 @@
+// Index pages' navbar search (Components::IndexSearch) and the results
+// frame it targets (SearchableIndex).
+
+@use "variables" as *;
+
+.index-search {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+
+  // A fixed preferred width that shrinks (never grows) to what the navbar
+  // can spare — see .navbar-topbar-controls.
+  width: 16rem;
+  max-width: 100%;
+  min-width: 0;
+  background-color: tint($text, "subtle");
+  border: 1px solid tint($text-muted, "edge");
+  border-radius: $radius-pill;
+  padding: 0.125rem 0.75rem;
+  transition:
+    border-color $motion-quick,
+    box-shadow $motion-quick;
+
+  // The pill is what is seen as the field, so it shows the focus the way
+  // a form's input does, and the input inside draws none of its own.
+  &:focus-within {
+    border-color: $accent;
+    box-shadow: 0 0 0 2px tint($accent, "fill");
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    color: $text-muted;
+    font-size: $type-12;
+  }
+
+  &__input {
+    appearance: none;
+    background-color: transparent;
+    border: none;
+    color: $text;
+    font-size: $type-13;
+    width: 100%;
+    min-width: 0;
+
+    // The field is the target, so it is as tall as one, and the pill's
+    // padding is what is left of its height.
+    min-height: $target-min;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+// A turbo-frame is inline by default; the list inside it needs a block.
+.index-results {
+  display: block;
+}

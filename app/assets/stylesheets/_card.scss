@@ -1,0 +1,77 @@
+// The box an index page lists its items in: the surface, a body that can
+// fold, and the row of actions at the bottom. What goes inside is each
+// kind's own block.
+
+@use "variables" as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-radius: $radius-lg;
+  background-color: $surface-card;
+
+  &--small {
+    padding: 0.625rem 0.875rem;
+  }
+
+  &--large {
+    padding: 1.125rem 1.25rem;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  // A body with nothing to say, such as an unshared recipe's, takes no gap.
+  &__body:empty {
+    display: none;
+  }
+
+  &__body--scroll {
+    max-height: 12rem;
+    overflow-y: auto;
+  }
+
+  &__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0;
+    color: $text-muted;
+    font-size: $type-12;
+    text-align: left;
+    cursor: pointer;
+
+    &[aria-expanded="true"] .card__chevron {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    transition: transform $motion-settle;
+  }
+
+  &__panel {
+    padding-top: 0.5rem;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid tint($text-muted, "fill");
+  }
+}

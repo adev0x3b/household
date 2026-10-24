@@ -1,0 +1,21 @@
+description: >
+  One conversation that goes on: a purchase, a price correction, a meal, another purchase,
+  then Undo (which takes back only the last saved change). Every turn replays the whole
+  history, so this is where the context window gets tight for a small model.
+tags: [long, pantry]
+today: 2026-10-01
+seed: pantry_recipes
+messages:
+  - "I bought 2 kg of flour for 3 euros, paid by card"
+  - "Sorry, the flour was 3.50, not 3 euros"
+  - "We're having pancakes for dinner tomorrow"
+  - "I also bought 12 eggs for 4 euros, same card"
+  - "!undo"
+expect:
+  - saves: 1
+  - saves: 3
+  - ingredient_purchases: 1
+  - ingredient_details: { flour: { quantity: 4.5, unit: "kg", cost: 3.5 }, eggs: { quantity: 12 } }
+  - meals: 1
+  - meal_details: { date: "2026-10-02", meal_type: dinner, recipes: [ Pancakes ] }
+  - undone_changes: 1

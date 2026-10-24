@@ -1,0 +1,883 @@
+@use "variables" as *;
+@use "statistics" as stats;
+
+// The assistant's evals: the overview, the scenarios, the runs, the live
+// tracker and the scenario form. The page, tabs, status card, sections,
+// cards, notices, footer and pills are the shared report pieces, and a
+// colour with a meaning is a $stat-* tone.
+
+// Lists here are rows, never numbered.
+.eval-cases,
+.eval-timeline,
+.eval-form__rows,
+.eval-problems {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eval-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+
+  &__tag {
+    padding: 0.125rem 0.625rem;
+    border: 1px solid tint($text-muted, "edge");
+    border-radius: $radius-pill;
+    color: $text;
+    font-size: $type-13;
+
+    &:hover {
+      border-color: $accent;
+      color: $accent;
+    }
+
+    &.is-current {
+      border-color: $accent;
+      background: tint($accent, "fill");
+
+      &:hover {
+        color: $text;
+      }
+    }
+  }
+}
+
+// The overview's tiles and chart read the --stat-* palette, set on .evals,
+// and sit on the stat surface like any dashboard.
+.evals .statistics__kpis {
+  margin: 0;
+}
+
+.eval-overview {
+  &__columns {
+    display: grid;
+    gap: 0.75rem;
+
+    @include from("desktop") {
+      grid-template-columns: 3fr 2fr;
+      align-items: start;
+    }
+  }
+
+  &__more {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: $type-14;
+  }
+}
+
+.eval-attention {
+  // A scenario's name and its last run stay on one line, so the shared
+  // rows' wrapping is turned off with a selector of their own weight.
+  .report-rows > &__row {
+    flex-wrap: nowrap;
+  }
+
+  &__main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__name {
+    color: $text;
+    font-family: monospace;
+    font-size: $type-13;
+    overflow-wrap: anywhere;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  &__last {
+    color: $text-muted;
+    font-size: $type-12;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+}
+
+// One card per model, as many per row as fit.
+.eval-models {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.75rem;
+}
+
+.eval-model {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.875rem;
+  border: 1px solid tint($text-muted, "fill");
+  border-radius: $radius-lg;
+  background: tint($text, "faint");
+  color: $text;
+
+  &:hover,
+  &:focus-visible {
+    border-color: $accent;
+    color: $text;
+  }
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+  }
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: $radius-md;
+    background-color: tint-var(var(--section-color, #{$text-muted}));
+    color: var(--section-color, $text-muted);
+    font-size: $type-14;
+  }
+
+  &__name {
+    font-family: monospace;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  &__provider {
+    color: $text-muted;
+    font-size: $type-12;
+  }
+
+  &__rate {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+
+    strong {
+      font-size: $type-28;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    span {
+      color: $text-muted;
+      font-size: $type-13;
+    }
+  }
+
+  &__facts {
+    color: $text-muted;
+    font-size: $type-12;
+  }
+}
+
+// What passed, failed and wasn't scored, as shares of one bar; a share is
+// tenths of the bar.
+.eval-rate-bar {
+  display: flex;
+  gap: 2px;
+  width: 100%;
+  min-width: 5rem;
+  height: 0.375rem;
+  overflow: hidden;
+  border-radius: $radius-pill;
+  background: tint($text-faint, "edge");
+
+  &__part {
+    @for $share from 1 through 10 {
+      &[data-share="#{$share}"] {
+        flex-grow: $share;
+      }
+    }
+
+    &--good {
+      background: $success-solid;
+    }
+
+    &--critical {
+      background: $danger-solid;
+    }
+
+    &--warning {
+      background: $warning-solid;
+    }
+  }
+}
+
+.eval-scenarios {
+  @include stats.stat-surface;
+
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 0 0.25rem;
+
+  &__hint {
+    padding: 0 1rem 0.5rem;
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+// A phone stacks the history and the actions under the text; a wide
+// screen lines them up as columns.
+.eval-scenario {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "select main    main"
+    ".      history actions";
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid $stat-grid;
+
+  &:hover {
+    background: tint($text, "faint");
+  }
+
+  @include from("desktop") {
+    grid-template-columns: auto 1fr 13rem auto;
+    grid-template-areas: "select main history actions";
+  }
+
+  &__select {
+    grid-area: select;
+  }
+
+  &__main {
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  &__title {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    color: $text;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  &__number {
+    padding: 0 0.375rem;
+    border-radius: $radius-sm;
+    background-color: tint-var(var(--section-color, #{$text-muted}));
+    color: var(--section-color, $text-muted);
+    font-family: monospace;
+    font-size: $type-12;
+    font-weight: 600;
+  }
+
+  // Two lines of it; the whole of it on the scenario's own page.
+  &__description {
+    display: -webkit-box;
+    overflow: hidden;
+    color: $text-muted;
+    font-size: $type-13;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+
+    .report-tag {
+      margin-left: 0;
+    }
+  }
+
+  &__actions {
+    grid-area: actions;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.25rem;
+  }
+}
+
+// A scenario in the last runs: one mark per run, oldest first.
+.eval-history {
+  grid-area: history;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &--none {
+    color: $text-muted;
+    font-size: $type-13;
+  }
+
+  &__mark {
+    display: grid;
+    place-items: center;
+    width: 1.375rem;
+    height: 1.375rem;
+    border-radius: $radius-sm;
+    background: tint($text, "subtle");
+    font-size: $type-13;
+
+    &:hover,
+    &:focus-visible {
+      background: tint($text, "fill");
+    }
+  }
+}
+
+.eval-runs {
+  @include stats.stat-surface;
+
+  padding: 0.25rem 1rem;
+
+  &__main {
+    flex: 1 1 18rem;
+    min-width: 0;
+  }
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.6rem;
+
+    .report-tag {
+      margin-left: 0;
+    }
+  }
+
+  &__title {
+    color: $text;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  // The score: the rate large, its interval beside it, the bar under both.
+  &__score {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+    width: 13rem;
+
+    .eval-runs__rate {
+      grid-row: 1;
+      grid-column: 1;
+    }
+
+    .status-badge {
+      grid-row: 1;
+      grid-column: 2;
+      justify-self: end;
+    }
+
+    .eval-rate-bar {
+      grid-row: 2;
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__rate {
+    display: flex;
+    align-items: baseline;
+    gap: 0.375rem;
+    white-space: nowrap;
+  }
+
+  &__percent {
+    font-size: $type-18;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__interval {
+    color: $text-muted;
+    font-size: $type-12;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.25rem;
+  }
+}
+
+.eval-run {
+  &__model {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  &__score {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.6rem;
+  }
+
+  &__percent {
+    font-size: $type-32;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+
+    .report-status--compact & {
+      font-size: $type-20;
+    }
+  }
+
+  &__rate {
+    color: $text-muted;
+    font-size: $type-14;
+  }
+
+  &__open {
+    align-self: flex-start;
+    font-size: $type-14;
+  }
+
+  &__log {
+    max-height: 20rem;
+    overflow: auto;
+    padding: 0.5rem;
+    border-radius: $radius-sm;
+    background: $surface-sunken;
+    color: $text;
+    font-size: $type-12;
+    white-space: pre-wrap;
+  }
+}
+
+// Why a scenario run failed: one line each, on a critical edge.
+.eval-problems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  li {
+    padding-left: 0.75rem;
+    border-left: 2px solid tint($danger-text, "strong");
+    overflow-wrap: anywhere;
+  }
+}
+
+// One exchange of a scenario run: what was said, the reply under it. The
+// shared rows line their parts up in a row; a turn stacks them, with a
+// selector of the rows' own weight.
+.report-rows > .eval-turn {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.eval-turn {
+  &__said,
+  &__reply {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  &__meta {
+    color: $text-muted;
+    font-size: $type-13;
+
+    code {
+      color: $text;
+      background: none;
+      padding: 0;
+    }
+  }
+
+  &__reply {
+    padding-left: 0.75rem;
+    border-left: 2px solid tint($section-assistant, "strong");
+    color: $text-muted;
+  }
+
+  &__warning {
+    color: $warning-text;
+  }
+}
+
+// The live tracker: the scenario runs beside the timeline.
+.eval-live {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__body {
+    display: grid;
+    gap: 0.75rem;
+
+    @include from("desktop") {
+      grid-template-columns: 16rem 1fr;
+      align-items: start;
+    }
+  }
+
+  &__timeline {
+    min-width: 0;
+  }
+
+  // The live clock ("waiting on the model · 42 s") in the status card.
+  .report-status__now {
+    color: $text-muted;
+    font-size: $type-14;
+    font-variant-numeric: tabular-nums;
+
+    &:empty {
+      display: none;
+    }
+  }
+}
+
+.eval-cases {
+  @include stats.stat-surface;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+
+  // A phone scrolls the list, not past it to the timeline.
+  max-height: 14rem;
+  overflow-y: auto;
+  padding: 0.5rem;
+
+  @include from("desktop") {
+    position: sticky;
+    top: 4rem;
+    max-height: calc(100vh - 5rem);
+    overflow-y: auto;
+  }
+}
+
+.eval-case {
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.375rem;
+    border-radius: $radius-sm;
+    color: $text;
+    font-size: $type-14;
+
+    &:hover {
+      background: tint($accent, "subtle");
+      color: $text;
+    }
+  }
+
+  &__name {
+    font-family: monospace;
+    overflow-wrap: anywhere;
+  }
+
+  &--queued &__name {
+    color: $text-muted;
+  }
+}
+
+.eval-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// One entry of the timeline, by what it is.
+.eval-tl {
+  padding: 0.5rem 0.75rem;
+  border-radius: $radius-lg;
+  background: $stat-surface;
+  font-size: $type-14;
+  overflow-wrap: anywhere;
+
+  // A scenario run opens a new block of the conversation.
+  &--scenario {
+    margin-top: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid tint($text-muted, "fill");
+    border-radius: 0;
+    background: transparent;
+    scroll-margin-top: 4rem;
+  }
+
+  // The two sides of the conversation: the user's words toward the right,
+  // the assistant's toward the left, as in the chat.
+  &--said {
+    align-self: flex-end;
+    max-width: min(42rem, 92%);
+    border: 1px solid tint($text-muted, "fill");
+    border-bottom-right-radius: $radius-xs;
+    background: tint($text, "subtle");
+  }
+
+  &--reply {
+    align-self: flex-start;
+    max-width: min(42rem, 92%);
+    border: 1px solid tint($section-assistant, "fill");
+    border-bottom-left-radius: $radius-xs;
+    background: tint($section-assistant, "subtle");
+  }
+
+  // What happened between them: a tool call is a thin row on a status edge.
+  &--tool {
+    margin-left: 1rem;
+    padding: 0.375rem 0.625rem;
+    border-left: 3px solid $text-faint;
+    border-radius: $radius-sm;
+  }
+
+  &--running {
+    border-left-color: $warning-text;
+  }
+
+  &--ok {
+    border-left-color: $success-text;
+  }
+
+  &--failed {
+    border-left-color: $danger-text;
+  }
+
+  &--stats {
+    padding: 0 0.25rem;
+    background: transparent;
+  }
+
+  &--result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem 0.625rem;
+    border: 1px solid tint($text-muted, "fill");
+  }
+
+  &--end {
+    margin-top: 1rem;
+    color: $text-muted;
+    text-align: center;
+    background: transparent;
+  }
+
+  &__scenario {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    color: $text;
+    font-family: monospace;
+    font-weight: 600;
+  }
+
+  &__index {
+    padding: 0 0.375rem;
+    border-radius: $radius-sm;
+    background-color: tint-var(var(--section-color, #{$text-muted}));
+    color: var(--section-color, $text-muted);
+    font-size: $type-12;
+  }
+
+  &__who {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-bottom: 0.125rem;
+    color: $text-muted;
+    font-size: $type-12;
+    font-weight: 600;
+
+    .eval-tl--reply & {
+      color: $section-assistant;
+    }
+
+    .eval-tl__date {
+      margin-left: auto;
+      font-weight: 400;
+    }
+  }
+
+  &__muted,
+  &__date {
+    color: $text-muted;
+    font-size: $type-13;
+  }
+
+  &__said,
+  &__reply {
+    white-space: pre-wrap;
+  }
+
+  &__button {
+    font-style: italic;
+  }
+
+  &__tool-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+
+    code {
+      color: $accent;
+      background: transparent;
+      padding: 0;
+    }
+  }
+
+  &__error {
+    color: $text;
+    font-size: $type-13;
+  }
+
+  &__code {
+    max-height: 16rem;
+    overflow: auto;
+    margin-top: 0.375rem;
+    padding: 0.5rem;
+    border-radius: $radius-sm;
+    background: $surface-sunken;
+    color: $text;
+    font-size: $type-12;
+    white-space: pre-wrap;
+
+    &--result {
+      color: $text-muted;
+    }
+  }
+
+  &__thinking,
+  &__notes {
+    color: $text-muted;
+    font-size: $type-13;
+
+    summary {
+      cursor: pointer;
+    }
+
+    p {
+      margin-top: 0.25rem;
+      white-space: pre-wrap;
+    }
+  }
+}
+
+// The scenario form: the seeds to pick, the rows of turns and checks.
+.eval-seeds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+
+  &__seed {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid $stat-grid;
+    border-radius: $radius-pill;
+    cursor: pointer;
+
+    &:has(input:checked) {
+      border-color: $accent;
+      background: tint($accent, "subtle");
+    }
+
+    &:has(input:focus-visible) {
+      outline: 2px solid $accent;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.eval-form {
+  .input.report-mono,
+  .textarea.report-mono {
+    font-size: $type-14;
+  }
+
+  &__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+
+    // Bulma's min-width: 100% would push the remove button out of the card.
+    > .textarea {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &__check-fields {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  &__add {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: $radius-md;
+    background: none;
+    color: $accent;
+    font: inherit;
+    font-size: $type-14;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: tint($accent, "subtle");
+      color: $accent;
+    }
+  }
+
+  &__try:empty {
+    display: none;
+  }
+}
+
+// The provider and model beside Try in the footer; in the run modal, stacked.
+.eval-model-fields {
+  align-items: flex-end;
+
+  .field {
+    margin-bottom: 0;
+  }
+
+  &__model {
+    flex: 1;
+    min-width: 12rem;
+  }
+}

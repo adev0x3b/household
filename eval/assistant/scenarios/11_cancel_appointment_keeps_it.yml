@@ -1,0 +1,11 @@
+description: >
+  Cancelling keeps the appointment, marked cancelled, and cancels its unpaid fee. Today
+  "cancel" turns into a deletion proposal (seen with Claude Haiku), which loses the record.
+tags: [coverage, status, appointments]
+today: 2026-09-24
+seed: [moretti_oct2_with_fee]
+messages:
+  - Cancel my appointment with Moretti on October 2nd, I can't make it.
+expect:
+  - appointment: { provider: Moretti, date: 2026-10-02, status: cancelled, fee_status: cancelled }
+  - series: { appointment: 1 }

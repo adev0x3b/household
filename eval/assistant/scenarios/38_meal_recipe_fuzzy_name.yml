@@ -1,0 +1,11 @@
+description: The recipe is named loosely and in Italian; it still finds the saved Pancakes instead of making a new recipe.
+tags: [pantry, meals, italian]
+today: 2026-10-01
+locale: it
+seed: pantry_recipes
+messages:
+  - "Domani a cena facciamo i pancake"
+expect:
+  - recipes: 2
+  - meals: 1
+  - meal_details: { date: "2026-10-02", meal_type: dinner, recipes: [ Pancakes ] }

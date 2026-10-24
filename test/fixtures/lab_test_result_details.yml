@@ -1,0 +1,5 @@
+_fixture:
+  model_class: LabTestResult::Details
+
+bloodwork:
+  event: bloodwork

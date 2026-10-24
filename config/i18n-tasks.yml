@@ -1,0 +1,90 @@
+# i18n-tasks: what test/i18n_test.rb checks on every run — every key the code
+# asks for exists in English and Italian, and every key in them is asked for.
+# The scanner reads literal keys only; what it can't see is listed below with
+# the code that asks for it, so an entry here is a pointer, never a shrug.
+base_locale: en
+locales: [en, it]
+
+data:
+  read:
+    - config/locales/%{locale}.yml
+    - config/locales/devise.%{locale}.yml
+  yaml:
+    write:
+      line_width: -1
+
+search:
+  paths:
+    - app/
+    - lib/
+  exclude:
+    - app/assets/images
+    - app/assets/builds
+    # Haml views no route reaches, removed with the haml gems.
+    - app/views/devise/devise
+
+ignore_missing:
+  # Italian sets these; English has them from Rails itself (activesupport,
+  # activemodel, activerecord, actionview), not from config/locales.
+  en:
+    - "number.*"
+    - "datetime.*"
+    - "helpers.*"
+    - "support.*"
+    - "errors.*"
+    - "activerecord.errors.messages.*"
+    - "date.{formats.default,day_names,abbr_day_names,month_names,abbr_month_names,order}"
+    - "time.{formats.default,am,pm}"
+
+ignore_unused:
+  # Read by Rails and Devise, not by our code: model and attribute names,
+  # validation messages, number, date and time formats and names (l()),
+  # time ago and form defaults, Devise's flashes and mails.
+  - "date.*"
+  - "time.formats.*"
+  - "time.{am,pm}"
+  - "activerecord.*"
+  - "activemodel.*"
+  - "errors.messages.*"
+  - "number.*"
+  - "datetime.*"
+  - "helpers.*"
+  - "support.*"
+  - "errors.format"
+  - "devise.*"
+
+  # Keys the code builds from a name (`t("x.#{name}")`).
+  - "notifications.kinds.*"                         # Notification#title, #detail (app/models/notification.rb)
+  - "notifications.outcomes.*"                      # Notifications::Wording#detail (data "outcome")
+  - "statistics.attention.kinds.*"                  # Views::Home::AttentionList
+  - "home.*.columns.*"                              # Components::Statistics::DataTable.columns, for each table's scope
+  - "appointments.form.counterpart.*"               # Appointment::Kind#counterpart_label_key
+  - "appointments.form.placeholders.*"              # Appointment::Kind#placeholder_key
+  - "*.completion.{days_early,days_late}.*"        # Views::Calendar::Cards::Base (each kind's scope; plurals)
+  - "home.agenda.appointments.*"                    # Views::Home::Reports::AgendaAppointments ("#{scope}.…")
+  - "admin.deployment.environment.sync_states.*"    # Views::Admin::Deliveries::Cards::Base
+  - "admin.deployment.environment.branch_states.*"  # Views::Admin::Deliveries::Cards::Dev
+  - "admin.deployment.modals.reason_label*"         # Views::Admin::Deliveries::Modals::Base (_optional)
+  - "admin.deployment.modals.deploy.stopped.*"      # Views::Admin::Deliveries::Modals::Deploy (by destination)
+  - "*.index.new"                                   # SearchableIndex ("#{i18n_scope}.new")
+  - "*.index.search_placeholder"                    # SearchableIndex ("#{i18n_scope}.search_placeholder")
+  - "assistant.chats.search_placeholder"            # SearchableIndex, scoped "assistant.chats" (Assistant::ChatsController)
+  - "public_pages.pages.*"                          # Views::PublicPages::Error (one page per name)
+
+  # Keys picked by a condition (`t(cond ? "a" : "b")`): both are literal,
+  # but the scanner reads only a call's first literal.
+  - "*.index.empty"                                 # each index's list ("…empty_search" : "…empty")
+  - "*.index.empty_search"
+  - "assistant.chats.{empty,empty_search}"         # Views::Assistant::Chats::List
+  - "reminders.formats.*"                           # Notification#due_label
+  - "households.link.{emailed,not_emailed}"         # Views::Households::People
+  - "home.overview.cards.agenda.{caption,none_today}"  # Views::Home::Overview
+  - "assistant.evals.run.{unreliable_title,unreliable_gave_up_title}"  # Views::Assistant::Evals::ReliabilityBadge
+  - "assistant.debug.{show,hide}"                   # Assistant::ChatsController
+
+ignore_inconsistent_interpolations:
+  # Devise's English names the login field (%{authentication_keys}); the
+  # Italian says "Login o password non validi." outright, which reads better
+  # than an interpolated attribute name.
+  - "devise.failure.invalid"
+  - "devise.failure.not_found_in_database"

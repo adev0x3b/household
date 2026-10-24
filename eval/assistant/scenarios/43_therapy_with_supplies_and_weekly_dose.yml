@@ -1,0 +1,16 @@
+description: A new therapy named with its supplies and a weekly injection in one message — the therapy is created, everything links to it, and the injection site is asked for before saving (the B12 chat that saved unlinked supplies and one dose).
+tags: [therapy, chain]
+today: 2026-10-02
+messages:
+  - I am undergoing a therapy called "MTX"; to do so, I have already purchased 10 ml of methotrexate (€60), 100 syringes (€20) and 200 needles (€20), all paid by card. I will do a methotrexate injection every Monday, using 0.25 ml of methotrexate, one syringe and one needle.
+  - Left thigh
+expect:
+  - purchases: 3
+  # Name stems: "syringe" and "syringes" are both fine names for what was bought.
+  - purchase_details:
+      methotrexate: { quantity: 10, cost: 60, paid: card, therapy: MTX }
+      syringe: { quantity: 100, cost: 20, therapy: MTX }
+      needle: { quantity: 200, cost: 20, therapy: MTX }
+  - therapy_links: { MTX: { purchases: 3, medications: 1 } }
+  - repeats: { type: medication, name: methotrexate, frequency: weekly, weekdays: [monday] }
+  - medication_details: { name: methotrexate, kind: injection, area: thigh, side: left, uses: { methotrexate: 0.25, syringe: 1, needle: 1 } }

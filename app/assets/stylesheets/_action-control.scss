@@ -1,0 +1,5 @@
+// The form around an action's button (Components::ActionControl) is left
+// out of the layout, so the button sits in a row of actions as a link would.
+.action-control__form {
+  display: contents;
+}

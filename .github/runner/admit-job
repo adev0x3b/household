@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# The self-hosted runner's admission: the runner runs it before every job it
+# is given (ACTIONS_RUNNER_HOOK_JOB_STARTED), and a refusal fails the job
+# before any of its steps run (the deployment runbook, "A runner of your own").
+#
+# The workflows already send a job from outside to GitHub's runners (ci.yml's
+# runs-on), but a pull request carries its own copy of the workflows and can
+# ask for this runner by name. So the rule is held here, on the machine, by a
+# copy bin/provision-runner installs owned by root: nothing a pull
+# request contains reaches it, and the event it reads is GitHub's, not the
+# workflow's.
+#
+# Admitted: code that someone with write access to the repository put there —
+# a push, a run by hand, a run that follows another (workflow_run) or a
+# schedule, and a pull request from one of the repository's own branches
+# opened by a person. Refused: anything else, a fork's pull request and
+# Dependabot's first among them, and anything this script can't read.
+set -euo pipefail
+
+refuse() {
+  echo "::error title=Refused by this machine's runner::$1. This runner takes the repository's own code only; the workflows send the rest to GitHub's runners (the deployment runbook, \"A runner of your own\")."
+  exit 1
+}
+
+case "${GITHUB_EVENT_NAME:-}" in
+  push | workflow_dispatch | workflow_run | schedule) exit 0 ;;
+  pull_request) ;;
+  *) refuse "a ${GITHUB_EVENT_NAME:-job with no event}" ;;
+esac
+
+# The system's Python, by its full path: nothing on the job's PATH is asked.
+# Any failure to read the event is a refusal.
+if ! /usr/bin/python3 -I - <<'PY'
+import json, os, sys
+
+with open(os.environ["GITHUB_EVENT_PATH"]) as file:
+    pull_request = json.load(file)["pull_request"]
+own_branch = pull_request["head"]["repo"]["full_name"] == os.environ["GITHUB_REPOSITORY"]
+by_a_person = pull_request["user"]["login"] != "dependabot[bot]"
+sys.exit(0 if own_branch and by_a_person else 1)
+PY
+then
+  refuse "a pull request from a fork, from Dependabot, or one whose event can't be read"
+fi

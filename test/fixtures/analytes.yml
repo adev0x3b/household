@@ -1,0 +1,11 @@
+glucose:
+  name: Glucose
+  profile: alice
+
+cholesterol:
+  name: Cholesterol
+  profile: alice
+
+tsh:
+  name: TSH
+  profile: alice

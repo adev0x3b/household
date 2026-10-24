@@ -1,0 +1,5 @@
+chicken_flour:
+  recipe: roast_chicken
+  ingredient: flour
+  quantity: 0.5
+  unit: kg

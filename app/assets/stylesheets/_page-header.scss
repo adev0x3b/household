@@ -1,0 +1,67 @@
+// A page's title (Components::PageHeader): the way back, the h1 and what
+// sits beside it, a line under them. The one place a page is named: the
+// top bar carries the wordmark and the page's actions, never its name.
+
+@use "variables" as *;
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+
+  // Inside a column that spaces its children itself
+  :is(.report-page, .statistics__header, .grocery-list-show__header, .conversation__header, .assistant__header) > & {
+    margin-bottom: 0;
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin-left: -0.5rem;
+    border-radius: 50%;
+    color: $text-muted;
+    transition:
+      background-color $motion-quick,
+      color $motion-quick;
+
+    &:hover,
+    &:focus-visible {
+      background-color: tint($accent, "fill");
+      color: $accent;
+    }
+  }
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.25rem;
+  }
+
+  &__subtitle {
+    margin-top: 0.25rem;
+    color: $text-muted;
+    font-size: $type-14;
+    overflow-wrap: anywhere;
+  }
+}
+
+.page-title {
+  flex: 1;
+  min-width: 0;
+  color: $text;
+  font-size: $type-20;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}

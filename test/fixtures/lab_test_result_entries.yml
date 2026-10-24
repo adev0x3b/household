@@ -1,0 +1,11 @@
+glucose:
+  occurrence: bloodwork_done
+  analyte: glucose
+  unit: mgdl
+  value: "95"
+
+cholesterol:
+  occurrence: bloodwork_done
+  analyte: cholesterol
+  unit: mgdl
+  value: "180"

@@ -1,0 +1,131 @@
+// Medication card (Views::Calendar::Cards::MedicationCard): what every
+// card has (calendar-card), and the dose — its kind's icon, time, side, quantity.
+
+@use "variables" as *;
+@use "calendar-card" as *;
+
+.medication-card {
+  @include calendar-card;
+
+  &__kind-icon {
+    color: var(--section-color, $text-muted);
+    font-size: $type-12;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-size: $type-13;
+    font-weight: 500;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @include when-over("medication-card") {
+      color: $text-muted;
+    }
+  }
+
+  &__name-link {
+    font-size: $type-13;
+    font-weight: 500;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      color: $accent;
+      text-decoration: underline;
+    }
+
+    @include when-over("medication-card") {
+      color: $text-muted;
+
+      &:hover {
+        color: $accent;
+      }
+    }
+  }
+
+  // When this dose is due: "with dinner", or its clock time
+  &__time {
+    flex-shrink: 0;
+    font-size: $type-11;
+    color: $text-muted;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+
+    i {
+      font-size: $type-10;
+    }
+  }
+
+  &__position {
+    font-size: $type-10;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.1rem 0.3rem;
+    border-radius: $radius-xs;
+    flex-shrink: 0;
+    background-color: $section-assistant;
+    color: $surface-sunken;
+  }
+
+  &__quantity {
+    display: block;
+    font-size: $type-10;
+    color: $text-muted;
+    margin-top: 0.1rem;
+  }
+
+  &__low-stock-icon {
+    font-size: $type-10;
+    color: $warning-text;
+    flex-shrink: 0;
+  }
+
+  &__completion {
+    display: block;
+    font-size: $type-10;
+    font-weight: 600;
+    margin-top: 0.1rem;
+
+    &--early {
+      color: $success-text;
+    }
+
+    &--late {
+      color: $danger-text;
+    }
+
+    &--on-time {
+      color: $text-muted;
+    }
+  }
+
+  &__status {
+    display: block;
+    font-size: $type-10;
+    color: $text-muted;
+    margin-top: 0.1rem;
+
+    &--completed {
+      color: $success-text;
+    }
+  }
+}
+
+@include from("tablet") {
+  .medication-card {
+    padding: 0.4rem 0.625rem;
+  }
+
+  .medication-card__name,
+  .medication-card__name-link {
+    font-size: $type-14;
+  }
+}

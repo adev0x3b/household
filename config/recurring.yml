@@ -1,0 +1,38 @@
+# Due reminders (Reminders::DispatchJob), wherever bin/jobs runs.
+development:
+  dispatch_reminders:
+    class: Reminders::DispatchJob
+    schedule: every 5 minutes
+  sweep_uploads:
+    class: Uploads::SweepJob
+    schedule: every hour at minute 25
+
+production:
+  dispatch_reminders:
+    class: Reminders::DispatchJob
+    schedule: every 5 minutes
+  # The demo installation starts over every night (Demo::ResetJob): whatever
+  # visitors did is gone, and its six months end today again. Only there —
+  # Kamal names the destination; the other copies keep what they have.
+<% if ENV["KAMAL_DESTINATION"] == "demo" %>
+  reset_demo_household:
+    class: Demo::ResetJob
+    schedule: at 4am every day
+<% end %>
+  # Uploads nobody finished within a day go (Uploads::SweepJob).
+  sweep_uploads:
+    class: Uploads::SweepJob
+    schedule: every hour at minute 25
+  clear_solid_queue_finished_jobs:
+    command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
+    schedule: every hour at minute 12
+  # A self-hosted copy asks whether a newer release is out, and tells its
+  # admins (Deployment::UpdateCheckJob; the job checks it is one, and allowed to).
+  check_for_update:
+    class: Deployment::UpdateCheckJob
+    schedule: every day at 3:17am
+  # A release with downtime: every member is told when it starts and how it
+  # ended (Deployment::ReleaseNoticeJob; production only, the job checks).
+  release_notices:
+    class: Deployment::ReleaseNoticeJob
+    schedule: every minute

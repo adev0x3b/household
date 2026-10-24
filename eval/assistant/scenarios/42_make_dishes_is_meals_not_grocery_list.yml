@@ -1,0 +1,12 @@
+description: Naming dishes to make for lunch and dinner plans meals; it must not turn into a grocery list.
+tags: [pantry, meals]
+today: 2026-10-01
+seed: pantry_recipes
+messages:
+  - "Let's make pancakes for lunch and roast chicken for dinner"
+expect:
+  - meals: 2
+  - grocery_lists: 0
+  - meal_details:
+      - { date: "2026-10-01", meal_type: lunch, recipes: [ Pancakes ] }
+      - { date: "2026-10-01", meal_type: dinner, recipes: [ Roast chicken ] }

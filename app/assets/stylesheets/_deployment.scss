@@ -1,0 +1,239 @@
+@use "variables" as *;
+
+// Admin: the delivery console (Views::Admin::Deployments::Show, its
+// Views::Admin::Deliveries pieces and modals) and a self-hosted copy's page
+// (Views::Admin::Deployments::SelfHosted). The page, status cards, rows,
+// badges, notices and the KPI tiles are the shared pieces (_panel.scss,
+// _notice.scss, _report.scss, _statistics.scss); here is only the console's
+// own content. Mobile-first: everything stacks; the two destinations sit side
+// by side where there is room.
+
+.deployment__facts > li {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.deployment__label {
+  color: $text-muted;
+  font-size: $type-14;
+}
+
+.deployment__value {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+
+  a {
+    color: $accent;
+    text-decoration: underline;
+  } // in running text: not by color alone
+
+  // A badge may wrap in a narrow column rather than run past it.
+  .status-badge {
+    white-space: normal;
+  }
+}
+
+.deployment__attempt {
+  color: $text-muted;
+  font-size: $type-14;
+}
+
+.deployment__console {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.deployment__loading {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.deployment__error {
+  color: $danger-text;
+  font-size: $type-14;
+}
+
+// A lane of the pipeline (a branch on dev; main, then staging and
+// production): a caption, then its cards.
+.deployment__lane {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.deployment__lane-title {
+  color: $text-muted;
+  font-size: $type-12;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+// Staging and production: one above the other on a phone, side by side from a tablet up.
+.deployment__environments {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+
+  // Staging, the demo and production side by side where they fit, else two then one.
+  @include from("desktop") {
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  }
+
+  // The card's own action (open it) ends its head, after the time.
+  .report-status__head .item-action {
+    flex-shrink: 0;
+  }
+}
+
+// The commits production doesn't have yet.
+.deployment__commit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.6rem;
+  min-width: 0;
+
+  &--head {
+    padding-bottom: 0.25rem;
+  }
+}
+
+.deployment__commit-title {
+  flex: 1 1 12rem;
+  min-width: 0;
+  color: $text;
+  overflow-wrap: anywhere;
+}
+
+.deployment__commit-meta {
+  color: $text-muted;
+  font-size: $type-13;
+}
+
+.deployment__badges {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.deployment__badge-link {
+  text-decoration: none;
+}
+
+.deployment__held {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  white-space: normal;
+
+  i {
+    margin-top: 0.2rem;
+  }
+}
+
+.deployment__run {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.75rem;
+}
+
+.deployment__run-title {
+  flex: 1;
+  min-width: 10rem;
+  color: $accent;
+  overflow-wrap: anywhere;
+}
+
+.deployment__run-meta {
+  color: $text-muted;
+  font-size: $type-13;
+}
+
+// A card's actions: the one used most, then "more"; at the end of the head.
+.deployment__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+// The preview's "fresh data" box, with its label and help under it.
+.deployment-modal__check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $text;
+  cursor: pointer;
+
+  input {
+    accent-color: $accent;
+  }
+}
+
+.deployment-modal__line {
+  color: $text;
+  overflow-wrap: anywhere;
+
+  i {
+    color: $text-muted;
+  }
+}
+
+.deployment-modal__list {
+  margin: 0.25rem 0 0.75rem 1rem;
+  list-style: disc;
+}
+
+.deployment-modal__commits {
+  margin-bottom: 0.75rem;
+  font-size: $type-14;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.5rem;
+  }
+}
+
+.deployment-modal__meta {
+  display: block;
+  color: $text-muted;
+  font-size: $type-13;
+}
+
+.deployment-modal {
+  .modal__body > * + .field,
+  .modal__body > * + fieldset,
+  .modal__body > * + .deployment-modal__fields,
+  .deployment-modal__fields > * + .field {
+    margin-top: 0.75rem;
+  }
+
+  .notice {
+    margin-bottom: 0.75rem;
+  }
+}
+
+// The command that updates a self-hosted copy, set apart from the hint
+// around it as something to type, in the page's own colours.
+.deployment__command {
+  padding: 0.1rem 0.4rem;
+  border-radius: $radius-xs;
+  background: tint($text-muted, "subtle");
+  color: $text;
+  font-family: monospace;
+  font-size: $type-14;
+  white-space: nowrap;
+}

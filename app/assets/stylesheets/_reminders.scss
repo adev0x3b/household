@@ -1,0 +1,37 @@
+@use "variables" as *;
+@use "form-rows" as *;
+
+// "Remind me" in every kind's form (Views::Occurrences::ReminderFields): one
+// row per reminder, "[2] [days] before  ×", and an add button under them.
+
+.reminder-fields {
+  margin-bottom: 0.75rem;
+
+  .label i {
+    color: $text-muted;
+  }
+
+  &__rows {
+    @include added-rows;
+  }
+
+  &__row {
+    @include added-row;
+  }
+
+  &__amount {
+    flex: 0 0 4.5rem;
+  }
+
+  &__before {
+    flex: 1;
+    color: $text-muted;
+    font-size: $type-14;
+  }
+}
+
+// On a calendar card: this person has reminders on it.
+.reminder-mark {
+  color: $text-muted;
+  font-size: 0.75em;
+}

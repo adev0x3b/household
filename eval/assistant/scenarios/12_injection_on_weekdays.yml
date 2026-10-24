@@ -1,0 +1,8 @@
+description: A repeat on chosen weekdays — the series becomes weekly on Monday and Thursday.
+tags: [coverage, repeats]
+today: 2026-09-24
+seed: [b12_injection_series]
+messages:
+  - From now on I'll do my cobalamin injection every Monday and Thursday.
+expect:
+  - repeats: { type: medication, name: cobalamin, frequency: weekly, weekdays: [monday, thursday] }

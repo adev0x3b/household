@@ -1,0 +1,211 @@
+# Omakase sets the Rails house style and leaves most departments off. On top
+# of it this file turns on layout, lint, performance and Minitest checks, and
+# the app's own cops. Every exception below says why it is there.
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+# A cop's Exclude below adds to omakase's list instead of replacing it.
+inherit_mode:
+  merge:
+    - Exclude
+
+plugins:
+  - rubocop-performance
+  - rubocop-minitest
+
+# The app's own cops. Each one explains its rule in its own file and has a
+# test in test/lib/rubocop.
+require:
+  - ./lib/rubocop/cop/household/send_to_private
+  - ./lib/rubocop/cop/household/html_safe
+  - ./lib/rubocop/cop/household/redirect_after_write
+  - ./lib/rubocop/cop/household/aria_attributes
+  - ./lib/rubocop/cop/household/component_names_no_view
+  - ./lib/rubocop/cop/household/log_only_rescue
+
+AllCops:
+  # Cops added by a RuboCop upgrade run straight away, so an upgrade that
+  # brings new offenses fails its own pull request instead of drifting in.
+  NewCops: enable
+  Exclude:
+    - "vendor/**/*"
+    - "node_modules/**/*"
+    - "tmp/**/*"
+    - "storage/**/*"
+
+# Another object is called through its public methods. Tests may reach into
+# the object they test.
+Household/SendToPrivate:
+  Enabled: true
+  Exclude:
+    - "test/**/*"
+
+# Text is rendered as text. Markup only comes from a helper that builds it.
+Household/HtmlSafe:
+  Enabled: true
+  Include:
+    - "app/components/**/*.rb"
+    - "app/views/**/*.rb"
+    - "app/presenters/**/*.rb"
+    - "app/controllers/**/*.rb"
+    - "app/helpers/**/*.rb"
+
+# ARIA attributes are written the way a browser reads them: a state is the
+# word "true" or "false", and a form builder takes them in an aria: hash.
+Household/AriaAttributes:
+  Enabled: true
+  Include:
+    - "app/components/**/*.rb"
+    - "app/views/**/*.rb"
+
+# The kit every area shares never names an area's view.
+Household/ComponentNamesNoView:
+  Enabled: true
+  Include:
+    - "app/components/**/*.rb"
+
+# A create, update or destroy answers with a 303, so the browser follows it
+# with a GET.
+Household/RedirectAfterWrite:
+  Enabled: true
+  Include:
+    - "app/controllers/**/*.rb"
+
+# An error rescued and gone on from is reported, never only logged.
+Household/LogOnlyRescue:
+  Enabled: true
+  Exclude:
+    - "test/**/*"
+
+# Every Ruby file freezes its string literals. Rails writes the schema dumps.
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always
+  Exclude:
+    - "db/*schema.rb"
+
+# A rescue modifier swallows every error without saying which, and an error
+# that is rescued must be reported.
+Style/RescueModifier:
+  Enabled: true
+
+# Every request runs in its viewer's time zone, so the clock is read through
+# Date.current and Time.current, never through the server's Date.today and
+# Time.now. A date becomes a time in a zone that is named: Date#to_time
+# follows the process's TZ, which differs from machine to machine. The
+# calendar's cutover has run, and reads its old schedules in the offset
+# each one was stored with.
+Rails/Date:
+  Enabled: true
+  AllowToTime: false
+  Exclude:
+    - "db/migrate/20261011090000_rebuild_calendar_core.rb"
+Rails/TimeZone:
+  Enabled: true
+
+# Layout: the whole department, so indentation and alignment are checked
+# everywhere and autocorrect settles them.
+Layout:
+  Enabled: true
+
+# Omakase leaves these two off because of concerns that hold only private
+# methods. This codebase writes methods after `private` at the class's own
+# indentation, which the normal style checks.
+Layout/IndentationConsistency:
+  Enabled: true
+  EnforcedStyle: normal
+Layout/IndentationWidth:
+  Enabled: true
+
+# Long lines are reported but don't fail the run yet: most are long comments
+# and argument lists that read better rewritten by hand than wrapped by
+# autocorrect. Raise the severity once they are gone.
+Layout/LineLength:
+  Max: 120
+  Severity: info
+  AutoCorrect: false
+
+Lint:
+  Enabled: true
+
+# The tests of the app's own cops hold Ruby source in single-quoted strings,
+# interpolation included.
+Lint/InterpolationCheck:
+  Exclude:
+    - "test/lib/rubocop/**/*"
+
+# Phlex components and views inherit no state from Phlex::HTML, so their
+# initializers have nothing to pass to super. Neither do the base classes
+# named here, which define no initialize of their own.
+Lint/MissingSuper:
+  AllowedParentClasses:
+    - ApplicationBroadcaster
+    - ApplicationClient
+    - Minitest::AbstractReporter
+  Exclude:
+    - "app/components/**/*.rb"
+    - "app/views/**/*.rb"
+    - "test/components/**/*.rb"
+
+# Omakase turns the department off except for FlatMap. Tests stay excluded,
+# as omakase has them.
+Performance:
+  Enabled: true
+
+Minitest:
+  Enabled: true
+
+# A test checks one behaviour, which can take several assertions to pin down.
+# Splitting it to satisfy a count would repeat the setup for no gain.
+Minitest/MultipleAssertions:
+  Enabled: false
+
+# Assertions follow the code that sets them up without a blank line, as Rails'
+# own tests do.
+Minitest/EmptyLineBeforeAssertionMethods:
+  Enabled: false
+
+# The suite passes the record or value under test as an assertion's failure
+# message, so the cop's guess that a second argument means assert_equal is
+# wrong here.
+Minitest/AssertWithExpectedArgument:
+  Enabled: false
+
+# `assert_equal false, value` checks for false itself, where `assert_not`
+# would also pass on nil. The suite uses the strict form on purpose for
+# payloads that must carry a real boolean.
+Minitest/RefuteFalse:
+  Enabled: false
+Minitest/AssertTruthy:
+  Enabled: false
+
+# Models add a type to these two tools by analogy with the tools that take
+# several, so each accepts `type:` and ignores it, as its comment says.
+Lint/UnusedMethodArgument:
+  Exclude:
+    - "app/tools/assistant/book_appointment_tool.rb"
+    - "app/tools/assistant/record_payment_tool.rb"
+
+# The calendar's cutover has run and is kept as it ran.
+Performance/CollectionLiteralInLoop:
+  Exclude:
+    - "db/migrate/20261011090000_rebuild_calendar_core.rb"
+Performance/RedundantEqualityComparisonBlock:
+  Exclude:
+    - "db/migrate/20261011090000_rebuild_calendar_core.rb"
+
+# ChangeSet#merge! is the change set's own method, not Hash#merge!, so the
+# cop's rewrite to index assignment would change what it does.
+Performance/RedundantMerge:
+  Exclude:
+    - "app/services/assistant/change_sets/submit.rb"
+
+# A chained call on its own line is indented one step from the start of the
+# expression, the way Rails' own code reads, rather than lined up under a dot
+# far to the right.
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+# Tests here are `test "..." do` blocks, so a method with assertions in it is
+# a shared helper, not a test that lost its prefix.
+Minitest/TestMethodName:
+  Enabled: false

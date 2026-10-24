@@ -1,0 +1,24 @@
+name: Something doesn't work
+description: The app does something wrong, or fails.
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to see it again
+      description: The steps from a page anyone can open, for example on the demo.
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: The browser and device, and the version (the newest release, the demo, or a commit of main).
+    validations:
+      required: true

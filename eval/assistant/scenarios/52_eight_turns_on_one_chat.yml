@@ -1,0 +1,29 @@
+description: >
+  Eight turns of ordinary pantry bookkeeping on one chat. Every turn replays the whole history,
+  so this is where a 12k window overflows without compaction (Assistant::Compaction keeps the
+  prompt under three quarters of it); the budget check records the largest step.
+tags: [long, pantry]
+today: 2026-10-01
+seed: pantry_recipes
+messages:
+  - "I bought 2 kg of flour for 3 euros, paid by card"
+  - "And 12 eggs for 4 euros, card as well"
+  - "We're having pancakes for dinner tomorrow"
+  - "Save a recipe called omelette: 3 eggs and 5 g of salt. Steps: 1) beat the eggs 2) cook them in a hot pan"
+  - "I bought 1 liter of milk for 1.20 euros, cash"
+  - "Plan the omelette for lunch tomorrow"
+  - "Make a grocery list called weekend with butter and jam"
+  - "I also bought 500 g of sugar for 1 euro, by card"
+expect:
+  - saves: 1
+  - saves: 4
+  - saves: 8
+  - ingredient_purchases: 4
+  - ingredient_details: { flour: { quantity: 4.5, unit: "kg" }, eggs: { quantity: 24 } }
+  - meals: 2
+  - meal_details:
+      - { date: "2026-10-02", meal_type: dinner, recipes: [ Pancakes ] }
+      - { date: "2026-10-02", meal_type: lunch, recipes: [ Omelette ] }
+  - recipes: 3
+  - grocery_lists: 1
+  - budget: { tokens_per_step: 11000 }

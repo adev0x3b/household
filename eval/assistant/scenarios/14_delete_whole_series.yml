@@ -1,0 +1,13 @@
+description: >
+  Deleting a whole series (not just one occurrence), confirmed with the card's button. Worded to
+  avoid "all of it" (whole_series is the tool's real switch; "all" is also a real parameter name
+  that means "every matching record", which isn't what this message means — that collision isn't
+  what this scenario means to test).
+tags: [coverage, deletion]
+today: 2026-09-24
+seed: [b12_injection_series]
+messages:
+  - Stop the cobalamin injection series completely — delete it, not just today's dose.
+  - "!confirm"
+expect:
+  - series: { medication: 0 }

@@ -1,0 +1,5 @@
+# The screenshot the OCR was tuned on (sample_real.png, also the unit test's fixture).
+rows:
+  - [Glucose, "90", mg/dL, "70 - 100"]
+  - [Cholesterol, "180", mg/dL, "fino a 200"]
+  - [Calcium, "9.5", mg/dL, "8.5 - 10.5"]

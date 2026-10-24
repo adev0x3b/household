@@ -1,0 +1,201 @@
+#!/usr/bin/env bash
+# Makes the machine this runs on the household's GitHub Actions runner, a
+# machine apart from the one that serves the app (the deployment runbook, "A
+# runner of your own"): the runner's admission — the hook that refuses every
+# job but the repository's own — and a check of what the jobs need of the
+# machine. Run it there, from a checkout, as the runner's user: it asks for
+# sudo where it needs it, and is safe to run again.
+#
+#   bin/provision-runner           the admission hook; Ruby, Docker, gh, Tailscale and the packages the tests need
+#   bin/provision-runner --remove  the runner: unregistered, its service gone, and the hook with the last runner
+#
+# The runner itself comes from GitHub: Settings → Actions → Runners → New
+# self-hosted runner puts actions-runner/ in your home (RUNNER_DIR=… says
+# where), and ./svc.sh install && sudo ./svc.sh start makes it a service.
+# Several runners on one machine each get a directory of their own: run this
+# once per RUNNER_DIR, before its service starts taking jobs.
+# Then RUNS_ON names it by a label of its own: gh variable set RUNS_ON --body
+# '["self-hosted", "<label>"]'.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+# Who the runner runs as: the person at the keyboard, even under sudo.
+ME="${SUDO_USER:-$USER}"
+MY_HOME="$(getent passwd "$ME" | cut -d: -f6)"
+RUNNER_DIR="${RUNNER_DIR:-$MY_HOME/actions-runner}"
+# The runner runs a hook only when its path ends in .sh, .ps1 or .js.
+HOOK=/usr/local/libexec/household/runner-admit-job.sh
+
+REMOVE=false
+for arg in "$@"; do
+  case "$arg" in
+    --remove) REMOVE=true ;;
+    -h | --help) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) echo "unknown option: $arg" >&2; exit 1 ;;
+  esac
+done
+
+say() { printf '\n\033[1m== %s\033[0m\n' "$*"; }
+as_me() { if [ "$(id -u)" = 0 ]; then sudo -u "$ME" -H "$@"; else "$@"; fi; }
+
+# Every runner on the machine starts its jobs through the same hook, so it may
+# go only with the last of them. A runner is looked for in its user's home and
+# wherever a runner service works from, wherever RUNNER_DIR put it.
+hook_in_use() {
+  local dirs=("$MY_HOME"/*/) dir
+  mapfile -t -O "${#dirs[@]}" dirs < <(sed -n 's/^WorkingDirectory=//p' /etc/systemd/system/actions.runner.*.service 2> /dev/null)
+  for dir in "${dirs[@]}"; do
+    grep -qx "ACTIONS_RUNNER_HOOK_JOB_STARTED=$HOOK" "${dir%/}/.env" 2> /dev/null && return 0
+  done
+  return 1
+}
+
+if $REMOVE; then
+  say "The runner in $RUNNER_DIR"
+  if [ ! -d "$RUNNER_DIR" ]; then
+    echo "not installed"
+    exit 0
+  fi
+  cd "$RUNNER_DIR"
+  if [ -f .service ]; then
+    sudo ./svc.sh stop || true
+    sudo ./svc.sh uninstall || true
+  fi
+  if [ -f .runner ]; then
+    repo="$(as_me gh repo view --json nameWithOwner --jq .nameWithOwner)"
+    as_me ./config.sh remove --token "$(as_me gh api -X POST "repos/$repo/actions/runners/remove-token" --jq .token)"
+  fi
+  cd / && rm -rf "$RUNNER_DIR"
+  if hook_in_use; then
+    echo "the admission hook stays: another runner on this machine uses it"
+  else
+    sudo rm -rf "$(dirname "$HOOK")"
+  fi
+  echo "removed: GitHub → Settings → Actions → Runners lists it no more"
+  exit 0
+fi
+
+say "The runner in $RUNNER_DIR"
+if [ ! -d "$RUNNER_DIR" ]; then
+  echo "no runner here: GitHub → Settings → Actions → Runners → New self-hosted runner puts one in $RUNNER_DIR (or RUNNER_DIR=… names where)" >&2
+  exit 1
+fi
+if [ ! -f "$RUNNER_DIR/.runner" ]; then
+  echo "the runner in $RUNNER_DIR isn't configured yet: ./config.sh, as GitHub's page says" >&2
+  exit 1
+fi
+echo "$(grep -o '"agentName": *"[^"]*"' "$RUNNER_DIR/.runner" | sed 's/.*: *//'), as $ME"
+
+# The runner takes the repository's own code alone: a hook the runner runs
+# before every job, from a copy owned by root, refuses the rest
+# (.github/runner/admit-job). Routing in ci.yml isn't enough: a pull request
+# carries its own workflows and can ask for this runner by its labels.
+say "The runner's admission: the repository's own code only"
+sudo install -D -m 755 -o root -g root .github/runner/admit-job "$HOOK"
+sudo rm -f "${HOOK%.sh}" # the name an earlier provisioning gave it, which the runner refused to run
+if ! grep -qx "ACTIONS_RUNNER_HOOK_JOB_STARTED=$HOOK" "$RUNNER_DIR/.env" 2> /dev/null; then
+  WORK="$(mktemp -d)"
+  trap 'rm -rf "$WORK"' EXIT
+  { grep -v '^ACTIONS_RUNNER_HOOK_JOB_STARTED=' "$RUNNER_DIR/.env" 2> /dev/null || true
+    echo "ACTIONS_RUNNER_HOOK_JOB_STARTED=$HOOK"; } > "$WORK/runner.env"
+  as_me tee "$RUNNER_DIR/.env" < "$WORK/runner.env" > /dev/null
+  # The runner reads its .env when it starts.
+  if [ -f "$RUNNER_DIR/.service" ]; then
+    (cd "$RUNNER_DIR" && sudo ./svc.sh stop && sudo ./svc.sh start) > /dev/null
+  else
+    echo "start the runner again (./run.sh, or ./svc.sh install && sudo ./svc.sh start) for the hook to take"
+  fi
+fi
+echo "every job passes $HOOK first"
+
+say "What the jobs need of this machine"
+problems=0
+problem() { echo "  ✗ $*"; problems=$((problems + 1)); }
+ok() { echo "  ✓ $*"; }
+
+# Ruby is the runner's: the first on its PATH (actions-runner/.path, taken
+# when it was configured) must be .ruby-version's. .github/actions/prepare
+# checks the same at the start of every job.
+wanted="$(sed 's/^ruby-//' .ruby-version)"
+runner_path="$(cat "$RUNNER_DIR/.path" 2> /dev/null || echo "$PATH")"
+found="$(PATH="$runner_path" ruby -e 'print RUBY_VERSION' 2> /dev/null || true)"
+if [ "$found" = "$wanted" ]; then
+  ok "Ruby $wanted, first on the runner's PATH"
+else
+  problem "Ruby ${found:-none} is first on the runner's PATH, and .ruby-version says $wanted: install it (rvm, rbenv…), then put its bin first in $RUNNER_DIR/.path"
+fi
+
+# Docker, for CI's Postgres, the image's build (buildx) and its push.
+if as_me docker info > /dev/null 2>&1; then
+  ok "Docker, usable by $ME"
+else
+  problem "Docker isn't usable by $ME: install Docker Engine (https://docs.docker.com/engine/install/), then sudo usermod -aG docker $ME and log in again"
+fi
+if as_me docker buildx version > /dev/null 2>&1; then
+  ok "docker buildx"
+else
+  problem "docker buildx is missing (the docker-buildx-plugin package)"
+fi
+
+# What the workflows run: git and curl, ssh to the machine (kamal.yml), gh
+# for its calls to GitHub's API (with the job's token), Python 3 for the hook.
+for tool in git curl ssh gh python3; do
+  if command -v "$tool" > /dev/null; then ok "$tool"; else problem "$tool is missing"; fi
+done
+
+# Node 20.19 or later for the JavaScript lint tools and unit tests (package.json,
+# where jsdom sets the floor): Ubuntu's own nodejs package is older, so it
+# comes from NodeSource or nvm.
+node_version="$(PATH="$runner_path" node -p 'process.versions.node' 2> /dev/null || true)"
+if PATH="$runner_path" node -e 'const [major, minor] = process.versions.node.split(".").map(Number); process.exit(major > 20 || (major === 20 && minor >= 19) ? 0 : 1)' 2> /dev/null; then
+  ok "Node $node_version, on the runner's PATH"
+else
+  problem "Node ${node_version:-none} is on the runner's PATH, and the JavaScript tools need 20.19 or later: install it (NodeSource, nvm…), then put its bin in $RUNNER_DIR/.path"
+fi
+
+# What the tests need: libvips and tesseract (the lab-report OCR tests skip
+# without them), libpq (the pg gem) — the packages ci.yml installs on
+# GitHub's runner. And ShellCheck, which GitHub's runner has already.
+packages=(libvips tesseract-ocr tesseract-ocr-ita tesseract-ocr-eng libpq-dev shellcheck)
+missing=()
+if command -v dpkg > /dev/null; then
+  for package in "${packages[@]}"; do dpkg -s "$package" > /dev/null 2>&1 || missing+=("$package"); done
+  if [ ${#missing[@]} -eq 0 ]; then
+    ok "${packages[*]}"
+  else
+    sudo apt-get install --no-install-recommends -y "${missing[@]}"
+    ok "installed ${missing[*]}"
+  fi
+else
+  echo "  ? not Debian: make sure of ${packages[*]} (or their names here)"
+fi
+if command -v google-chrome > /dev/null || command -v chromium > /dev/null || command -v chromium-browser > /dev/null; then
+  ok "a Chrome for the system tests"
+else
+  echo "  ? no Chrome: the first test run fetches Chrome for Testing into the runner's tool cache (it needs a desktop's libraries)"
+fi
+
+# The deploys ssh to the machine over the tailnet, as this machine is: no
+# tag:ci node is joined for them.
+if tailscale status > /dev/null 2>&1; then
+  ok "Tailscale is up"
+  host="$(as_me gh variable get DEPLOY_HOST 2> /dev/null || true)"
+  if [ -n "$host" ]; then
+    if timeout 5 bash -c "exec 3<> /dev/tcp/$host/22" 2> /dev/null; then
+      ok "$host answers on port 22"
+    else
+      problem "$host doesn't answer on port 22 from here: Tailscale's access controls must let this machine reach it (the deployment runbook, \"First time\")"
+    fi
+  fi
+else
+  problem "Tailscale isn't up (sudo tailscale up): the deploys reach the machine over the tailnet"
+fi
+
+if [ "$problems" -gt 0 ]; then
+  echo
+  echo "$problems to fix above, then run this again." >&2
+  exit 1
+fi
+echo
+echo "Ready. Point the workflows at it, by a label of this runner (Settings → Actions → Runners):"
+echo "  gh variable set RUNS_ON --body '[\"self-hosted\", \"<label>\"]'"

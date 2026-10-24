@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Before every production deploy — a rollback is one too, of an older
+# version — Kamal runs this where Kamal runs, holding the deploy lock: a dump
+# of the database the new version may migrate, kept on the server in
+# ~deploy/backups/<time>-<version>.dump, the newest 7. The deployment runbook
+# says how to restore one. Staging has none. Before the database exists — the very
+# first `kamal setup` runs this before it boots the accessory — there's
+# nothing to dump.
+set -euo pipefail
+
+[ "${KAMAL_DESTINATION:-}" = production ] || exit 0
+
+# config/deploy.yml's ssh user, on the first (only) host.
+ssh -o BatchMode=yes "deploy@${KAMAL_HOSTS%%,*}" bash -s -- "${KAMAL_VERSION:-unknown}" <<'SH'
+set -euo pipefail
+if ! docker container inspect household-db > /dev/null 2>&1; then
+  echo "pre-deploy: no household-db yet, nothing to back up"
+  exit 0
+fi
+mkdir -p ~/backups
+file=~/backups/$(date -u +%Y%m%dT%H%M%SZ)-${1:0:12}.dump
+trap 'rm -f "$file.part"' ERR
+docker exec household-db pg_dump -U household -Fc household_production > "$file.part"
+mv "$file.part" "$file"
+echo "pre-deploy: $(du -h "$file" | cut -f1) in $file"
+ls -1t ~/backups/*.dump | tail -n +8 | xargs -r rm --
+SH

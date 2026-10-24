@@ -1,0 +1,9 @@
+description: Sharing a record with a household member waits for the Apply button, then the member sees it.
+tags: [coverage, sharing]
+today: 2026-09-24
+seed: [moretti_oct2, household_member]
+messages:
+  - Share my appointment with Moretti on October 2nd with Marco.
+  - "!confirm"
+expect:
+  - shared_with: { type: appointment, name: Moretti, date: 2026-10-02, with: [Marco] }

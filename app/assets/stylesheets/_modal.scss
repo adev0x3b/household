@@ -1,0 +1,354 @@
+// The one modal (Components::Modal): a dialog under the top bar whose header
+// and footer always show while its body scrolls. Every modal has one shape,
+// whatever it holds: on a phone a sheet that rises from the bottom edge, its
+// footer under the thumb; from a tablet up a dialog hanging from the same
+// line under the top bar. Only its height follows what it holds.
+
+@use "sass:color";
+@use "variables" as *;
+
+// The browser's modal dialog, put back to a bare box under the top bar:
+// the top bar stays in sight, though it can't be pressed while the modal
+// is open, and the scrim is the modal's own, starting under it.
+.modal {
+  position: fixed;
+  inset: calc(#{$navbar-height} + env(safe-area-inset-top, 0px)) 0 0 0;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+  outline: none;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  &[open] {
+    display: flex;
+  }
+
+  &::backdrop {
+    background: transparent;
+  }
+
+  @include from("tablet") {
+    justify-content: flex-start;
+    align-items: center;
+    padding: 2.5rem 1rem 1rem;
+  }
+}
+
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: $scrim;
+  cursor: pointer;
+}
+
+.modal__dialog {
+  position: relative;
+  width: 100%;
+  background-color: $surface-card;
+  border-radius: $radius-lg $radius-lg 0 0;
+  box-shadow: $shadow-dialog;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modal-rise $motion-settle;
+
+  // The space under the navbar, less a strip of the page left showing so
+  // a full sheet still reads as a layer over it: the header and the footer
+  // always show, and only the body scrolls (.modal__body).
+  max-height: calc(100% - 1.5rem);
+
+  @include from("tablet") {
+    max-height: min(100%, 52rem);
+    border-radius: $radius-lg;
+    animation: none;
+
+    &--small {
+      max-width: 22rem;
+    }
+
+    &--medium {
+      max-width: 30rem;
+    }
+
+    &--large {
+      max-width: 42rem;
+    }
+  }
+}
+
+@keyframes modal-rise {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal__dialog {
+    animation: none;
+  }
+}
+
+// The form a modal's body and footer sit in (Components::Modal#modal_form,
+// Components::Form): it hands the dialog's height down, or the footer
+// would be pushed out of sight by a long body.
+.modal__form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.modal__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: $z-raised;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  color: $text-muted;
+  font-size: $type-16;
+  cursor: pointer;
+  transition:
+    background-color $motion-quick,
+    color $motion-quick;
+
+  &:hover {
+    background-color: $surface-raised;
+    color: $accent;
+  }
+}
+
+.modal__header {
+  padding: 1.5rem 1.5rem 1rem;
+  background: linear-gradient(135deg, $surface-sunken 0%, $surface-card 100%);
+}
+
+.modal__header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.modal__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: $surface-raised;
+  color: var(--section-color, $text-muted);
+  font-size: $type-18;
+  flex-shrink: 0;
+}
+
+.modal__title-group {
+  min-width: 0;
+}
+
+.modal__title {
+  font-size: $type-20;
+  font-weight: 700;
+  color: $text;
+  margin: 0;
+}
+
+.modal__subtitle {
+  font-size: $type-14;
+  color: $text-muted;
+  margin: 0.125rem 0 0;
+}
+
+.modal__body {
+  padding: 1.25rem 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  color: $text;
+
+  // A notice over the fields (Components::Notice): why the form didn't
+  // save, a book's lookup, a linked housemate's item.
+  .notice {
+    margin-bottom: 1rem;
+  }
+
+  // Bulma's fields, on the dark surface.
+  .label {
+    color: $text;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .input,
+  .textarea,
+  .select select {
+    background-color: $surface-raised;
+    border-color: transparent;
+    color: $text;
+
+    &::placeholder {
+      color: $text-muted;
+    }
+
+    &:focus,
+    &:active {
+      border-color: $accent;
+      box-shadow: 0 0 0 2px tint($accent, "fill");
+    }
+  }
+}
+
+.label--required {
+  color: $text;
+}
+
+.modal__required-indicator {
+  color: $text-muted;
+  font-weight: 700;
+}
+
+.modal__field-tooltip {
+  margin-top: 0.35rem;
+  font-size: $type-12;
+  line-height: 1.35;
+  color: $danger-text;
+}
+
+.modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid $surface-raised;
+  background-color: $surface-card;
+  flex-shrink: 0;
+}
+
+.modal__footer-main {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.modal__btn {
+  padding: 0.5rem 1.25rem;
+  border-radius: $radius-md;
+  font-size: $type-14;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color $motion-quick,
+    transform $motion-press;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &--cancel {
+    background-color: $surface-raised;
+    color: $text-muted;
+
+    &:hover {
+      background-color: color.adjust($surface-raised, $lightness: -5%);
+      color: $text;
+    }
+  }
+
+  &--primary {
+    background-color: $accent;
+    color: $surface-sunken;
+
+    &:hover {
+      background-color: $accent-pressed;
+    }
+
+    // Dimmed for the moment its form is on its way: Turbo disables the
+    // button that sent it, so a second press doesn't send it twice.
+    &:disabled {
+      background-color: tint($accent, "strong");
+      color: $surface-sunken;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  &--danger {
+    background-color: $danger-text;
+    color: $surface-sunken;
+
+    &:hover {
+      background-color: color.adjust($danger-text, $lightness: -8%);
+    }
+  }
+}
+
+@include from("tablet") {
+  .modal__header {
+    padding: 1.75rem 2rem 1.25rem;
+  }
+
+  .modal__body {
+    padding: 1.5rem 2rem;
+  }
+
+  .modal__footer {
+    padding: 1.25rem 2rem;
+  }
+
+  .modal__title {
+    font-size: $type-20;
+  }
+}
+
+// A phone stacks the footer's buttons, the primary one full width, and
+// keeps them clear of the home indicator at the sheet's foot.
+@include until("tablet") {
+  .modal__footer {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .modal__footer,
+  .modal__footer-main {
+    align-items: stretch;
+  }
+
+  .modal__footer-main {
+    flex-direction: column;
+  }
+
+  .modal__btn--primary {
+    width: 100%;
+  }
+}
+
+.modal__readonly {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}

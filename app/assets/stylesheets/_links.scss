@@ -1,0 +1,211 @@
+@use "variables" as *;
+@use "statistics" as stats;
+
+// Links between housemates (Views::Links::*). The page is the shared report page
+// (_report.scss) with the household page's rows (_households.scss).
+// Mobile-first: each kind of item is a block, its permissions one labelled
+// row of pills each. A kind always has the card's whole width, because a
+// name and three pills need most of it.
+
+.links__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.links__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// One link: who, then the grid of what they may do with one's things.
+.links__partner {
+  @include stats.stat-surface;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+
+  .household__row {
+    padding: 0;
+    background: none;
+    border: none;
+  }
+}
+
+.links__subheading {
+  color: $text-muted;
+  font-size: $type-14;
+  font-weight: 600;
+}
+
+.links__grants {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+// From a tablet up the kind's name stands beside its permissions, which
+// keeps the list as short as the space allows.
+.links__grant {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: $radius-md;
+  background: $surface-sunken;
+
+  @include from("tablet") {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+
+.links__permissions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+
+  @include from("tablet") {
+    flex: 1;
+  }
+}
+
+.links__type {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $text;
+  font-weight: 600;
+
+  // As tall as a row of pills, so the name lines up with the first of them.
+  @include from("tablet") {
+    flex: 0 0 10rem;
+    min-height: 2.75rem;
+  }
+}
+
+.links__type-icon {
+  width: 1.25rem;
+  color: var(--section-color, $text-muted);
+  text-align: center;
+}
+
+// On the narrowest phones the permission's name stands above its pills,
+// which then have the whole width.
+.links__permission {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+
+  @include from("narrow") {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+  }
+
+  // A choice hidden off the edge can't be seen to exist, so on the very
+  // narrowest screens the last pill drops to a line of its own instead.
+  .segmented-filter {
+    flex-wrap: wrap;
+  }
+}
+
+.links__permission-label {
+  color: $text-muted;
+  font-size: $type-14;
+}
+
+.links__hidden {
+  color: $text-muted;
+  font-size: $type-14;
+}
+
+// The fold of what the partner lets one do: a full tap target with its own
+// chevron, and a focus ring drawn inside it so the card never clips it.
+.links__theirs-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 0.5rem;
+  border-radius: $radius-md;
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &:hover .links__subheading {
+    color: $text;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: -2px;
+  }
+}
+
+.links__theirs-chevron {
+  width: 0.75rem;
+  color: $text-muted;
+  font-size: $type-12;
+  transition: transform $motion-settle;
+
+  .links__theirs[open] & {
+    transform: rotate(90deg);
+  }
+}
+
+.links__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.links__summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+}
+
+.links__summary-levels {
+  color: $text-muted;
+  font-size: $type-14;
+}
+
+// A request: what would change, struck through → new.
+.links__changes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-top: 0.25rem;
+  font-size: $type-14;
+  overflow-wrap: anywhere;
+
+  del {
+    color: $text-muted;
+  }
+
+  ins {
+    color: $text;
+    text-decoration: none;
+  }
+}
+
+.links__change-field {
+  color: $text-muted;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .links__theirs-chevron {
+    transition: none;
+  }
+}

@@ -1,0 +1,89 @@
+@use "variables" as *;
+
+// The demo household's strip under the navbar (Views::Layouts::DemoBanner).
+// One line of fixed height: <main class="app-content--demo"> publishes it as
+// --demo-banner-height for the pages that fill the screen (the assistant).
+
+.app-content--demo {
+  --demo-banner-height: 2.25rem;
+}
+
+.demo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  height: var(--demo-banner-height);
+  padding: 0 0.75rem;
+  background: tint($section-assistant, "fill");
+  color: $text;
+  font-size: $type-13;
+}
+
+.demo-banner__text {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  i {
+    color: $section-assistant;
+  }
+}
+
+// A phone shows the word, wider screens the sentence: one line either way.
+.demo-banner__short {
+  display: none;
+}
+
+@include until("tablet") {
+  .demo-banner__long {
+    display: none;
+  }
+
+  .demo-banner__short {
+    display: inline;
+  }
+}
+
+.demo-banner__personas {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.25rem;
+}
+
+.demo-banner__form {
+  display: contents;
+}
+
+// Who you're looking as is current (pink); the others can be picked.
+.demo-banner__persona {
+  padding: 0.1rem 0.55rem;
+  border: 1px solid tint($text-muted, "edge");
+  border-radius: $radius-pill;
+  background: none;
+  color: $text-muted;
+  font-size: $type-12;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    border-color: $accent;
+    color: $accent;
+  }
+
+  &.is-current {
+    border-color: $accent;
+    background: tint($accent, "fill");
+    color: $accent;
+    cursor: default;
+  }
+}
+
+// The demo's front door, on the sign-in page (Views::Devise::Sessions::New):
+// one button per member.
+.demo-personas {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}

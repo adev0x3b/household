@@ -1,0 +1,126 @@
+// Recipes: the index, and a recipe's page with its steps, its ingredients
+// and what the pantry is short of.
+
+@use "variables" as *;
+
+.recipes {
+  @include page-width("grid");
+
+  padding: 0.75rem;
+
+  &__list {
+    @include card-grid;
+  }
+}
+
+.recipe-card {
+  &__name {
+    font-size: $type-16;
+    font-weight: 600;
+    color: $text;
+    text-decoration: none;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+}
+
+.recipe-show {
+  @include page-width("column");
+
+  padding: 0.75rem;
+
+  &__section-title {
+    font-size: $type-14;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: $text-muted;
+    margin: 1rem 0 0.5rem;
+  }
+}
+
+.recipe-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: 1.25rem;
+
+  &__item {
+    font-size: $type-14;
+    color: $text;
+    line-height: 1.4;
+  }
+}
+
+.recipe-ingredients {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  &__item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: $radius-md;
+    background-color: $surface-raised;
+  }
+
+  &__item--low,
+  &__item--out {
+    box-shadow: inset 3px 0 0 $warning-text;
+  }
+
+  &__item--out {
+    box-shadow: inset 3px 0 0 $danger-text;
+  }
+
+  &__name {
+    font-size: $type-14;
+    color: $text;
+  }
+
+  &__warning-icon {
+    margin-right: 0.375rem;
+    font-size: $type-12;
+    color: $warning-text;
+  }
+
+  &__item--out &__warning-icon {
+    color: $danger-text;
+  }
+
+  &__amount {
+    font-size: $type-13;
+    color: $text-muted;
+    flex-shrink: 0;
+  }
+}
+
+.recipe-pantry-warning {
+  margin-top: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: $radius-md;
+  background-color: $surface-card;
+  border: 1px solid $warning-text;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-bottom: 0.25rem;
+    font-size: $type-13;
+    font-weight: 600;
+    color: $warning-text;
+  }
+
+  &__list {
+    font-size: $type-13;
+    color: $text;
+    list-style: disc;
+    padding-left: 1.25rem;
+  }
+}

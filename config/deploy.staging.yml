@@ -1,0 +1,32 @@
+# bin/kamal … -d staging: https://$STAGING_HOST<mount path> (config/deploy.yml).
+# Every image comes here before production; its own database (seeded with
+# the demo household as sample data, kept from then on), volumes and
+# secrets, behind Cloudflare Access.
+
+proxy:
+  host: <%= ENV.fetch("STAGING_HOST") %>
+
+env:
+  clear:
+    FILES_QUOTA: <%= ENV["FILES_QUOTA"].presence || "512MB" %> # the volume is 1 GB
+    APP_HOST: <%= ENV.fetch("STAGING_HOST") %>
+    DB_HOST: household-staging-db
+
+volumes:
+  - household_staging_storage:/rails/storage
+  - household_staging_secrets:/rails/secrets
+
+# Capped unless its environment says otherwise, so staging can't starve production on the same machine.
+servers:
+  web:
+    options:
+      memory: "<%= ENV["WEB_MEMORY"].presence || "1GB" %>"
+  job:
+    options:
+      memory: "<%= ENV["JOB_MEMORY"].presence || "1GB" %>"
+
+accessories:
+  db:
+    service: household-staging-db
+    volumes:
+      - household_staging_db:/var/lib/postgresql/data

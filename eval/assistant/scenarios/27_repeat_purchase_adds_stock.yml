@@ -1,0 +1,11 @@
+description: More of an ingredient already in the pantry is added to what is on hand, converted to its unit (500 g onto 2.5 kg makes 3 kg) — never a replaced amount.
+tags: [pantry, stock]
+today: 2026-10-01
+seed: pantry_basics
+messages:
+  - "I bought another 500g of flour for 1.20 euros, paid by card"
+expect:
+  - ingredients: 3
+  - ingredient_purchases: 1
+  - ingredient_details: { flour: { quantity: 3, unit: "kg", cost: 1.2 } }
+  - ingredient_purchase_details: { flour: { quantity: 0.5, unit: "kg", cost: 1.2, paid: card, category: groceries } }

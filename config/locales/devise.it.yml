@@ -1,0 +1,32 @@
+# Devise's words for what the app's Devise modules can show. There is no
+# sign-up, confirmation, unlocking by email, sign-in through another site or
+# email from Devise, so their words are left out.
+
+it:
+  devise:
+    failure:
+      invited: "Hai un invito in attesa: accettalo dal suo link prima di accedere."
+      already_authenticated: "Hai già effettuato l'accesso."
+      inactive: "Il tuo account non è ancora attivo."
+      invalid: "Login o password non validi."
+      locked: "Il tuo account è bloccato."
+      last_attempt: "Hai un ultimo tentativo prima che il tuo account venga bloccato."
+      not_found_in_database: "Login o password non validi."
+      timeout: "La sessione è scaduta. Accedi di nuovo per continuare."
+      unauthenticated: "Accedi per continuare."
+    invitations:
+      updated: "Benvenuto! Il tuo account è pronto."
+      updated_not_active: "Il tuo account è pronto. Accedi per continuare."
+      invitation_token_invalid: "Questo link di invito non è più valido. Chiedine uno nuovo."
+    passwords:
+      no_token: "Questa pagina si apre solo da un link per la password. Chiedine uno nuovo a chi ti ha dato il tuo."
+      updated: "La password è stata cambiata. Hai effettuato l'accesso."
+      updated_not_active: "La password è stata cambiata."
+    sessions:
+      signed_in: "Accesso effettuato."
+      signed_out: "Disconnessione effettuata."
+      already_signed_out: "Disconnessione effettuata."
+  errors:
+    messages:
+      expired: "è scaduto, richiedine uno nuovo"
+      not_found: "non trovato"

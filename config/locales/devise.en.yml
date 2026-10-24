@@ -1,0 +1,32 @@
+# Devise's words for what the app's Devise modules can show. There is no
+# sign-up, confirmation, unlocking by email, sign-in through another site or
+# email from Devise, so their words are left out.
+
+en:
+  devise:
+    failure:
+      invited: "You have an invitation waiting: accept it from its link before signing in."
+      already_authenticated: "You are already signed in."
+      inactive: "Your account is not activated yet."
+      invalid: "Invalid %{authentication_keys} or password."
+      locked: "Your account is locked."
+      last_attempt: "You have one more attempt before your account is locked."
+      not_found_in_database: "Invalid %{authentication_keys} or password."
+      timeout: "Your session expired. Please sign in again to continue."
+      unauthenticated: "Sign in to continue."
+    invitations:
+      updated: "Welcome! Your account is ready."
+      updated_not_active: "Your account is ready. Sign in to continue."
+      invitation_token_invalid: "This invitation link isn't valid anymore. Ask for a new one."
+    passwords:
+      no_token: "This page opens only from a password link. Ask whoever gave you yours for a new one."
+      updated: "Your password has been changed successfully. You are now signed in."
+      updated_not_active: "Your password has been changed successfully."
+    sessions:
+      signed_in: "Signed in successfully."
+      signed_out: "Signed out successfully."
+      already_signed_out: "Signed out successfully."
+  errors:
+    messages:
+      expired: "has expired, please request a new one"
+      not_found: "not found"

@@ -1,0 +1,39 @@
+# What Dependabot keeps up to date, once a week: the gems, the actions the
+# workflows pin, the lint tools in package.json and the Ruby image the
+# Dockerfile builds on. The JavaScript the app itself loads is pinned in
+# config/importmap.rb, which Dependabot can't read; bin/importmap outdated
+# and bin/importmap audit (which CI runs) cover it.
+#
+# Each ecosystem gets one pull request a week, holding all its updates. It is
+# an alarm, not a merge: whoever answers it redoes the bumps as pull requests
+# of their own, which the household's runner checks.
+version: 2
+updates:
+- package-ecosystem: bundler
+  directory: "/"
+  schedule:
+    interval: weekly
+  groups:
+    gems:
+      patterns: [ "*" ]
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: weekly
+  groups:
+    actions:
+      patterns: [ "*" ]
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+  groups:
+    lint-tools:
+      patterns: [ "*" ]
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: weekly
+  groups:
+    images:
+      patterns: [ "*" ]

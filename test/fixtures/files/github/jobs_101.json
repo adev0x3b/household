@@ -1,0 +1,53 @@
+{
+  "total_count": 3,
+  "jobs": [
+    {
+      "id": 1010,
+      "name": "checks",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/example/household/actions/runs/0/job/1010",
+      "started_at": "2026-10-13T09:00:00Z",
+      "completed_at": "2026-10-13T09:03:00Z",
+      "steps": [
+        {
+          "name": "Checkout code",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 1013,
+      "name": "test",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/example/household/actions/runs/0/job/1013",
+      "started_at": "2026-10-13T09:00:00Z",
+      "completed_at": "2026-10-13T09:03:00Z",
+      "steps": [
+        {
+          "name": "Checkout code",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 1014,
+      "name": "image / build",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/example/household/actions/runs/0/job/1014",
+      "started_at": "2026-10-13T09:00:00Z",
+      "completed_at": "2026-10-13T09:03:00Z",
+      "steps": [
+        {
+          "name": "Checkout code",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

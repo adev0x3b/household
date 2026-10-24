@@ -1,0 +1,4 @@
+# bob's Balcony.jpg, shared with alice
+photo_alice:
+  upload: photo
+  profile: alice

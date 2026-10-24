@@ -1,0 +1,9 @@
+description: Marking a planned meal as cooked takes its ingredients out of the pantry.
+tags: [pantry, meals, stock]
+today: 2026-10-01
+seed: planned_pancakes_oct1
+messages:
+  - "We just cooked the pancakes"
+expect:
+  - meal_details: { date: "2026-10-01", status: completed }
+  - ingredient_details: { flour: { quantity: 2.3, unit: kg }, eggs: { quantity: 10 } }

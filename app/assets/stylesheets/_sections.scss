@@ -1,0 +1,54 @@
+// Section identity — which part of the household something belongs to.
+//
+// A wrapper (or the item itself) sets --section-color; whatever shows the
+// identity reads it: an icon, a calendar card's left edge. Outside any
+// section the readers fall back to a neutral, so nothing has to know
+// whether it sits in one. Add `section--<name>` in a component, or list a
+// block here when everything inside it belongs to one section.
+//
+// Identity only: never a status (those are the status tones), and always
+// next to an icon or a label, never colour alone.
+//
+// Bookshelf, Messages, Links and Files have no hue: their items never sit
+// on the calendar beside a status, and four more hues would crowd the
+// wheel. Their `section--<name>` class sets nothing, so every reader falls
+// back to the neutral.
+
+@use "variables" as *;
+
+$sections: (
+  "agenda": $section-agenda,
+  "healthcare": $section-healthcare,
+  "finance": $section-finance,
+  "pantry": $section-pantry,
+  "assistant": $section-assistant
+);
+
+@each $name, $color in $sections {
+  .section--#{$name} {
+    --section-color: #{$color};
+  }
+}
+
+// Blocks that belong to one section wholesale. A calendar card isn't
+// listed: it carries its day's section as a `section--<name>` class
+// (Views::Calendar::Cards::Base), so a new kind needs no line here.
+.analytes,
+.analyte-show,
+.supplies {
+  --section-color: #{$section-healthcare};
+}
+
+.recipes,
+.recipe-show,
+.ingredients,
+.grocery-lists,
+.grocery-list-show {
+  --section-color: #{$section-pantry};
+}
+
+// The assistant's own pages
+.assistant,
+.evals {
+  --section-color: #{$section-assistant};
+}

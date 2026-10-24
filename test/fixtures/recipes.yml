@@ -1,0 +1,8 @@
+roast_chicken:
+  profile: alice
+  name: Sunday Roast Chicken
+  description: A classic Sunday roast.
+
+pancakes:
+  profile: bob
+  name: Pancakes

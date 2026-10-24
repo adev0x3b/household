@@ -1,0 +1,41 @@
+// A page's controls in the top bar (Components::PageControls), gathered at
+// its right beside the bell: the search (.index-search) shrinks to make
+// room; the round icon buttons never do.
+
+@use "variables" as *;
+
+.page-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+
+  &__action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.125rem;
+    height: 2.125rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: tint($accent, "fill");
+    color: $accent;
+    text-decoration: none;
+    font-size: $type-13;
+    cursor: pointer;
+    transition:
+      background-color $motion-quick,
+      color $motion-quick;
+
+    &:hover,
+    &:active,
+    &.is-active {
+      background-color: $accent;
+      color: $surface-sunken;
+    }
+  }
+}

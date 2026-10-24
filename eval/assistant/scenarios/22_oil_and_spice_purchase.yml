@@ -1,0 +1,11 @@
+description: Two food items with their own prices, bought together at the market (a price per item, one payment method).
+tags: [coverage, pantry]
+today: 2026-10-01
+messages:
+  - "I bought 1L olive oil for 8 euros and 100g black pepper for 4 euros at the market, paid by card"
+expect:
+  - ingredients: 2
+  - ingredient_purchases: 2
+  - ingredient_purchase_details:
+      "olive oil": { quantity: 1, unit: "L", cost: 8, paid: card, category: groceries }
+      "black pepper": { quantity: 100, unit: "g", cost: 4, paid: card, category: groceries }

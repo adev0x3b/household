@@ -1,0 +1,18 @@
+{
+  "sha": "e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7",
+  "html_url": "https://github.com/example/household/commit/e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7e7",
+  "author": {
+    "login": "example"
+  },
+  "commit": {
+    "message": "Ring the bell once per message\n\nMore about it.",
+    "author": {
+      "name": "adev",
+      "date": "2026-10-13T07:50:00Z"
+    },
+    "committer": {
+      "name": "adev",
+      "date": "2026-10-13T07:50:00Z"
+    }
+  }
+}

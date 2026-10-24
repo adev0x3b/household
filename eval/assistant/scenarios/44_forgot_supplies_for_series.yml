@@ -1,0 +1,11 @@
+description: The supplies each dose uses, named after the weekly injection was saved — they go on the series (update_record uses), not into a new purchase or a new one-off dose (the B12 chat that drafted purchases of 1 ml, 1 syringe, 1 needle).
+tags: [coverage, supplies]
+today: 2026-10-03
+seed: [b12_weekly]
+messages:
+  - "I forgot to list the supplies I'll be using for my cobalamin injection. I'll be using: 0.12 ml of cobalamin, 1 syringe, and 1 needle."
+expect:
+  - medication_details: { name: cobalamina, uses: { cobalamina: 0.12, siringhe: 1, aghi: 1 } }
+  - purchases: 3
+  - series: { medication: 1 }
+  - stock: { cobalamina: 18, siringhe: 100, aghi: 200 }

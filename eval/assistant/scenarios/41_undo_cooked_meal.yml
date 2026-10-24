@@ -1,0 +1,11 @@
+description: Undoing a meal cooked yesterday puts its ingredients back and removes the meal.
+tags: [pantry, meals, undo]
+today: 2026-10-01
+seed: pantry_recipes
+messages:
+  - "We cooked pancakes yesterday for dinner"
+  - "!undo"
+expect:
+  - undone_changes: 1
+  - meals: 0
+  - ingredient_details: { flour: { quantity: 2.5 }, eggs: { quantity: 12 } }

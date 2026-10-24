@@ -1,0 +1,89 @@
+// The rest of an item's actions (Components::ItemMenu): one round "more"
+// button, the same as an item action, and the menu it opens — labelled
+// rows, each a full-height tap target, the destructive one last and set
+// apart. Same surface as the navbar's menus.
+
+@use "variables" as *;
+
+.item-menu {
+  position: relative;
+  display: inline-flex;
+
+  &__menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    right: 0;
+    z-index: $z-menu;
+    min-width: 11rem;
+    padding: 0.25rem 0;
+    background-color: $surface-sunken;
+    border: 1px solid $surface-raised;
+    border-radius: $radius-md;
+    box-shadow: $shadow-popover;
+
+    &.is-open {
+      display: block;
+    }
+
+    // One menu for a page of items (a calendar card's), placed by its
+    // controller beside the button pressed rather than under its own.
+    &--floating {
+      position: fixed;
+      top: auto;
+      right: auto;
+    }
+  }
+
+  // A link, or the button of a press that changes something: both look
+  // the same.
+  &__entry {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.875rem;
+    border: none;
+    background: none;
+    color: $text;
+    font: inherit;
+    font-size: $type-14;
+    text-align: left;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+
+    i {
+      width: 1rem;
+      text-align: center;
+      color: $text-muted;
+    }
+
+    &:hover,
+    &:focus-visible {
+      background-color: tint($accent, "subtle");
+      color: $accent;
+
+      i {
+        color: $accent;
+      }
+    }
+
+    &--danger {
+      margin-top: 0.25rem;
+      border-top: 1px solid tint($text-muted, "fill");
+      color: $danger-text;
+
+      i {
+        color: $danger-text;
+      }
+
+      &:hover,
+      &:focus-visible {
+        background-color: tint($danger-text, "subtle");
+        color: $danger-text;
+      }
+    }
+  }
+}

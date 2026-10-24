@@ -1,0 +1,34 @@
+description: >
+  Approximates what Assistant::LabReportOcrJob sends after OCR'ing a lab
+  report photo — real Tesseract output, with its garbled unit exponents,
+  stray asterisks and a junk header/signature line (the eval framework has
+  no system-note turn, so this plays as a user message instead of the real
+  note_for_model! — still proves the model extracts clean values through
+  realistic OCR noise, which is the part that matters).
+tags: [labs, ocr]
+today: 2026-09-26
+messages:
+  - |-
+    Esame Esito Unità di misura _ Valori di riferimento Materiale
+    Leucociti 4,28 10° 3/UL 4,0 - 11,0
+    Eritrociti 4,43 104 6/UL 4,2-5,4
+    Emoglobina 13,5 g/dL 11,5 - 16,0
+    Ematocrito 37,3 % 37 - 47
+    Conc. Emogl. Corp. Media 36,2 * g/dL 31 - 36
+    Creatinina 0,84 mg/dL 0,5 - 1,10 siero/plasma
+    Aspartato aminotransferasi (AST/GOT) 24 U/L fino a 40 siero/plasma
+    Il Dirigente
+    corti OF ESC AM BLA boross)
+    The test was done today.
+expect:
+  - lab_results: 1
+  - lab_values:
+      Leucociti: 4.28
+      Eritrociti: 4.43
+      Emoglobina: 13.5
+      Ematocrito: 37.3
+      "Conc. Emogl. Corp. Media": 36.2
+      Creatinina: 0.84
+      "Aspartato aminotransferasi (AST/GOT)": 24
+# No lab_status check: the test was done today, and only earlier dates are
+# saved as done ("past means done"), so pending is correct here.

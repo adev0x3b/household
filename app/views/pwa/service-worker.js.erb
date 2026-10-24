@@ -1,0 +1,146 @@
+<%# Household's service worker (served by PwaController at /service-worker.js).
+    It does three things and nothing else:
+    - shows the offline page, in the browser's language, when a page can't
+      be reached (it never caches the app's pages or data: they're a
+      household's health and money, on phones that may be shared);
+    - shows Web Push notifications (Notifications::PushJob) and, when one is
+      tapped, reads it and opens what it is about;
+    - re-registers the device when the browser rotates its subscription.
+    The payload is a Declarative Web Push message ({ web_push: 8030, … }), so
+    Safari can show it without running this; here the same JSON is read.
+    The cache name changes whenever what it precaches changes. %>
+<% offline_pages = I18n.available_locales.to_h { [ _1, pwa_offline_path(locale: _1) ] } %>
+<% precache = [ *offline_pages.values, asset_path("application.css"), "/icon-192.png", "/badge-96.png" ] %>
+const CACHE = "household-<%= Digest::SHA256.hexdigest(precache.join("|"))[0, 12] %>"
+const OFFLINE_PAGES = <%= raw offline_pages.to_json %>
+const DEFAULT_LOCALE = <%= raw I18n.default_locale.to_json %>
+const ROOT_URL = <%= raw pwa_scope.to_json %>
+const PRECACHE = <%= raw precache.to_json %>
+const VAPID_PUBLIC_KEY = <%= raw PushNotifications.public_key.to_json %>
+
+self.addEventListener("install", (event) => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE)
+    await cache.addAll(PRECACHE.map((url) => new Request(url, { cache: "reload", credentials: "same-origin" })))
+    await self.skipWaiting()
+  })())
+})
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil((async () => {
+    const names = await caches.keys()
+    await Promise.all(names.filter((name) => name.startsWith("household-") && name !== CACHE).map((name) => caches.delete(name)))
+    if (self.registration.navigationPreload) await self.registration.navigationPreload.enable()
+    await self.clients.claim()
+  })())
+})
+
+// Full page loads only (Turbo's visits, streams and Action Cable go straight
+// to the network): the network, else the offline page.
+self.addEventListener("fetch", (event) => {
+  if (event.request.mode !== "navigate") return
+
+  event.respondWith((async () => {
+    try {
+      return (await event.preloadResponse) || (await fetch(event.request))
+    } catch {
+      return (await caches.match(offlinePage())) || Response.error()
+    }
+  })())
+})
+
+// The browser's first language the app speaks, as the server reads its
+// Accept-Language: "it-IT" counts as "it".
+function offlinePage() {
+  const languages = navigator.languages.map((tag) => tag.toLowerCase().split("-")[0])
+  const locale = languages.find((language) => Object.hasOwn(OFFLINE_PAGES, language)) || DEFAULT_LOCALE
+  return OFFLINE_PAGES[locale]
+}
+
+self.addEventListener("push", (event) => {
+  const message = readMessage(event)
+  if (!message?.notification?.title) return
+
+  event.waitUntil(show(message))
+})
+
+function readMessage(event) {
+  try {
+    return event.data?.json()
+  } catch {
+    return null
+  }
+}
+
+async function show({ notification, app_badge }) {
+  const { title, body, lang, dir, tag, navigate, silent, data } = notification
+  await self.registration.showNotification(title, {
+    body, lang, dir, tag, silent,
+    icon: "/icon-192.png",
+    badge: "/badge-96.png",
+    data: { navigate, read: data?.read }
+  })
+  await setBadge(app_badge ?? notification.app_badge)
+}
+
+async function setBadge(count) {
+  if (count === undefined || count === null || !("setAppBadge" in navigator)) return
+
+  const unread = Number(count)
+  try {
+    unread > 0 ? await navigator.setAppBadge(unread) : await navigator.clearAppBadge()
+  } catch {
+    // Badging is a nicety: an installed app may not be allowed to.
+  }
+}
+
+// Tapping it reads it, then an open Household window goes there, else a new
+// one opens. The page it opens comes after the read, so its count is right.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close()
+  const { navigate, read } = event.notification.data || {}
+  const url = new URL(navigate || ROOT_URL, self.location.origin).href
+
+  event.waitUntil((async () => {
+    await markRead(read)
+    const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true })
+    const open = windows.find((client) => new URL(client.url).origin === self.location.origin)
+    if (open) {
+      await open.focus()
+      try {
+        if (await open.navigate(url)) return
+      } catch {
+        // Not controlled by this worker yet: fall back to a new window.
+      }
+    }
+    await self.clients.openWindow(url)
+  })())
+})
+
+// The answer is a redirect to where it points, which the tap opens itself.
+async function markRead(url) {
+  if (!url) return
+
+  try {
+    await fetch(url, { method: "POST", credentials: "same-origin", redirect: "manual" })
+  } catch {
+    // Offline or refused: the notification stays unread under the bell.
+  }
+}
+
+// The push service replaced this device's subscription: tell the server
+// which one it replaces, so the device keeps getting its notifications.
+self.addEventListener("pushsubscriptionchange", (event) => {
+  if (!VAPID_PUBLIC_KEY) return
+
+  event.waitUntil((async () => {
+    const subscription = event.newSubscription ||
+      (await self.registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: VAPID_PUBLIC_KEY }))
+    await fetch(<%= raw push_subscription_path.to_json %>, {
+      method: "PATCH",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ old_endpoint: event.oldSubscription?.endpoint, subscription: subscription.toJSON() })
+    })
+  })())
+})

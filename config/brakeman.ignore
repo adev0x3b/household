@@ -1,0 +1,135 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "de95a2a9de62f00e88d3818bb85a84e1d7c5bfa86e0d979cc2f93e6702c7d7ec",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/assistant/name_match.rb",
+      "line": 30,
+      "code": "@scope.where(\"unaccent(lower(#{column})) = unaccent(lower(?))\", @name)",
+      "location": {
+        "type": "method",
+        "class": "Assistant::NameMatch",
+        "method": "exact"
+      },
+      "user_input": "column",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "Not user input: the interpolated SQL is column names from Assistant::Resources (a fixed registry) or the model's quoted table name, and fragments built by Assistant::TextMatch, which binds the user's words through ActiveRecord sanitize_sql. The threshold is a literal."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "990dea3acd54d1c101ed231af73e9eabb52867098c86b458571875ca71bdadff",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/assistant/name_match.rb",
+      "line": 51,
+      "code": "@scope.where(\"#{TextMatch.similarity(column, @name)} >= 0.3\")",
+      "location": {
+        "type": "method",
+        "class": "Assistant::NameMatch",
+        "method": "single_typo"
+      },
+      "user_input": "TextMatch.similarity(column, @name)",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "Not user input: the interpolated SQL is column names from Assistant::Resources (a fixed registry) or the model's quoted table name, and fragments built by Assistant::TextMatch, which binds the user's words through ActiveRecord sanitize_sql. The threshold is a literal."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "e28f400da59b18d665bf9a274e1b4046bd7b19af02d0555143e93a89776ec7aa",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/queries/assistant/resources/resource.rb",
+      "line": 116,
+      "code": "Arel.sql(\"#{TextMatch.score(columns, words)} DESC\")",
+      "location": {
+        "type": "method",
+        "class": "Assistant::Resources::Resource",
+        "method": "close_matches"
+      },
+      "user_input": "TextMatch.score(columns, words)",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": "Not user input: the interpolated SQL is column names from Assistant::Resources (a fixed registry) or the model's quoted table name, and fragments built by Assistant::TextMatch, which binds the user's words through ActiveRecord sanitize_sql. The threshold is a literal."
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "e7feef7d8c8d4e261c176359624a511b613afef9a2899c1642e1256cefd3bc32",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/assistant_eval/launcher.rb",
+      "line": 43,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "Process.spawn({ \"EVAL_PROVIDER\" => (provider or Assistant.provider.to_s).to_s, \"EVAL_MODEL\" => (model or Assistant.model).to_s, \"EVAL_RESULTS\" => RunFile.dir.join(\"#{\"#{Time.now.utc.strftime(\"%Y%m%d-%H%M%S\")}-#{(model or Assistant.model).tr(\":/\", \"__\")}\"}.json\").to_s, \"SCENARIOS\" => ((draft_file or scenario_dir) ? (nil) : (Array(scenarios).join(\",\"))), \"SCENARIO_FILE\" => draft_file.to_s, \"SCENARIO_DIR\" => scenario_dir.to_s, \"EVAL_NOTIFY\" => notify.to_s }.merge(env.to_h.transform_keys(&:to_s)), Rails.root.join(\"bin/rails\").to_s, \"assistant:eval[#{runs.to_i.clamp(1, 10)}]\", :chdir => Rails.root.to_s, :out => RunFile.dir.join(\"#{\"#{Time.now.utc.strftime(\"%Y%m%d-%H%M%S\")}-#{(model or Assistant.model).tr(\":/\", \"__\")}\"}.log\").to_s, :err => ([:child, :out]), :pgroup => true)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "AssistantEval::Launcher",
+        "method": "start!"
+      },
+      "user_input": "Time.now.utc.strftime(\"%Y%m%d-%H%M%S\")",
+      "confidence": "Medium",
+      "cwe_id": [
+        77
+      ],
+      "note": "Argv form, no shell. The only interpolated argument is runs, an integer clamped to 1..10. Model is checked against MODEL_FORMAT, provider against PROVIDERS, scenario names against the existing files (RunsController). The admin only (Admin::BaseController)."
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "faec104be37986d52816eaae1cffe505ee77d6af78cf6cfcdd200ed6b57fe93a",
+      "check_name": "SendFile",
+      "message": "Parameter value used in file name",
+      "file": "app/controllers/uploads_controller.rb",
+      "line": 112,
+      "code": "send_file(policy_scope(Upload).includes(:profile, :upload_shares, :shared_profiles).find(params[:id]).path, :filename => policy_scope(Upload).includes(:profile, :upload_shares, :shared_profiles).find(params[:id]).name, :type => ((policy_scope(Upload).includes(:profile, :upload_shares, :shared_profiles).find(params[:id]).content_type or \"application/octet-stream\")), :disposition => \"attachment\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "UploadsController",
+        "method": "file"
+      },
+      "user_input": "params[:id]",
+      "confidence": "Weak",
+      "cwe_id": [
+        22
+      ],
+      "note": "The id only picks a file the viewer may see (policy_scope); it never reaches the path. Upload#path is Uploads::Storage.path(key), under storage/files, and the key is a UUID the app made (Upload before_validation), never typed by anyone. The name only goes in the Content-Disposition header, cleaned by Uploads::Filename."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "09ffa58fd1f3cf124000489a1e3c6ced2aa81874f8e45f5175eebe7869bad541",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/application_record.rb",
+      "line": 22,
+      "code": "where(\"#{quoted_table_name}.#{connection.quote_column_name(primary_key)} IN (#{lookups.map(&:to_sql).join(\" UNION ALL \")})\")",
+      "location": {
+        "type": "method",
+        "class": "ApplicationRecord",
+        "method": "ApplicationRecord.where_id_in_any"
+      },
+      "user_input": "lookups.map(&:to_sql).join(\" UNION ALL \")",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": "Not user input: the lookups are relations the model builds from a profile's id, and to_sql quotes every value in them. Written as SQL rather than an Arel IN so that merging two people's scopes keeps both conditions."
+    }
+  ],
+  "brakeman_version": "8.0.4",
+  "updated": "2026-10-14 17:45:30 +0000"
+}

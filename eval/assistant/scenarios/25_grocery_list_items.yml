@@ -1,0 +1,10 @@
+description: A grocery list with its items — a list is not a purchase, so nothing is bought or put on the shelf as stock.
+tags: [coverage, pantry]
+today: 2026-10-01
+messages:
+  - "Make a grocery list called shopping with milk, eggs, bread, butter"
+expect:
+  - grocery_lists: 1
+  - grocery_list_items: { shopping: { total_items: 4, checked_items: 0 } }
+  - ingredients: 4
+  - ingredient_purchases: 0

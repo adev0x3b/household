@@ -1,0 +1,11 @@
+description: >
+  Scenario 14 as people actually say it: "all of it" — which collides with the tool's
+  `all` parameter (every matching record) when what is meant is the whole series.
+tags: [hard, deletion]
+today: 2026-09-24
+seed: [b12_injection_series]
+messages:
+  - Stop the cobalamin injections, delete all of it.
+  - "!confirm"
+expect:
+  - series: { medication: 0 }

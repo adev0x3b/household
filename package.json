@@ -1,0 +1,27 @@
+{
+  "name": "household",
+  "private": true,
+  "license": "MIT",
+  "description": "Lint and format tools for the JavaScript and stylesheets, and the runner of the JavaScript unit tests. The app itself loads its JavaScript through importmap, not from here.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "lint": "npm run lint:js && npm run lint:css && npm run format:check",
+    "lint:js": "eslint app/javascript test/javascript",
+    "lint:css": "stylelint \"app/assets/stylesheets/**/*.scss\"",
+    "format": "prettier --write app/javascript test/javascript app/assets/stylesheets *.config.js",
+    "format:check": "prettier --check app/javascript test/javascript app/assets/stylesheets *.config.js",
+    "test": "node --import ./test/javascript/support/importmap.js --test $(find test/javascript -name '*.test.js')"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.13.0",
+    "globals": "17.13.0",
+    "jsdom": "29.1.1",
+    "prettier": "3.9.10",
+    "stylelint": "17.16.0",
+    "stylelint-config-standard-scss": "17.0.0"
+  }
+}

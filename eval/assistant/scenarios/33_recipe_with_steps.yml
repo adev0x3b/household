@@ -1,0 +1,8 @@
+description: A recipe with its ingredients and numbered steps, saved in one go.
+tags: [pantry, recipes]
+today: 2026-10-01
+messages:
+  - "Save a recipe called pancakes: 200g flour, 2 eggs and 300ml milk. Steps: 1) whisk everything together 2) fry in a hot pan"
+expect:
+  - recipes: 1
+  - recipe_details: { pancakes: { ingredients_count: 3, steps_count: 2 } }

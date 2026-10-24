@@ -1,0 +1,9 @@
+# The assistant's model row. Without it the first Assistant::Chat in a test
+# makes RubyLLM copy its whole model registry into the empty table (slow).
+_fixture:
+  model_class: RubyLLM::ActiveRecord::Model
+
+qwen3:
+  model_id: qwen3:8b
+  name: qwen3:8b
+  provider: ollama

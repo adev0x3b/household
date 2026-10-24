@@ -1,0 +1,13 @@
+description: Three food items from one shop trip, each with its price — saved as three grocery purchases, nothing medical.
+tags: [coverage, pantry]
+today: 2026-10-01
+messages:
+  - "I bought 500g pasta for 1 euro, 12 eggs for 3 euros and 200g cheese for 2.50 at the supermarket, paid by card"
+expect:
+  - ingredients: 3
+  - ingredient_purchases: 3
+  - ingredient_purchase_details:
+      pasta: { quantity: 500, unit: "g", cost: 1, paid: card }
+      eggs: { quantity: 12, cost: 3, paid: card }
+      cheese: { quantity: 200, unit: "g", cost: 2.5, paid: card }
+  - purchases: 0

@@ -1,0 +1,79 @@
+@use "variables" as *;
+@use "statistics" as stats;
+
+// A part of a page that folds (Components::Disclosure); its summary line
+// carries its result.
+.disclosure {
+  @include stats.stat-surface;
+
+  &[open] > .disclosure__summary .disclosure__chevron {
+    transform: rotate(90deg);
+  }
+}
+
+.disclosure__summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &:hover .disclosure__title {
+    color: $accent;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: -2px;
+    border-radius: inherit;
+  }
+}
+
+.disclosure__chevron {
+  width: 0.75rem;
+  color: $text-muted;
+  font-size: $type-12;
+  transition: transform $motion-settle;
+}
+
+.disclosure__title {
+  color: $text;
+  font-size: $type-16;
+  font-weight: 600;
+}
+
+.disclosure__result {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  color: $text-muted;
+  font-size: $type-14;
+
+  .report-tag,
+  .report-flag {
+    margin-left: 0;
+  }
+}
+
+.disclosure__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.25rem 1rem 1rem;
+  font-size: $type-14;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disclosure__chevron {
+    transition: none;
+  }
+}

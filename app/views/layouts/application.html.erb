@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <title><%= @page_title.present? ? t("navbar.title.page", page: @page_title, app: t("app.name")) : t("app.name") %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="application-name" content="<%= t("pwa.manifest.short_name") %>">
+    <meta name="theme-color" content="<%= Theme::SURFACE %>">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="<%= t("pwa.manifest.short_name") %>">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%# Turbo 8 page refreshes: a visit to the same path with
+        data-turbo-action="replace" (every filter, period, member, month or
+        sort control) morphs the page and keeps the reader's scroll; a
+        turbo-frame[src] needs refresh="morph" to be reloaded by a morph.
+        See "Turbo" in docs/architecture/front-end.md. %>
+    <%= turbo_refresh_method_tag :morph %>
+    <%= turbo_refresh_scroll_tag :preserve %>
+    <%# No page is kept in Turbo's memory, so Back always asks for the page as
+        it is now: every page carries counts (the bell, unread messages) that
+        change while the reader is elsewhere, and a list a detail page changed
+        (a message read, an item ticked) would come back as it was. %>
+    <%= turbo_exempts_page_from_cache_tag %>
+
+    <%= yield :head %>
+
+    <%# The installed app (PWA): see PwaController and app/javascript/pwa.js %>
+    <%= tag.link rel: "manifest", href: pwa_manifest_path %>
+    <%= tag.meta name: "service-worker", content: pwa_service_worker_path, data: { scope: pwa_scope } %>
+
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <%# Font Awesome Free, cut down to the icons the app names (FontAwesome::Subset). The solid font is
+        fetched beside the stylesheet rather than after it, since its icons stay blank until it arrives. %>
+    <%= stylesheet_link_tag "fontawesome/fontawesome" %>
+    <%= preload_link_tag "fontawesome/fa-solid-900.woff2" %>
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <%# Brought up to date after Back from another site or a dropped connection, see catch_up_controller.js;
+      the keyboard focus kept through live changes, see focus_keeper_controller.js %>
+  <body data-controller="catch-up focus-keeper">
+    <%= render Components::Toasts.new(flash: flash) %>
+
+    <% if current_profile %>
+      <%# Live notifications: Notifications::Broadcaster streams to it %>
+      <%= turbo_stream_from current_profile, :notifications %>
+      <div class="app-wrapper" data-controller="navbar">
+        <%# The first Tab stop: past the top bar and the navigation to the page's own
+            content. The browser follows it, since it also moves the focus into the
+            page, where Turbo's jump to an anchor left it on the link. %>
+        <a class="skip-link" href="#content" data-turbo="false" data-navbar-target="behind"><%= t("navbar.skip_to_content") %></a>
+        <%= render Views::Layouts::Navbar.new(profile: current_profile, facts: navbar_facts, page_controls: @navbar_page_controls, current_path: request.path) %>
+        <%# An open account (the demo's): the banner says so and switches between them %>
+        <% open_account = Platform.open_account?(current_profile) %>
+        <main id="content" tabindex="-1" class="app-content<%= " app-content--demo" if open_account %>" data-navbar-target="behind" data-focus-keeper-target="content">
+          <%= render Views::Layouts::DemoBanner.new(profile: current_profile, people: open_profiles) if open_account %>
+          <%= yield %>
+        </main>
+      </div>
+    <% else %>
+      <main id="content">
+        <%= yield %>
+      </main>
+    <% end %>
+
+    <%= turbo_frame_tag "modals", data: { catch_up_target: "kept" } %>
+
+    <%= render Components::ConfirmDialog.new %>
+  </body>
+</html>

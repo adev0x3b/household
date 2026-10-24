@@ -1,0 +1,12 @@
+description: 'A list named in another case ("Lista Spesa" for "Lista spesa") is that list: its items go there, and no second list of the same name is made.'
+tags: [pantry]
+locale: it
+today: 2026-10-16
+seed: [lista_spesa]
+messages:
+  - "Aggiungi tonno e dado alla lista Lista Spesa"
+expect:
+  - saves: 1
+  - grocery_lists: 2
+  - grocery_list_items: { "lista spesa": { total_items: 3, checked_items: 0 } }
+  - reply_language: it

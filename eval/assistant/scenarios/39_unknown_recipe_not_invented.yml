@@ -1,0 +1,11 @@
+description: A recipe that isn't saved is never made up; the assistant asks, and the answer picks a saved one.
+tags: [pantry, meals, ambiguous]
+today: 2026-10-01
+seed: pantry_recipes
+messages:
+  - "Dinner tomorrow is lasagna"
+  - "I don't have that saved, use the pancakes instead"
+expect:
+  - recipes: 2
+  - meals: 1
+  - meal_details: { date: "2026-10-02", meal_type: dinner, recipes: [ Pancakes ] }

@@ -1,0 +1,11 @@
+# The household of alice, bob and carol (every profile fixture but dave).
+example:
+  name: Example
+  slug: example
+  owner: alice
+
+# Someone else's home: nothing of it is visible from the first.
+elsewhere:
+  name: Elsewhere
+  slug: elsewhere
+  owner: outsider

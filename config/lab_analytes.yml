@@ -1,0 +1,84 @@
+# Names of the same lab test in English, Italian and common abbreviations
+# (Assistant::LabDictionary). A report that says any name of a group finds
+# the profile's analyte named with any other name of it: "Emoglobina" is the
+# "Hemoglobin" already saved. A brand-new analyte keeps the report's wording.
+#
+# One group per test; a name may appear in one group only (the loader
+# checks). Leave out abbreviations that mean different tests in different
+# panels. Matching ignores case, accents and punctuation.
+
+# Blood count
+- [Hemoglobin, Haemoglobin, Emoglobina, Hb, HGB]
+- [Hematocrit, Haematocrit, Ematocrito, HCT, Ht]
+- [Red blood cells, Erythrocytes, Globuli rossi, Eritrociti, RBC, GR]
+- [White blood cells, Leukocytes, Leucocytes, Globuli bianchi, Leucociti, WBC, GB]
+- [Platelets, Thrombocytes, Piastrine, Trombociti, PLT]
+- [Mean corpuscular volume, Volume corpuscolare medio, MCV]
+- [Mean corpuscular hemoglobin, Contenuto emoglobinico medio, Emoglobina corpuscolare media, MCH]
+- [Mean corpuscular hemoglobin concentration, Concentrazione emoglobinica corpuscolare media, MCHC]
+- [Red cell distribution width, RDW, RDW-CV]
+- [Mean platelet volume, Volume piastrinico medio, MPV]
+- [Neutrophils, Neutrofili]
+- [Lymphocytes, Linfociti]
+- [Monocytes, Monociti]
+- [Eosinophils, Eosinofili]
+- [Basophils, Basofili]
+- [Reticulocytes, Reticolociti]
+- [Erythrocyte sedimentation rate, Velocità di eritrosedimentazione, ESR, VES]
+
+# Metabolic
+- [Glucose, Blood glucose, Glucosio, Glicemia]
+- [Glycated hemoglobin, Emoglobina glicata, HbA1c, Hb A1c]
+- [Creatinine, Creatinina]
+- [Urea, Azotemia, BUN, Blood urea nitrogen]
+- [Uric acid, Acido urico, Uricemia]
+- [Estimated glomerular filtration rate, eGFR, Filtrato glomerulare stimato, GFR]
+- [Sodium, Sodio, Na]
+- [Potassium, Potassio, K]
+- [Chloride, Cloro, Cloruro, Cl]
+- [Calcium, Calcio, Ca, Calcemia]
+- [Magnesium, Magnesio, Mg]
+- [Phosphorus, Phosphate, Fosforo, Fosfato]
+- [Iron, Ferro, Sideremia]
+- [Ferritin, Ferritina]
+- [Transferrin, Transferrina]
+- [Total protein, Proteine totali, Protidemia]
+- [Albumin, Albumina]
+- [C-reactive protein, Proteina C reattiva, CRP, PCR]
+
+# Lipids
+- [Total cholesterol, Cholesterol, Colesterolo totale, Colesterolo]
+- [HDL cholesterol, HDL, Colesterolo HDL]
+- [LDL cholesterol, LDL, Colesterolo LDL]
+- [Triglycerides, Trigliceridi]
+
+# Liver
+- [Alanine aminotransferase, ALT, GPT, ALT/GPT, Alanina aminotransferasi]
+- [Aspartate aminotransferase, AST, GOT, AST/GOT, Aspartato aminotransferasi]
+- [Gamma-glutamyl transferase, GGT, Gamma GT, Gamma-glutamiltransferasi]
+- [Alkaline phosphatase, ALP, Fosfatasi alcalina]
+- [Total bilirubin, Bilirubin, Bilirubina totale, Bilirubina]
+- [Direct bilirubin, Bilirubina diretta]
+- [Indirect bilirubin, Bilirubina indiretta]
+
+# Thyroid
+- [TSH, Thyroid stimulating hormone, Tireotropina, Ormone tireostimolante]
+- [Free T4, FT4, Free thyroxine, Tiroxina libera]
+- [Free T3, FT3, Free triiodothyronine, Triiodotironina libera]
+
+# Hormones (including HRT)
+- [Estradiol, Oestradiol, Estradiolo, 17-beta estradiol, 17β-estradiolo, E2]
+- [Progesterone, Progesterone sierico]
+- [Total testosterone, Testosterone, Testosterone totale]
+- [Free testosterone, Testosterone libero]
+- [Sex hormone binding globulin, SHBG]
+- [Luteinizing hormone, LH, Ormone luteinizzante]
+- [Follicle stimulating hormone, FSH, Ormone follicolo stimolante]
+- [Prolactin, Prolattina, PRL]
+- [Cortisol, Cortisolo]
+- [DHEA sulfate, DHEA-S, DHEAS, Deidroepiandrosterone solfato]
+
+# Vitamins
+- [Vitamin D, 25-OH vitamin D, 25-hydroxyvitamin D, Vitamina D, 25-OH vitamina D, 25-idrossivitamina D]
+- [Vitamin B12, Cobalamin, Vitamina B12, Cobalamina]
+- [Folate, Folic acid, Folati, Acido folico]

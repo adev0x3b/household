@@ -1,0 +1,364 @@
+# Every pull request and every push to main: the same checks as bin/ci
+# (config/ci.rb), in two jobs: the tests, and everything else. On main, once
+# they pass, the image is built — once (image.yml) — and pushed to GHCR
+# tagged with the commit; a green run on a push hands over to the Deploy
+# workflow (deploy.yml), which puts that image on staging; production is
+# promoted by hand (docs/architecture/delivery.md). Where the pipeline runs from a
+# private repository of its own, that repository's Deploy workflow takes
+# the image once it merges main.
+#
+# By hand (workflow_dispatch: GitHub's "Run workflow", `gh workflow run
+# ci.yml --ref <branch>`, the app's /admin/deployment) it runs on any branch;
+# on main it builds the image too, so a flaky failure can be redone and then
+# deployed — but it never deploys by itself: the Deploy workflow follows
+# pushes only.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+# A newer push to a pull request makes its older run moot. On main every
+# commit is built, one run at a time, so the deploys follow the commits in
+# order (a run still waiting gives way to a newer one).
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Read the code, nothing more; the image job asks for what it writes.
+permissions:
+  contents: read
+
+# Where the jobs run: GitHub's runners, or the repository variable RUNS_ON's
+# labels (a JSON list, e.g. ["self-hosted", "household-laptop"]) — the same
+# jobs either way, prepared by .github/actions/prepare (the deployment
+# runbook, "A runner of your own"). Code nobody with write access wrote — a
+# fork's pull request, Dependabot's — always runs on GitHub's: the self-hosted
+# runner is the household's own machine, and the image and the deploys run
+# there too. This only routes; a pull request can edit it, so the runner
+# itself refuses what it shouldn't take (.github/runner/admit-job). The
+# first job names the rule, the others repeat it by alias.
+
+jobs:
+  # A merge whose branch already held the previous main brings no file its
+  # pull request's run didn't check: that run checked the branch merged into
+  # a main no newer than the previous one, which is the branch itself, and so
+  # is this commit. That green run stands for this commit's checks, and the
+  # image is built straight away. Anything else (a branch behind main, a push
+  # that isn't one merge, a run by hand, a lookup that fails) is checked here.
+  # So is a fork's merge: its pull request's run used the fork's own copy of
+  # this file, which could have made any check pass.
+  earlier_run:
+    if: github.event_name == 'push'
+    runs-on: &runner >-
+      ${{ fromJSON(github.event_name == 'pull_request'
+                   && (github.event.pull_request.head.repo.full_name != github.repository
+                       || github.event.pull_request.user.login == 'dependabot[bot]')
+                   && '"ubuntu-latest"' || vars.RUNS_ON || '"ubuntu-latest"') }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      passed: ${{ steps.look.outputs.passed }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Prepare the job
+        uses: ./.github/actions/prepare
+        with:
+          ruby: "false"
+
+      - name: Look for the pull request's green run
+        id: look
+        env:
+          BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          passed=false
+          if [ "$(git rev-parse HEAD^1)" = "$BEFORE" ] &&
+             branch=$(git rev-parse --verify --quiet HEAD^2) &&
+             git merge-base --is-ancestor "$BEFORE" "$branch"; then
+            if ! runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?event=pull_request&status=success&head_sha=$branch" \
+                          --jq '[.workflow_runs[] | select(.head_repository.full_name == env.GITHUB_REPOSITORY)] | length'); then
+              echo "::warning::Can't read the pull request's runs, so this commit is checked again."
+            elif [ "$runs" -gt 0 ]; then
+              echo "The pull request's run checked $branch, whose files this commit has: the checks are not run again."
+              passed=true
+            else
+              echo "No run of this repository's own checked $branch, so this commit is checked again."
+            fi
+          fi
+          echo "passed=$passed" >> "$GITHUB_OUTPUT"
+
+  # Every check but the tests, as steps of one job: each is seconds long,
+  # and a job of its own spent longer waiting for a runner and setting up
+  # than checking. Each check runs whatever the ones before it found, so a
+  # run reports every failure at once.
+  checks:
+    needs: earlier_run
+    if: ${{ !cancelled() && needs.earlier_run.outputs.passed != 'true' }}
+    runs-on: *runner
+    timeout-minutes: 10
+    env:
+      RUBOCOP_CACHE_ROOT: tmp/rubocop
+    steps:
+      # Every commit, not just the files as they are: a secret pushed and
+      # then removed is still in the history.
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Prepare the job
+        uses: ./.github/actions/prepare
+
+      - name: Prepare RuboCop cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        env:
+          DEPENDENCIES_HASH: ${{ hashFiles('.ruby-version', '**/.rubocop.yml', 'Gemfile.lock') }}
+        with:
+          path: ${{ env.RUBOCOP_CACHE_ROOT }}
+          key: rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-${{ github.ref_name == github.event.repository.default_branch && github.run_id || 'default' }}
+          restore-keys: |
+            rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-
+
+      # The scanner is pinned in bin/gitleaks.
+      - name: Cache the pinned gitleaks
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tmp/tools
+          key: gitleaks-${{ runner.os }}-${{ hashFiles('bin/gitleaks') }}
+
+      # Node comes with GitHub's runners; a self-hosted one needs it installed
+      # (bin/provision-runner checks). The tools' install scripts never run:
+      # none of them needs one. The last step of the setup: the checks below
+      # run once it has passed.
+      - name: Install the JavaScript and stylesheet lint tools
+        id: ready
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Scan for common Rails security vulnerabilities using static analysis
+        if: &after_setup ${{ !cancelled() && steps.ready.outcome == 'success' }}
+        run: bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
+
+      - name: Scan for known security vulnerabilities in gems used
+        if: *after_setup
+        run: bin/bundler-audit
+
+      - name: Scan for security vulnerabilities in JavaScript dependencies
+        if: *after_setup
+        run: bin/importmap audit
+
+      # The lint and test tools never ship, so only a critical advisory
+      # stops the run (config/ci.rb says the same).
+      - name: Scan the lint and test tools for critical vulnerabilities
+        if: *after_setup
+        run: npm audit --audit-level=critical
+
+      - name: Scan every commit for secrets
+        if: *after_setup
+        run: bin/gitleaks git --redact --no-banner
+
+      - name: Lint Ruby
+        if: *after_setup
+        run: bin/rubocop -f github
+
+      - name: Lint JavaScript and stylesheets
+        if: *after_setup
+        run: npm run lint
+
+      - name: Test the JavaScript
+        if: *after_setup
+        run: npm test
+
+      - name: Lint shell scripts
+        if: *after_setup
+        run: bin/lint-shell
+
+  test:
+    needs: earlier_run
+    if: ${{ !cancelled() && needs.earlier_run.outputs.passed != 'true' }}
+    runs-on: *runner
+    # Three to five minutes on an idle runner. A run that hangs (a browser
+    # that stops answering) is stopped, rather than holding the one
+    # self-hosted runner, and every check behind it, for GitHub's six hours.
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        # Any free port on the runner: a self-hosted one may serve its own
+        # Postgres on 5432.
+        ports:
+          - 5432
+        # Asked every second, since the job waits for its first good answer;
+        # Postgres is ready in two or three.
+        options: --health-cmd="pg_isready" --health-interval=1s --health-timeout=5s --health-retries=30
+
+    env:
+      RAILS_ENV: test
+      # Two test processes, whatever the runner has: each drives a browser
+      # for the system tests, and a self-hosted machine that also serves the
+      # app's three destinations ran out of memory with four (browsers timed
+      # out, the job ran into its time limit).
+      PARALLEL_WORKERS: 2
+
+    steps:
+      # libvips + tesseract: the lab-report OCR tests skip without them. A
+      # self-hosted runner has them installed (bin/provision-runner).
+      - name: Install packages
+        if: runner.environment == 'github-hosted'
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev libvips tesseract-ocr tesseract-ocr-ita tesseract-ocr-eng
+
+      # The superuser: fixtures disable FK triggers, migrations create extensions.
+      - name: Point at the job's database
+        run: echo "DATABASE_URL=postgres://postgres:postgres@localhost:${{ job.services.postgres.ports['5432'] }}" >> "$GITHUB_ENV"
+
+      # Two commits: a pull request's merge commit and the base it merges into
+      # (by hand: the commit and its parent).
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - name: Prepare the job
+        uses: ./.github/actions/prepare
+
+      # What a deploy does: the new migrations run on the schema the previous
+      # version uses, while that version still serves. strong_migrations
+      # refuses what it couldn't survive (docs/architecture/delivery.md, "A deploy without a gap").
+      - name: Check the new migrations on the base schema
+        env:
+          BASE: ${{ github.event_name == 'push' && github.event.before || 'HEAD^1' }}
+        run: |
+          # Unable to check is a failure, never a pass: a migration that slips
+          # through unchecked is what this step is for.
+          if [ "$BASE" != "HEAD^1" ] && ! git fetch --quiet --depth=1 origin "$BASE"; then
+            echo "::error::Can't fetch the base commit $BASE, so the new migrations can't be checked."
+            exit 1
+          fi
+          # The repository's first commit has no base to migrate from.
+          if [ "$BASE" = "HEAD^1" ] && ! git rev-parse --quiet --verify "HEAD^1" > /dev/null; then
+            echo "The first commit: there is no base schema to migrate from."
+            exit 0
+          fi
+          if git diff --quiet "$BASE" HEAD -- db/migrate; then
+            echo "No migration was added or changed."
+            exit 0
+          fi
+          git diff --name-only --diff-filter=MDR "$BASE" HEAD -- db/migrate |
+            sed 's/^/::warning::A migration production may have run already changed: /'
+          # bin/held-migrations: 0 none held, 1 some (a warning: they ship as a
+          # release), 2 it couldn't tell (a failure).
+          status=0
+          held=$(bin/held-migrations "$BASE" HEAD) || status=$?
+          if [ "$status" -gt 1 ]; then
+            echo "::error::Can't tell which new migrations need the app stopped (bin/held-migrations failed)."
+            exit 1
+          fi
+          printf '%s\n' "$held" | while IFS= read -r file; do
+            if [ -n "$file" ]; then
+              echo "::warning title=Released with one click::$file needs the app stopped (safety_assured, no '# zero-downtime:' line): once merged, staging rehearses it on production's data and production waits for the app's Release button or Run workflow → release (docs/architecture/delivery.md, "A deploy without a gap")."
+            fi
+          done
+          git show "$BASE:db/schema.rb" > "$RUNNER_TEMP/base_schema.rb"
+          bin/rails db:create
+          if ! SCHEMA="$RUNNER_TEMP/base_schema.rb" bin/rails db:schema:load; then
+            echo "::error::The base schema doesn't load, so the new migrations can't be checked."
+            exit 1
+          fi
+          # SCHEMA: the dump after migrating goes there, db/schema.rb stays as committed.
+          SCHEMA="$RUNNER_TEMP/migrated_schema.rb" bin/rails db:migrate
+
+      # Coverage is measured on every run; under CI the suite fails below the
+      # floor in .simplecov, and when an action a route draws is requested by
+      # no test. Requests are watched for N+1 queries (Prosopite). The system
+      # tests run in headless Chrome: the runner's own, or Chrome for Testing
+      # fetched by Selenium Manager and kept in the runner's tool cache.
+      - name: Run tests
+        env:
+          SE_CACHE_PATH: ${{ runner.tool_cache }}/selenium
+          # The machine's clock fourteen hours ahead of UTC, already tomorrow
+          # for most of the day: code that reads the process zone where it
+          # should name one gets the wrong day here, and a test fails.
+          TZ: Pacific/Kiritimati
+        run: bin/rails db:test:prepare test:all
+
+      - name: Keep the screenshots of failed system tests
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: screenshots
+          path: tmp/screenshots/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Keep the coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 14
+
+  # The one build of this commit (image.yml): everything after it — staging,
+  # production, a rollback months later — runs this image, by its tag. A run
+  # by hand on main builds it too (the same tag: the build is the same).
+  image:
+    if: >-
+      !cancelled()
+      && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      && (needs.earlier_run.outputs.passed == 'true'
+          || (needs.checks.result == 'success' && needs.test.result == 'success'))
+    needs: [ earlier_run, checks, test ]
+    uses: ./.github/workflows/image.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      ref: ${{ github.sha }}
+      lane: main
+
+  # The image installed the way a person installs a release (bin/try-install:
+  # install.sh on the release's compose.yml), and its setup page tried with a
+  # wrong code and the printed one. A failure here turns the run red, so an
+  # image whose installer can't start it never reaches staging, and so never
+  # a release.
+  install:
+    if: ${{ !cancelled() && needs.image.result == 'success' }}
+    needs: image
+    runs-on: *runner
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # On the household's runner, the registry login goes in the job's home.
+      - name: Prepare the job
+        uses: ./.github/actions/prepare
+        with:
+          ruby: "false"
+
+      - name: Log in to GitHub's container registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install the image and try its setup code
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/household:${{ needs.image.outputs.sha }}
+        run: bin/try-install "$IMAGE"

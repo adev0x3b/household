@@ -1,0 +1,81 @@
+@use "variables" as *;
+
+// The pages of a long list, as will_paginate draws them.
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1.25rem 0 0.5rem;
+  margin: 0;
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.65rem;
+    border-radius: $radius-md;
+    border: 1px solid tint($text-muted, "edge");
+    background: tint($surface-raised, "strong");
+    color: $text-muted;
+    font-size: $type-14;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background $motion-quick,
+      color $motion-quick,
+      border-color $motion-quick;
+
+    &:hover {
+      background: $surface-raised;
+      color: $text;
+      border-color: tint($accent, "edge");
+    }
+
+    &.is-current {
+      background: tint($accent, "fill");
+      color: $accent;
+      border-color: tint($accent, "edge");
+      cursor: default;
+      pointer-events: none;
+    }
+
+    // No page that way: drawn without a surface, so it reads as inert, in
+    // the muted text that still holds its contrast.
+    &.is-disabled {
+      background: transparent;
+      border-color: tint($text-muted, "fill");
+      cursor: default;
+      pointer-events: none;
+    }
+
+    &--previous,
+    &--next {
+      gap: 0.4rem;
+      padding: 0 0.85rem;
+    }
+  }
+
+  // The word beside the arrow goes on a phone, where it took a whole line
+  &__word {
+    @include until("narrow") {
+      display: none;
+    }
+  }
+
+  &__gap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 2.25rem;
+    color: $text-muted;
+    font-size: $type-14;
+    user-select: none;
+  }
+}

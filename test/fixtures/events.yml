@@ -1,0 +1,68 @@
+# Series. Their stored days are in occurrences.yml, their kind's own fields
+# in <kind>_details.yml (one series row each).
+groceries:
+  profile: alice
+  type: Task
+  title: Buy groceries
+  notes: Weekly grocery shopping
+  starts_on: 2026-03-02
+
+water_the_plants:
+  profile: alice
+  type: Task
+  title: Water the plants
+  starts_on: 2026-03-02
+  rrule: FREQ=WEEKLY;BYDAY=MO
+
+electricity_bill:
+  profile: alice
+  type: Transaction
+  title: Electricity bill
+  notes: Monthly electricity payment
+  starts_on: 2026-03-02
+
+prescription:
+  profile: alice
+  type: Task
+  title: Pick up the prescription
+  starts_on: 2026-03-02
+  collection: b12
+
+endocrinologist:
+  profile: alice
+  type: Appointment
+  title: Endocrinologist follow-up
+  location: Downtown Clinic
+  starts_on: 2026-03-02
+
+methotrexate:
+  profile: alice
+  type: Medication
+  title: Methotrexate
+  starts_on: 2026-03-02
+
+cobalamin:
+  profile: alice
+  type: Medication
+  title: Cobalamin
+  starts_on: 2026-03-02
+  rrule: FREQ=WEEKLY;BYDAY=MO
+
+levothyroxine:
+  profile: alice
+  type: Medication
+  title: Levothyroxine
+  starts_on: 2026-03-16
+
+bloodwork:
+  profile: alice
+  type: LabTestResult
+  title: Quarterly bloodwork
+  starts_on: 2026-03-02
+
+metformin:
+  profile: alice
+  type: Medication
+  title: Metformin
+  starts_on: 2026-03-02
+  rrule: FREQ=DAILY
