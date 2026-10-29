@@ -109,7 +109,7 @@ A dry run (Actions → Release → Run workflow, with a commit) prepares the sam
 
 ## The delivery console
 
-A household app has a deploy console because its admin is a housemate with a phone, not an engineer at a laptop. The app is mobile-first, and so is running it: promoting a version, rolling one back or freezing the pipeline is a press on a page, with the admin's password as the gate, from wherever they happen to be. Nothing in the pipeline needs a terminal.
+A household app has a deploy console so admins can manage the whole pipeline from the dashboard. The app is mobile-first, and so is running it: promoting a version, rolling one back or freezing the pipeline is a press on a page, with the admin's password as the gate, from wherever they happen to be. Nothing in the pipeline needs a terminal.
 
 `/admin/deployment` is that console, the same page on every destination, acting through GitHub's API. It is two halves, one frame each:
 - **this copy** (`Deployment`): what the running app knows about itself without asking anyone: the commit it was built from, its destination, when it booted, whether the database and a job worker answer;
