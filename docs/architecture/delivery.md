@@ -67,7 +67,7 @@ safety_assured { remove_column :books, :isbn10 }
 
 Without that line, the migration needs the app stopped. Forgetting it holds production; it can't break it.
 
-A migration that can't be split is held: production waits, and the pull request says so. Staging first rehearses it on a copy of production's data, behind a maintenance page, and records how long production would be down. Then one press releases it to production the same way, and it puts itself back if it fails. The demo, whose data starts over every night, needs no rehearsal and no press: it takes such a version behind its own maintenance page.
+A migration that can't be split is held: production waits, and the pull request says so. Staging first rehearses it on a copy of production's data, behind a maintenance page and with the copy's mail turned off, and records how long production would be down. Then one press releases it to production the same way, and it puts itself back if it fails. The demo, whose data starts over every night, needs no rehearsal and no press: it takes such a version behind its own maintenance page.
 
 Before every production deploy, a hook dumps the database.
 

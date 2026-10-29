@@ -6,9 +6,9 @@ One page for each part of the app, in the order you meet them. Every page is wri
 
 | Page | What it covers |
 |---|---|
-| [First setup](first-setup.md) | The setup code, the setup page, inviting the others, signing in, your language and time zone, installing it on a phone |
+| [First setup](first-setup.md) | The setup code, the setup page, inviting the others, signing in, a forgotten password, your account, your language and time zone, installing it on a phone |
 | [Home](home.md) | What needs attention, today, and the four section pages with their figures |
-| [The calendar](calendar.md) | Series and their days, the six kinds, done and skipped days, repeating, reminders, collections |
+| [The calendar](calendar.md) | Series and their days, the six kinds, done and skipped days, repeating, reminders and reminders by email, collections |
 | [Finance](finance.md) | Expenses and income, payments between housemates, the Finance page |
 | [Healthcare](healthcare.md) | Medications and therapies, lab results, analytes and reference ranges, supplies |
 | [Pantry](pantry.md) | Ingredients, recipes, grocery lists, purchase history, meals |
@@ -17,4 +17,4 @@ One page for each part of the app, in the order you meet them. Every page is wri
 | [Messages](messages.md) | Conversations, photos, reactions, who has seen what |
 | [The assistant](assistant.md) | Chats, what it can file, looking over and undoing a change |
 | [People](people.md) | The household, housemates, sharing, links between calendars, notifications |
-| [Admin](admin.md) | Households, settings, the assistant's settings, languages, errors, jobs, deployment |
+| [Admin](admin.md) | Households, settings, mail, the assistant's settings, languages, errors, jobs, deployment |

@@ -45,7 +45,7 @@ Limits are the installation's (`Platform.household_size`, `Platform.invitations_
 
 A limit is checked and the invitation saved under the household's row lock, so two requests at once can't both take the last place.
 
-A forgotten password works the same way. The household's owner or the admin makes a link to set a new one, shown once (`Profiles::PasswordLink`), and the person is told at once, by name of who made it. Whoever invited the person does not: setting someone's password is becoming them, and having invited them is no reason to hold that for good. There is no "forgot your password" email to intercept.
+A forgotten password works the same way. The household's owner or the admin makes a link to set a new one, shown once (`Profiles::PasswordLink`), and the person is told at once, by name of who made it. Whoever invited the person does not: setting someone's password is becoming them, and having invited them is no reason to hold that for good. Where the copy sends mail, someone who confirmed their address can also ask for a link at the sign-in page, mailed to that address alone ([Mail](mail.md)); the admin never can, and gets one from the server instead.
 
 ## The owner, and leaving
 
@@ -65,7 +65,8 @@ A second test removes one person while the housemates stay. It reads what that p
 
 The person who runs the app is a profile with `role: admin`, in a household of their own. They:
 - create households (a name and the first member's invitation, saved together or not at all);
-- keep the app's settings (API keys, the deploy token, encrypted in the database), saved after typing their password again;
+- keep the app's settings (API keys, the deploy token and the mail relay's password, encrypted in the database), saved after typing their password again;
+- read the page of mail: what the copy mailed against its budgets, and whose mail waits or couldn't go out and why, never what it said;
 - read errors and jobs;
 - run the delivery console.
 

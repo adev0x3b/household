@@ -45,6 +45,8 @@ Tapping a card's title opens the day's form. The share icon beside it shares the
 
 Any series can have reminders: a number of hours or days before each time it is due. They come to your bell, and to the devices where you turned notifications on. Reminders are yours alone, even on a series shared with you.
 
+Where the copy sends mail and your address is confirmed, a reminder can come **also by email**. Reminders due together arrive in one mail. A mail names a task, a meal or a payment, but only the kind of a medication, a lab result or an appointment, and a payment for one of those or for a medical supply is just "your payment", even once what it paid for is deleted, since mail is read on lock screens and passes through other people's servers. The link at the foot of every reminder mail stops them all, without signing in; ticking the box again on a reminder starts it again. A reminder whose day is done, moved or deleted before its time isn't mailed.
+
 ## Collections
 
 A collection keeps related series together: a therapy in Healthcare (its appointments, medications and lab results), a job hunt in Agenda, a renovation in Finance, a party in Pantry. A series is put in one from its form, and a collection's page lists everything in it. A collection is active, paused or completed, and can be shared whole. Deleting a collection leaves its series on the calendar.

@@ -77,6 +77,7 @@ What the app keeps is in three Docker volumes named after the directory: `househ
 | `household logs` | the app's log, followed |
 | `household stop`, `household start` | stop the app, start it again |
 | `household setup-code` | a new setup code, only while nobody has an account |
+| `household password-link <username>` | a link to set that person's password, printed: the admin's way back, since none is mailed to them |
 | `household uninstall` | the containers removed, and what it asks about: see below |
 
 Updates never happen by themselves. The app checks once a day whether a newer release is out, and tells the admin on the bell and on the Deployment page, with the command to run.
@@ -95,7 +96,9 @@ Losing the data or the backups waits for the directory's name typed back, which 
 
 ## Settings
 
-Everything about what the app does is set in the app, by its admin: what it lets people do on the Settings page, the assistant on its own settings page. `household.env` holds only the installer's answers. A setting written there before the first setup (`UPLOADS=off`, `FILES_QUOTA=10GB`; the names are listed in the release's `compose.yml`) is where the Settings page starts, and the admin changes it there like any other. Written later, it changes nothing: the page keeps what was saved.
+Everything about what the app does is set in the app, by its admin: what it lets people do and the mail on the Settings page, the assistant on its own settings page. `household.env` holds only the installer's answers. A setting written there before the first setup (`UPLOADS=off`, `FILES_QUOTA=10GB`; the names are listed in the release's `compose.yml`) is where the Settings page starts, and the admin changes it there like any other. Written later, it changes nothing: the page keeps what was saved.
+
+The mail relay is the exception, like the keys: a field the Settings page's Mail card leaves empty follows `SMTP_HOST`, `SMTP_PORT`, `SMTP_TLS`, `SMTP_USERNAME`, `SMTP_PASSWORD` and `MAIL_FROM` in `household.env`, whenever they are written: `household start` brings a change in. Either way the copy mails nothing until a relay and a sender are set. The links in a mail lead to `APP_HOST`, with the port when the copy is reached over plain HTTP, so the address people type is the one to give.
 
 ## Backups
 

@@ -66,6 +66,16 @@ In code every one of them is `status: :completed`, set only through `complete!`.
 | Link (between housemates) | Collegamento | `Link` | Asking for one is an invitation (invito). |
 | Request (a change held for its owner) | richiesta | `LinkApproval` | The owner approves or declines it; the person who asked withdraws it. |
 
+## Mail and the account
+
+| English | Italian | Code | Why the code differs |
+|---|---|---|---|
+| Account (the page of one's address and password) | Account | `AccountsController` | |
+| Address (where mail goes) | indirizzo | `Profile#email` | Devise's column; a form's field for it is labelled Email. |
+| Mail (what the app sends), a mail | posta, un'email | `OutgoingEmail`, the `Emails::` namespace | The code says email, as Rails does; people read mail, and "by email" for the way a reminder comes. |
+| Relay | relay | `Emails::Relay` | The server mail goes out through, set on the settings page. |
+| Test mail | email di prova | `Emails::Kinds::TestMail` | |
+
 ## Words that look alike
 
 Some words mean two things, and each keeps both on purpose:

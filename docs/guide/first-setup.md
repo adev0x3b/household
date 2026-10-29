@@ -19,9 +19,10 @@ Everything the copy needs is asked once, a step at a time, and saved all togethe
 3. **What this installation allows.** The switches and limits that hold for every household on this copy: the assistant, Files and the room each household gets, photos in messages, whether members may invite people, how many people a household may hold and how many each member may invite, push notifications, and whether the copy looks for new versions once a day. Everything is on and unlimited until you say otherwise, and nothing here deletes anything later.
 4. **The assistant.** Which model answers: an Ollama on your own machine, or Anthropic or OpenAI with a key. **Test connection** checks the key and lists the provider's models before anything is saved. The assistant is optional; everything else works without it.
 5. **Bookshelf.** An optional Google Books key, for the editions Open Library doesn't have, and how many lookups a household gets in a day.
-6. **Who else lives here.** As many people as the limits from step 3 allow, each by email and first name. Each gets an invitation link, shown once at the end: nothing is emailed, you hand the link over yourself. You can also invite people later.
+6. **Mail.** Whether the copy sends mail, and the SMTP relay it goes out through: its server, port, encryption, login and the sender's address. Mail is what lets people have their reminders by email and ask for a link when they forget their password. Without a relay the copy mails nothing and everything else works.
+7. **Who else lives here.** As many people as the limits from step 3 allow, each by email and first name. Each gets an invitation link, shown once at the end: nothing is emailed, you hand the link over yourself. You can also invite people later.
 
-The last step shows everything as it will be saved, with a **Change** link back to each step. After **Create the household** you are signed in, and the invitation links are on screen to copy. Every answer can be changed later: the installation's settings on the admin's Settings page, the assistant on its own settings page, the people on the Household page.
+The last step shows everything as it will be saved, with a **Change** link back to each step. After **Create the household** you are signed in, and the invitation links are on screen to copy. Every answer can be changed later: the installation's settings and the mail on the admin's Settings page, the assistant on its own settings page, the people on the Household page.
 
 ## Inviting the others
 
@@ -35,7 +36,13 @@ Whoever opens the link chooses their own username and password and is in, with t
 
 Sign in with your username or your email. **Remember me** keeps you signed in on that device. A refused sign-in never says whether the account exists.
 
-There is no password reset by email. If you forget your password, the household's owner (its first member) or the admin makes you a link to set a new one, from the Household page, and the app tells you at once on your bell that a link was made. Whoever opens the link can sign in as you, so if you didn't ask for one, say so right away.
+If you forget your password and the copy sends mail, **Forgot your password?** under the sign-in form asks for your username or address and mails a link to set a new one, which works for 30 minutes. It goes only to an address you confirmed on your Account page, and the page says the same whatever you type, so nobody learns from it who has an account. Otherwise, the household's owner (its first member) or the admin makes you a link from the Household page, and the app tells you at once on your bell that a link was made. Whoever opens such a link can sign in as you, so if you didn't ask for one, say so right away.
+
+The account this setup makes gets neither: no link is mailed to the admin, and nobody makes one for themselves. Its way back is the machine the copy runs on, where `household password-link <username>` on a copy of one's own, or `bin/rails admin:password_link USERNAME=…` in the app's container, prints a link that works for 30 minutes.
+
+## Your account
+
+**Account**, on the account menu in the top bar, holds your address and your password. Where the copy sends mail, **Mail me a link to confirm it** confirms the address: the link opens a page that asks for your password and a press, since mail scanners open links by themselves and a confirmed address is where a link to set your password goes, for everyone but the admin. A new address takes over only once its own link is pressed, and your confirmed address hears of the change first. Changing your password asks for the one you use, signs you out everywhere else, and tells the address confirmed at the time.
 
 ## Language and time zone
 

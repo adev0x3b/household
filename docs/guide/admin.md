@@ -12,7 +12,7 @@ Anything the admin does to someone else's account, and every save of the setting
 
 Every person belongs to one household, and **Households** lists them with their members and the invitations waiting. **New household** asks its name and its first member's email: that person gets a link to join, shown once to hand over, becomes the household's owner and invites the others.
 
-From a household's page the admin can also make a link for a member to set a new password, or remove a person.
+From a household's page the admin can also make a link for a member to set a new password, or remove a person. The admin's own forgotten password is never mailed: on the server, `bin/rails admin:password_link USERNAME=…` prints a link that works for 30 minutes (`household password-link <username>` on a copy of one's own).
 
 ## Settings
 
@@ -20,10 +20,15 @@ From a household's page the admin can also make a link for a member to set a new
 
 - **What this installation allows**: the assistant, Files and the storage per household, photos in messages, members inviting people, push notifications, looking for new versions, the assistant messages per household per day, the people per household and the invitations per member. Turning something off hides it; nothing anyone kept is deleted.
 - **Bookshelf**: the Google Books key and the book lookups per household per day.
+- **Mail**: whether the copy sends mail, the SMTP relay it goes out through (server, port, encryption, login, sender address), and its budgets: the mail per hour and per day for the whole copy, and the reminder mails per household per day. A relay field left empty follows the copy's environment, whose value it shows.
 - **Deployment**: the GitHub token behind the Deployment page's buttons, on a copy that runs the pipeline.
 - **Demo household**: the password of the demo accounts, where the copy runs a demo.
 
 Every value here can be changed here. Where the copy's environment names one, that is only where it started, before anything was saved.
+
+## Mail
+
+**Mail** says whether mail goes out, and what stops it otherwise: turned off, a relay not set up, or a pause. When the relay refuses the copy's own settings, such as a wrong password, all mail waits for a quarter of an hour, the admin is told on the bell, and the page says what to fix and what the relay answered; **Send a test mail to me** in the top bar ends the pause and shows whether the fix worked. The page also shows the relay, what went out in the last hour and day against the budgets, what waits, and what couldn't go out in the last 30 days: whose it was, why, and what the relay answered, with any address masked. It never shows what a mail said.
 
 ## Assistant settings
 

@@ -11,6 +11,7 @@ Household is one Rails 8.1 application: pages rendered on the server, made live 
 | [Sharing and links](sharing-and-links.md) | Sharing a thing with a housemate; two housemates who see each other's calendars |
 | [Files](files.md) | Big files kept on the server: chunked uploads, downloads, public links |
 | [Messages](messages.md) | Conversations between housemates, live |
+| [Mail](mail.md) | What the app mails and how: the outbox, the budgets, the relay's answers, reminders by email, the account by mail |
 | [The assistant](assistant.md) | The chat that files things for you: tools, change sets, evals, the dictionaries |
 | [Dashboards](dashboards.md) | Home and the sections' statistics |
 | [Front end](front-end.md) | Phlex, Turbo, Stimulus, the modal and form, the style system |
@@ -31,6 +32,7 @@ Household is one Rails 8.1 application: pages rendered on the server, made live 
 | Background work, cache, cable | Solid Queue, Solid Cache, Solid Cable: all in PostgreSQL, each in its own database |
 | Errors | `Rails.error`, kept by Solid Errors and read on the admin's pages |
 | Assistant | RubyLLM, with Ollama, Anthropic or OpenAI |
+| Mail | Action Mailer, from an outbox in PostgreSQL, out through one SMTP relay |
 | Deployment | Kamal 2, four destinations (production, the public demo, staging, dev) |
 
 ## Where code lives
@@ -47,6 +49,7 @@ Every directory has one job. A class that changes state is a service, and a clas
 | `app/broadcasters` | Every live push, one per domain | `Conversations::Broadcaster` |
 | `app/clients` | The services outside the app: one deadline, one error each, one method the tests stub | `Books::OpenLibrary`, `Delivery::Github` |
 | `app/jobs` | Background work, namespaced by domain | `Messages::NotifyJob`, `Uploads::FinishJob` |
+| `app/mailers` | The mail the app sends, one mailer per audience, made in the person's language | `AccountMailer`, `RemindersMailer` |
 | `app/components` | Phlex: the kit every area shares, pieces that know no area | `Components::Modal`, `Components::StatusBadge` |
 | `app/views` | Phlex: each area's pages, modals, cards, rows and form sections, under `app/views/<area>/` | `Views::Books::Show`, `Views::Calendar::Cards::TaskCard` |
 | `app/presenters` | What turns a record or a figure into words, an address or a payload for display, and renders no HTML | `Notifications::Wording`, `Notifications::Destination`, `Occurrences::Access`, `Statistics::Format` |
@@ -88,7 +91,7 @@ Solid Queue runs the jobs, with a worker of its own for the assistant's replies.
 - a job whose record is gone is discarded;
 - a job whose work can't be done twice (the assistant's reply, a dictionary import) is marked so and fails instead.
 
-Recurring work (reminders, the demo's nightly rebuild, sweeping abandoned uploads) is declared in `config/recurring.yml`.
+Recurring work (reminders, sending the mail that is due, the demo's nightly rebuild, sweeping abandoned uploads) is declared in `config/recurring.yml`.
 
 ## The database
 
