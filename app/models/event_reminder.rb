@@ -3,7 +3,8 @@
 # "Tell me 2 days before": one person's reminder on an event, for every one of
 # its occurrences that is still to do. Each person who has the event keeps
 # their own (Events::SetReminders from the forms);
-# Reminders::DispatchJob sends them as `reminder_due` notifications.
+# Reminders::DispatchJob sends them as `reminder_due` notifications, and by
+# email too when the person asked for it (`by_email`, Emails::Kinds::Reminder).
 class EventReminder < ApplicationRecord
   UNITS = { "hours" => 60, "days" => 24 * 60 }.freeze
   MAX_OFFSET = 30.days.in_minutes.to_i

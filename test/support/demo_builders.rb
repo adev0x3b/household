@@ -5,7 +5,7 @@ module DemoBuilders
   # accounts open, and what a public playground mustn't do turned off.
   DEMO_SETTINGS = {
     "OPEN_ACCOUNTS" => "alex.demo,sam.demo,robin.demo", "UPLOADS" => "off", "PICTURES" => "off", "INVITATIONS" => "off",
-    "PUSH_NOTIFICATIONS" => "off", "ASSISTANT_MESSAGES_PER_DAY" => "30", "BOOK_LOOKUPS_PER_DAY" => "50"
+    "PUSH_NOTIFICATIONS" => "off", "ASSISTANT_MESSAGES_PER_DAY" => "30", "BOOK_LOOKUPS_PER_DAY" => "50", "OUTGOING_MAIL" => "off"
   }.freeze
 
   # A bare demo household with its three members: enough for everything about

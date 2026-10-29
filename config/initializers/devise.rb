@@ -5,10 +5,6 @@
 Devise.setup do |config|
   require "devise/orm/active_record"
 
-  # The app's own address (config.x.mail_from). Little goes out: an
-  # invitation and a password link are links shown once to hand over.
-  config.mailer_sender = Rails.configuration.x.mail_from
-
   # One field takes a username or an email (Profile.find_for_database_authentication).
   config.authentication_keys = [ :login ]
   config.case_insensitive_keys = [ :login ]
@@ -17,6 +13,11 @@ Devise.setup do |config|
   # A refused sign-in never says whether the account exists or is locked.
   config.paranoid = true
 
+  # An address is one mailbox. Devise's own pattern lets a list through
+  # ("someone@example.com,another"), and mail to it would reach every name
+  # in it, links to set a password too.
+  config.email_regexp = URI::MailTo::EMAIL_REGEXP
+
   # Long over clever (NIST SP 800-63B): at least 12 characters, no rules on
   # what they are. bcrypt at Devise's cost, the cheapest in tests.
   config.password_length = 12..128
@@ -24,8 +25,8 @@ Devise.setup do |config|
 
   # Ten wrong passwords in a row and the account waits a quarter of an hour
   # (the sign-in's rate limit slows a single address; this, many). Unlocking
-  # is by time, or by setting a password from a link (Profiles::PasswordsController):
-  # no email. The demo's shared accounts never lock (Profile#lock_access!).
+  # is by time, or by setting a password from a link (Profiles::PasswordsController),
+  # never by Devise's unlock mail. The demo's shared accounts never lock (Profile#lock_access!).
   config.maximum_attempts = 10
   config.unlock_strategy = :time
   config.unlock_in = 15.minutes

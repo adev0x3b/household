@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_29_160100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -304,6 +304,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_130000) do
     t.integer "offset_minutes", null: false
     t.bigint "profile_id", null: false
     t.datetime "updated_at", null: false
+    t.boolean "by_email", default: false, null: false
     t.index ["event_id", "profile_id", "offset_minutes"], name: "index_event_reminders_on_event_profile_and_offset", unique: true
     t.index ["profile_id"], name: "index_event_reminders_on_profile_id"
     t.check_constraint "offset_minutes > 0", name: "event_reminders_offset_minutes_positive"
@@ -703,6 +704,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_130000) do
     t.check_constraint "skipped_reason IS NULL OR status = 4", name: "occurrences_skipped_reason_with_skipped"
   end
 
+  create_table "outgoing_emails", force: :cascade do |t|
+    t.bigint "profile_id", null: false
+    t.integer "kind", null: false
+    t.integer "status", default: 0, null: false
+    t.jsonb "data", default: {}, null: false
+    t.integer "attempts", default: 0, null: false
+    t.datetime "not_before", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "claimed_at"
+    t.datetime "held_for_settings_at"
+    t.datetime "sent_at"
+    t.string "message_id"
+    t.integer "reason"
+    t.string "detail"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["claimed_at"], name: "index_outgoing_emails_on_claimed_at"
+    t.index ["profile_id", "kind", "created_at"], name: "index_outgoing_emails_on_profile_id_and_kind_and_created_at"
+    t.index ["status", "not_before"], name: "index_outgoing_emails_on_status_and_not_before"
+    t.check_constraint "attempts >= 0", name: "outgoing_emails_attempts_not_negative"
+  end
+
   create_table "platform_settings", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "demo_password"
@@ -722,12 +745,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_130000) do
     t.bigint "files_quota"
     t.integer "household_size"
     t.integer "invitations_per_member"
+    t.boolean "outgoing_mail"
+    t.integer "mails_per_hour"
+    t.integer "mails_per_day"
+    t.integer "reminder_mails_per_day"
+    t.string "smtp_host"
+    t.integer "smtp_port"
+    t.string "smtp_username"
+    t.text "smtp_password"
+    t.string "smtp_tls"
+    t.string "mail_from"
     t.index ["updated_by_id"], name: "index_platform_settings_on_updated_by_id"
     t.check_constraint "assistant_messages_per_day >= 0", name: "platform_settings_assistant_messages_per_day_not_negative"
     t.check_constraint "book_lookups_per_day >= 0", name: "platform_settings_book_lookups_per_day_not_negative"
     t.check_constraint "files_quota > 0", name: "platform_settings_files_quota_positive"
     t.check_constraint "household_size > 0", name: "platform_settings_household_size_positive"
     t.check_constraint "invitations_per_member > 0", name: "platform_settings_invitations_per_member_positive"
+    t.check_constraint "mails_per_day >= 6", name: "platform_settings_mails_per_day_at_least_six"
+    t.check_constraint "mails_per_hour >= 2", name: "platform_settings_mails_per_hour_at_least_two"
+    t.check_constraint "reminder_mails_per_day >= 0", name: "platform_settings_reminder_mails_per_day_not_negative"
+    t.check_constraint "smtp_port >= 1 AND smtp_port <= 65535", name: "platform_settings_smtp_port_is_a_port"
   end
 
   create_table "profiles", force: :cascade do |t|
@@ -761,8 +798,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_130000) do
     t.string "time_zone"
     t.datetime "updated_at", null: false
     t.string "username"
+    t.datetime "email_confirmed_at"
+    t.string "unconfirmed_email"
+    t.string "email_confirmation_digest"
+    t.datetime "email_confirmation_sent_at"
+    t.string "email_confirmation_address_digest"
+    t.datetime "reset_password_expires_at"
     t.index "lower((username)::text)", name: "index_profiles_on_lower_username", unique: true
     t.index ["email"], name: "index_profiles_on_email", unique: true
+    t.index ["email_confirmation_digest"], name: "index_profiles_on_email_confirmation_digest", unique: true
     t.index ["household_id"], name: "index_profiles_on_household_id"
     t.index ["invitation_token"], name: "index_profiles_on_invitation_token", unique: true
     t.index ["invited_by_id"], name: "index_profiles_on_invited_by_id"
@@ -1014,6 +1058,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_130000) do
     t.bigint "about_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "named_in_mail", default: true, null: false
     t.index ["about_type", "about_id"], name: "index_transaction_details_on_about"
     t.index ["counterparty_profile_id"], name: "index_transaction_details_on_counterparty_profile_id"
     t.index ["event_id", "occurrence_id"], name: "index_transaction_details_on_event_id_and_occurrence_id", unique: true, nulls_not_distinct: true
@@ -1187,6 +1232,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_130000) do
   add_foreign_key "notifications", "profiles", column: "actor_id", on_delete: :nullify
   add_foreign_key "occurrences", "events"
   add_foreign_key "occurrences", "profiles", column: "updated_by_id", on_delete: :nullify
+  add_foreign_key "outgoing_emails", "profiles"
   add_foreign_key "platform_settings", "profiles", column: "updated_by_id", on_delete: :nullify
   add_foreign_key "profiles", "households"
   add_foreign_key "push_subscriptions", "profiles"

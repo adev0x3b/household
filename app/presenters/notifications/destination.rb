@@ -25,10 +25,10 @@ class Notifications::Destination
   # which). A reminder opens its day; the admin's news opens the console,
   # their alerts the errors or the failed jobs, and an eval's its run, which
   # depend on the notification, not a subject; a file given up on opens the
-  # Files section, to upload it again. A password link opens nothing: what
-  # to do about it is in its words.
+  # Files section, to upload it again. A password link, and reminders
+  # stopped from a mail, open nothing: what to do about them is in their words.
   def path
-    return if @notification.unshared? || @notification.password_link_made?
+    return if @notification.unshared? || @notification.password_link_made? || @notification.reminder_mails_stopped?
     return console_path if @notification.about_deployment?
     return alert_path if @notification.admin_alert?
     return reminded_day_path if @notification.reminder_due?

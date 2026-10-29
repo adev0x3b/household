@@ -11,6 +11,7 @@ env:
     FILES_QUOTA: <%= ENV["FILES_QUOTA"].presence || "512MB" %> # the volume is 1 GB
     APP_HOST: <%= ENV.fetch("STAGING_HOST") %>
     DB_HOST: household-staging-db
+    OUTGOING_MAIL: "<%= ENV["OUTGOING_MAIL"].presence || "off" %>" # mail goes out from production alone
 
 volumes:
   - household_staging_storage:/rails/storage

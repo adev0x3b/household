@@ -10,6 +10,7 @@ class Meal < Event
 
   def self.section = :pantry
   def self.fee_category = :dining_out
+  def self.named_in_mail? = true
 
   # A home meal's card warns when its owner's pantry can't cover it: each
   # owner's pantry read once for all their meals (Pantry::Availability).

@@ -126,6 +126,7 @@ class Occurrence < ApplicationRecord
   def event_label = own_title.presence || event.occurrence_label(self)
   def section = event.section
   def costable? = event.costable?
+  def named_in_mail? = event.named_in_mail?
   def policy_class = event.class.policy_class
   def priority_rank = event.priority_rank
 

@@ -29,7 +29,8 @@ class Assistant::ChangeSetsController < ApplicationController
   # builds itself for the viewer (.draft).
   def draft_form(record)
     kind = record.is_a?(Occurrence) ? record.event.class : record.class
-    Views::Occurrences::Forms.for(kind).draft(record, viewer: current_profile, housemates: other_profiles)
+    Views::Occurrences::Forms.for(kind).draft(record, viewer: current_profile, housemates: other_profiles,
+                                                      reminder_mail: Emails.for_reminders(current_profile))
   end
 
   def other_profiles = current_profile.housemates.order(:username)

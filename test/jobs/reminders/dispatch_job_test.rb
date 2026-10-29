@@ -158,6 +158,47 @@ class Reminders::DispatchJobTest < ActiveJob::TestCase
     assert_equal [ "Fine" ], Notification.pluck(:subject_title)
   end
 
+  test "a reminder asked for by email goes in the outbox too, kept a minute for others due with it and worth sending until its thing is due" do
+    @alice.update!(email_confirmed_at: 1.day.ago)
+    rent = at(2026, 10, 7, 12) { task_due(Date.new(2026, 10, 9), title: "Rent", remind: [ 1, "days" ], by_email: true) }
+    dentist = at(2026, 10, 7, 12) do
+      Occurrences::Create.call(Appointment.new(title: "Dentist", start_time: "15:00", starts_on: Date.new(2026, 10, 9)), by: @alice).tap do |series|
+        Events::SetReminders.call(series, profile: @alice, entries: [ { amount: 1, unit: "hours", by_email: "1" } ])
+      end
+    end
+
+    with_relay do
+      at(2026, 10, 8, 9, 5) { dispatch }
+      at(2026, 10, 9, 14, 5) { dispatch }
+    end
+
+    rent_row, dentist_row = OutgoingEmail.order(:id).to_a
+    assert_equal [ @alice, "reminder", "queued" ], [ rent_row.profile, rent_row.kind, rent_row.status ]
+    assert_equal({ "event_reminder_id" => rent.event_reminders.sole.id, "date" => "2026-10-09" }, rent_row.data)
+    assert_equal [ @rome.local(2026, 10, 8, 9, 6), @rome.local(2026, 10, 8, 10, 5) ], [ rent_row.not_before, rent_row.expires_at ]
+    assert_equal({ "event_reminder_id" => dentist.event_reminders.sole.id, "date" => "2026-10-09" }, dentist_row.data)
+    assert_equal @rome.local(2026, 10, 9, 15), dentist_row.expires_at, "nothing once it is due"
+    assert_no_enqueued_jobs only: Emails::DrainJob
+    assert_equal 2, Notification.count, "the bell rings as well"
+  end
+
+  test "no mail for a reminder the bell's alone, while mail is off, to an address not confirmed or for an open account; the bell rings all the same" do
+    at(2026, 10, 7, 12) do
+      task_due(Date.new(2026, 10, 9), title: "Bell", remind: [ 1, "days" ])
+      task_due(Date.new(2026, 10, 9), title: "Mail", remind: [ 1, "days" ], by_email: true)
+    end
+
+    with_relay { at(2026, 10, 8, 9, 5) { dispatch } }
+    @alice.update!(email_confirmed_at: 1.day.ago)
+    EventReminderDelivery.delete_all
+    with_relay("OUTGOING_MAIL" => "off") { at(2026, 10, 8, 9, 10) { dispatch } }
+    EventReminderDelivery.delete_all
+    with_relay("OPEN_ACCOUNTS" => "alice") { at(2026, 10, 8, 9, 15) { dispatch } }
+
+    assert_not OutgoingEmail.exists?
+    assert_equal 6, Notification.count
+  end
+
   test "a lost connection fails the whole run, to be tried again" do
     at(2026, 10, 7, 12) { task_due(Date.new(2026, 10, 9), title: "Rent", remind: [ 1, "days" ]) }
 
@@ -176,10 +217,10 @@ class Reminders::DispatchJobTest < ActiveJob::TestCase
   def dispatch = Reminders::DispatchJob.perform_now
 
   # The series, its reminder set.
-  def task_due(date, title:, remind:, recurrence: nil)
+  def task_due(date, title:, remind:, recurrence: nil, by_email: false)
     task = Occurrences::Create.call(Task.new(title: title, starts_on: date), by: @alice, recurrence: recurrence)
     amount, unit = remind
-    Events::SetReminders.call(task, profile: @alice, entries: [ { amount: amount, unit: unit } ])
+    Events::SetReminders.call(task, profile: @alice, entries: [ { amount: amount, unit: unit, by_email: by_email ? "1" : "0" } ])
     task
   end
 

@@ -4,10 +4,14 @@
 #
 # The admin's secrets, saved on /admin/settings (Platform::Setting): the
 # bookshelf's Google Books key, the GitHub token behind /admin/deployment's
-# buttons, the demo accounts' password. Each is read, first set wins, from:
+# buttons, the demo accounts' password, the mail relay's password. Each is
+# read, first set wins, from:
 #   1. the saved row — an admin typed it on the page
-#   2. the environment: GOOGLE_BOOKS_API_KEY, DEPLOY_DISPATCH_TOKEN, DEMO_PASSWORD
-#      (.env in development; the way before the page existed)
+#   2. the environment: GOOGLE_BOOKS_API_KEY, DEPLOY_DISPATCH_TOKEN, DEMO_PASSWORD,
+#      SMTP_PASSWORD (.env in development; the way before the page existed)
+# The rest of the mail relay is read the same way, field by field, and shown
+# back on the page (Emails::RelaySettings): SMTP_HOST, SMTP_PORT,
+# SMTP_USERNAME, SMTP_TLS, MAIL_FROM.
 #
 # The installation's limits: what this copy lets its people do. The admin
 # sets each in the first setup and on /admin/settings, saved on the same
@@ -15,7 +19,8 @@
 # starting value: until there is a row, and on the row when it is made
 # (Platform::Setting.first_or_start). That is how a destination begins: the
 # demo's are in config/deploy.demo.yml, and every destination's names are
-# Provision::Settings. A limit no variable names starts on and unlimited.
+# Provision::Settings. A limit no variable names starts on and unlimited,
+# except the mail budgets, which start at their defaults: mail always has one.
 #   ASSISTANT=off                  no assistant: its tab is gone and its pages are a 404 (the admin's settings page stays)
 #   UPLOADS=off                    nobody uploads a file or makes a public link; what is there is seen and downloaded
 #   PICTURES=off                   no pictures in messages, no photos to the assistant
@@ -27,13 +32,18 @@
 #   FILES_QUOTA=50GB               what a household may keep in Files
 #   HOUSEHOLD_SIZE=20              the people a household may hold, invitations waiting included
 #   INVITATIONS_PER_MEMBER=5       the people one member may invite into their household
+#   OUTGOING_MAIL=off              nothing is mailed, even with a relay set
+#   MAILS_PER_HOUR=6               the mail the installation sends in an hour (at least 2)
+#   MAILS_PER_DAY=40               the mail the installation sends in a day (at least 6)
+#   REMINDER_MAILS_PER_DAY=20      the reminder mails a household gets in a day
 # OPEN_ACCOUNTS=alex.demo,… names the accounts anyone enters without a
 # password (DemosController), from the environment alone.
 # The assistant's own settings are Assistant (/assistant/settings).
 module Platform
-  KEYS = %i[google_books_api_key deploy_dispatch_token demo_password].freeze
+  KEYS = %i[google_books_api_key deploy_dispatch_token demo_password smtp_password].freeze
   ENV_NAMES = { google_books_api_key: "GOOGLE_BOOKS_API_KEY", deploy_dispatch_token: "DEPLOY_DISPATCH_TOKEN",
-                demo_password: "DEMO_PASSWORD" }.freeze
+                demo_password: "DEMO_PASSWORD", smtp_password: "SMTP_PASSWORD", smtp_host: "SMTP_HOST", smtp_port: "SMTP_PORT",
+                smtp_username: "SMTP_USERNAME", smtp_tls: "SMTP_TLS", mail_from: "MAIL_FROM" }.freeze
   DEFAULT_DEMO_PASSWORD = "demo-household"
 
   LIMITS = [
@@ -47,7 +57,13 @@ module Platform
     Count.new(:book_lookups_per_day, env: "BOOK_LOOKUPS_PER_DAY"),
     Size.new(:files_quota, env: "FILES_QUOTA", default: 50.gigabytes),
     Count.new(:household_size, env: "HOUSEHOLD_SIZE", minimum: 1),
-    Count.new(:invitations_per_member, env: "INVITATIONS_PER_MEMBER", minimum: 1)
+    Count.new(:invitations_per_member, env: "INVITATIONS_PER_MEMBER", minimum: 1),
+    Switch.new(:outgoing_mail, env: "OUTGOING_MAIL"),
+    # Reminders leave the last of each hour and the last five of each day to
+    # account mail (Emails::RelayAllowance), so each budget leaves them one.
+    Count.new(:mails_per_hour, env: "MAILS_PER_HOUR", minimum: 2, default: 6),
+    Count.new(:mails_per_day, env: "MAILS_PER_DAY", minimum: 6, default: 40),
+    Count.new(:reminder_mails_per_day, env: "REMINDER_MAILS_PER_DAY", default: 20)
   ].index_by(&:name).freeze
   OPEN_ACCOUNTS = "OPEN_ACCOUNTS"
 
@@ -65,13 +81,20 @@ module Platform
   # has signed in yet; nil when no code was made.
   def self.setup_code_digest = saved&.setup_code_digest
 
-  # The saved value, else the environment's, else nil.
-  def self.value(key) = saved&.public_send(key).presence || ENV[ENV_NAMES.fetch(key)].presence
+  # The saved value, else the environment's, else nil: a secret, or a field
+  # of the mail relay.
+  def self.value(key) = saved_value(key) || env_value(key)
+
+  # The value the admin saved, never the environment's.
+  def self.saved_value(key) = saved&.public_send(key).presence
+
+  # The environment's value, whatever is saved.
+  def self.env_value(key) = ENV[ENV_NAMES.fetch(key)].presence
 
   # Where the value in use comes from, for the page: :saved, :env or nil.
   def self.source(key)
-    if saved&.public_send(key).present? then :saved
-    elsif ENV[ENV_NAMES.fetch(key)].present? then :env
+    if saved_value(key) then :saved
+    elsif env_value(key) then :env
     end
   end
 
@@ -89,6 +112,8 @@ module Platform
   def self.push_notifications? = limit(:push_notifications).value(saved)
   def self.release_check? = limit(:release_check).value(saved)
 
+  def self.outgoing_mail? = limit(:outgoing_mail).value(saved)
+
   # A household's messages to the assistant in a day; nil: no limit.
   def self.assistant_messages_per_day = limit(:assistant_messages_per_day).value(saved)
 
@@ -104,6 +129,15 @@ module Platform
   # The people one member may invite into their own household, an
   # invitation taken back not counted; nil: no limit.
   def self.invitations_per_member = limit(:invitations_per_member).value(saved)
+
+  # The mail the installation may send in a rolling hour and day, every kind
+  # together (Emails::RelayAllowance).
+  def self.mails_per_hour = limit(:mails_per_hour).value(saved)
+  def self.mails_per_day = limit(:mails_per_day).value(saved)
+
+  # The reminder mails a household's people get in a rolling day, together
+  # (Emails::ReminderAllowance).
+  def self.reminder_mails_per_day = limit(:reminder_mails_per_day).value(saved)
 
   # --- The open accounts ---------------------------------------------------------
 

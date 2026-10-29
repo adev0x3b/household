@@ -65,6 +65,10 @@ class PaletteTest < ActiveSupport::TestCase
     success-solid warning-solid danger-solid text-faint
   ].freeze
 
+  # A mail is light (Views::Emails::Message): its text and muted lines sit
+  # on its card, and its button is the accent under the page's surface.
+  MAIL_TEXT = %w[mail-text mail-muted].freeze
+
   SURFACES.each do |surface|
     test "text clears AA on $#{surface}" do
       TEXT_ON_EVERY_SURFACE.each { |text| assert_contrast AA_TEXT, text, surface }
@@ -91,6 +95,11 @@ class PaletteTest < ActiveSupport::TestCase
     end
   end
 
+  test "a mail's text clears AA on its card and page, and its button's on the accent" do
+    MAIL_TEXT.each { |text| %w[mail-card mail-page].each { |surface| assert_contrast AA_TEXT, text, surface } }
+    assert_contrast AA_TEXT, "surface-page", "accent"
+  end
+
   test "every chart mark clears 3:1 on the chart surface" do
     CHART_MARKS.each { |mark| assert_contrast GRAPHIC, mark, "stat-surface" }
   end
@@ -105,7 +114,7 @@ class PaletteTest < ActiveSupport::TestCase
 
   test "every colour the contract names is in the stylesheet" do
     named = SURFACES + TEXT_ON_EVERY_SURFACE + TEXT_ON_LOWER_SURFACES + FILLS_WITH_DARK_TEXT + CHART_MARKS +
-            RESTING_ACCENTS + %w[stat-surface]
+            RESTING_ACCENTS + MAIL_TEXT + %w[stat-surface mail-card mail-page]
 
     assert_empty named - palette.keys, "named in the contract, not in _variables.scss"
   end

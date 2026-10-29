@@ -2,10 +2,10 @@
 
 # Something a profile should hear about without having watched it happen:
 # what someone else did with their things (a share) or their account (a
-# link to set its password), how a long job they started ended (an import,
-# an eval), or something of theirs coming due (a reminder they set,
-# Reminders::DispatchJob). Created and pushed live by
-# Notifications::Deliver, listed under the navbar's bell.
+# link to set its password, their reminders stopped from a mail), how a
+# long job they started ended (an import, an eval), or something of theirs
+# coming due (a reminder they set, Reminders::DispatchJob). Created and
+# pushed live by Notifications::Deliver, listed under the navbar's bell.
 #
 # `subject` is what it's about (a Recipe, a LexiconImport…); `subject_title`
 # keeps its name as it was, so the line still reads right after the subject
@@ -48,7 +48,7 @@ class Notification < ApplicationRecord
     lexicon_eval_passed: 20, lexicon_eval_failed: 21,
     eval_cases_written: 30, eval_cases_failed: 31,
     eval_run_finished: 40,
-    reminder_due: 50,
+    reminder_due: 50, reminder_mails_stopped: 51,
     message_received: 60,
     link_requested: 70, link_accepted: 71, link_declined: 72, link_removed: 73, link_permissions_changed: 74,
     approval_requested: 75, approval_approved: 76, approval_declined: 77, approval_failed: 78,

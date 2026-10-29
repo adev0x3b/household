@@ -288,6 +288,7 @@ class EventTest < ActiveSupport::TestCase
                                   slots: %w[CM], collection: collections(:b12), kind: :injection, area: :thigh, side: :left, quantity: 2, unit: "ml")
     event.details.replace_uses!([ [ strips.id, "1" ] ])
     event.event_shares.create!(profile: profiles(:bob))
+    event.event_reminders.create!(profile: profiles(:bob), offset_minutes: 60, by_email: true)
 
     copy = event.continuation(starts_on: Date.new(2026, 10, 8))
     copy.update!(rrule: "FREQ=DAILY")
@@ -299,6 +300,7 @@ class EventTest < ActiveSupport::TestCase
     assert_equal "right", copy.details.side, "the 4th dose of a daily series alternates to the other side"
     assert_equal([ [ strips.id, BigDecimal("1") ] ], copy.details.supply_uses.map { |use| [ use.supply_id, use.quantity ] })
     assert_equal [ profiles(:bob) ], copy.shared_profiles.to_a
+    assert_equal [ [ profiles(:bob).id, 60, true ] ], copy.event_reminders.pluck(:profile_id, :offset_minutes, :by_email)
     assert_equal [ [ strips.id, BigDecimal("1") ] ], event.details.reload.supply_uses.map { |use| [ use.supply_id, use.quantity ] }, "the old series keeps its own"
   end
 

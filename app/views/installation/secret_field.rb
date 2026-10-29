@@ -5,11 +5,14 @@
 # where the value in use comes from, and a saved one can be forgotten with
 # the trash on its line.
 class Views::Installation::SecretField < Views::Base
-  def initialize(form:, key:, label:, help: nil)
+  # source: where the value in use comes from (:saved, :env or nil), when
+  # it isn't Platform.source's, as for the relay's login.
+  def initialize(form:, key:, label:, help: nil, source: ::Platform.source(key))
     @form = form
     @key = key
     @label = label
     @help = help
+    @source = source
   end
 
   def view_template
@@ -17,7 +20,7 @@ class Views::Installation::SecretField < Views::Base
       div(class: "control report-secret") do
         @form.password_field @key, value: "", class: "input", autocomplete: "new-password", spellcheck: "false", placeholder: placeholder,
                                    aria: field.aria
-        forget if ::Platform.source(@key) == :saved
+        forget if @source == :saved
       end
     end
   end
@@ -25,11 +28,16 @@ class Views::Installation::SecretField < Views::Base
   private
 
   def placeholder
-    case ::Platform.source(@key)
-    when :saved then t("installation.secret.saved", last4: ::Platform.saved.hint(@key))
+    case @source
+    when :saved then saved
     when :env then t("installation.secret.from_env", variable: ::Platform::ENV_NAMES.fetch(@key))
     else t("installation.secret.none.#{@key}")
     end
+  end
+
+  def saved
+    hint = ::Platform.saved.hint(@key)
+    hint ? t("installation.secret.saved", last4: hint) : t("installation.secret.saved_password")
   end
 
   def forget

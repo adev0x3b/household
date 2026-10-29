@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 # The account menu, behind the avatar in the top bar's right: who's signed
-# in, their Household page, "This device" (Views::Layouts::DeviceSettings), the
-# language, and Log out last. A dropdown (dropdown_controller.js) that
+# in, their Household and Account pages, "This device"
+# (Views::Layouts::DeviceSettings), the language, and Log out last. A dropdown (dropdown_controller.js) that
 # hangs from the top bar like the bell's.
 class Views::Layouts::Navbar::AccountMenu < Views::Base
   include Phlex::Rails::Helpers::ButtonTo
@@ -29,7 +29,10 @@ class Views::Layouts::Navbar::AccountMenu < Views::Base
 
       div(id: PANEL_ID, class: "account-menu__panel", data: { dropdown_target: "menu" }) do
         render_who
-        div(class: "account-menu__group") { render_household_link }
+        div(class: "account-menu__group") do
+          menu_link(household_path, "fa-people-roof", t("navbar.links.household"))
+          menu_link(account_path, "fa-user-pen", t("navbar.links.account")) if Pundit.policy!(@profile, @profile).manage_account?
+        end
         div(class: "account-menu__group") { render Views::Layouts::DeviceSettings.new(profile: @profile, push_digests: @push_digests) }
         render_locale
         div(class: "account-menu__group") { render_logout }
@@ -49,11 +52,11 @@ class Views::Layouts::Navbar::AccountMenu < Views::Base
     end
   end
 
-  def render_household_link
-    current = @location.current?(household_path)
-    a(href: household_path, class: "account-menu__link#{" is-current" if current}", aria: { current: ("page" if current) }) do
-      render Components::Icon.new("fa-people-roof")
-      span { t("navbar.links.household") }
+  def menu_link(path, icon, label)
+    current = @location.current?(path)
+    a(href: path, class: "account-menu__link#{" is-current" if current}", aria: { current: ("page" if current) }) do
+      render Components::Icon.new(icon)
+      span { label }
     end
   end
 

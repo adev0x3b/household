@@ -91,6 +91,7 @@ class HouseholdInvitationsControllerTest < ActionDispatch::IntegrationTest
 
     get accept_profile_invitation_path(invitation_token: token)
     assert_response :success
+    assert_equal "same-origin", response.headers["Referrer-Policy"], "no other site learns the link"
     assert_select "input[name='profile[username]']"
     assert_match(/Example/, response.body)
 

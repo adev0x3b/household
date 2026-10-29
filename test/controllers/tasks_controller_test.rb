@@ -57,6 +57,27 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ @bob.id ], event.event_reminders.reload.pluck(:profile_id)
   end
 
+  test "a reminder may come by email too once mail can reach the person; until their address is confirmed, the form says where to confirm it" do
+    @task.event.event_reminders.create!(profile: @alice, offset_minutes: 120, by_email: true)
+
+    get edit_event_day_path(@task.event, @task.date), as: :turbo_stream
+    assert_select "input[name='event[reminders][0][by_email]']", count: 0
+    assert_select ".reminder-fields a[href=?]", account_path, count: 0
+
+    with_relay { get edit_event_day_path(@task.event, @task.date), as: :turbo_stream }
+    assert_select "input[name='event[reminders][0][by_email]']", count: 0
+    assert_select ".reminder-fields .help a[href=?]", account_path, text: "Confirm it on your account page."
+
+    @alice.update!(email_confirmed_at: 1.day.ago)
+    with_relay { get edit_event_day_path(@task.event, @task.date), as: :turbo_stream }
+    assert_select "input[type=hidden][name='event[reminders][0][by_email]'][value='0'] + label input[type=checkbox][value='1'][checked]"
+    assert_select "template input[type=checkbox][name$='[by_email]']:not([checked])"
+
+    reminders = { "0" => { amount: "2", unit: "hours", by_email: "0" }, "-1" => { amount: "1", unit: "days", by_email: "1" } }
+    patch event_day_path(@task.event, @task.date), as: :turbo_stream, params: { task: fields, event: { frequency: "none", reminders_submitted: "1", reminders: reminders } }
+    assert_equal [ [ 120, false ], [ 1440, true ] ], @task.event.event_reminders.order(:offset_minutes).pluck(:offset_minutes, :by_email)
+  end
+
   test "a save without the reminder rows leaves reminders as they are" do
     @task.event.event_reminders.create!(profile: @alice, offset_minutes: 120)
 

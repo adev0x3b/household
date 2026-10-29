@@ -22,6 +22,9 @@ x-app: &app
     HOUSEHOLD_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?the database's password, in household.env}
     # The address people use (config.hosts, Action Cable's origin, the links the app makes).
     APP_HOST: ${APP_HOST:?the address people will use, in household.env}
+    # The port web is published on, which a link the app makes carries over
+    # plain HTTP (FORCE_SSL=off), where people type it after the address.
+    APP_PORT: ${PORT:-8080}
     # A path the app lives under, with no trailing slash; empty, the domain's root.
     MOUNT_PATH: ${MOUNT_PATH:-}
     TIME_ZONE: ${TIME_ZONE:-UTC}
@@ -50,17 +53,29 @@ x-app: &app
     FILES_QUOTA: ${FILES_QUOTA:-}
     HOUSEHOLD_SIZE: ${HOUSEHOLD_SIZE:-}
     INVITATIONS_PER_MEMBER: ${INVITATIONS_PER_MEMBER:-}
+    OUTGOING_MAIL: ${OUTGOING_MAIL:-}
+    MAILS_PER_HOUR: ${MAILS_PER_HOUR:-}
+    MAILS_PER_DAY: ${MAILS_PER_DAY:-}
+    REMINDER_MAILS_PER_DAY: ${REMINDER_MAILS_PER_DAY:-}
     # The rest of the installation's settings (lib/provision/settings.rb), each with its default.
     OPEN_ACCOUNTS: ${OPEN_ACCOUNTS:-}
     ASSISTANT_PROVIDER: ${ASSISTANT_PROVIDER:-ollama}
     ASSISTANT_MODEL: ${ASSISTANT_MODEL:-qwen3:8b}
     # An Ollama on this machine, as a container reaches it (extra_hosts below).
     OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    # The relay mail goes out through, where /admin/settings leaves a field
+    # empty; unset, the first setup and that page ask for it.
+    SMTP_HOST: ${SMTP_HOST:-}
+    SMTP_PORT: ${SMTP_PORT:-}
+    SMTP_TLS: ${SMTP_TLS:-}
+    SMTP_USERNAME: ${SMTP_USERNAME:-}
+    MAIL_FROM: ${MAIL_FROM:-}
     # The keys; an unset one arrives empty, which the app reads as none.
     ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     GOOGLE_BOOKS_API_KEY: ${GOOGLE_BOOKS_API_KEY:-}
     DEMO_PASSWORD: ${DEMO_PASSWORD:-demo-household}
+    SMTP_PASSWORD: ${SMTP_PASSWORD:-}
   volumes:
     # Uploads, message pictures, the lexicon extracts, Thruster's certificate;
     # what bin/docker-secrets made.

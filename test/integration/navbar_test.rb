@@ -15,8 +15,8 @@ class NavbarTest < ActionDispatch::IntegrationTest
     get admin_lexicons_path
     assert_select ".navbar-group.is-open .navbar-group-label", text: "Admin"
     assert_select ".navbar-group.is-open button.navbar-group-header[aria-expanded=true][aria-controls=navbar-group-admin]"
-    assert_select ".navbar-group.is-open #navbar-group-admin .navbar-link", 8
-    [ admin_households_path, admin_deployment_path, admin_settings_path, admin_errors_path, admin_jobs_path,
+    assert_select ".navbar-group.is-open #navbar-group-admin .navbar-link", 9
+    [ admin_households_path, admin_deployment_path, admin_settings_path, admin_emails_path, admin_errors_path, admin_jobs_path,
       assistant_settings_path, assistant_evals_path ].each do |path|
       assert_select ".navbar-group.is-open a.navbar-link[href='#{path}']"
     end

@@ -22,7 +22,7 @@ class LocksTest < ActiveSupport::TestCase
   end
 
   teardown do
-    Households::Destroy.call(@household)
+    Households::Destroy.call(@household) if Household.exists?(@household.id)
   end
 
   test "a lock nobody takes is no wait" do
@@ -35,6 +35,58 @@ class LocksTest < ActiveSupport::TestCase
 
   test "starting an upload waits for the household" do
     assert_waits_for_lock(@household) { Uploads::Create.call(owner: @ann, name: "notes.txt", byte_size: 5) }
+  end
+
+  test "a mail claimed to go waits for its household" do
+    Emails::Enqueue.call(@ann, :test_mail)
+
+    with_relay { relayed { assert_waits_for_lock(@household) { Emails::Drain.call } } }
+  end
+
+  test "a link to confirm an address, asked with a new address or again, waits for the household" do
+    with_relay do
+      assert_waits_for_lock(@household) { Accounts::EmailChange.new(@ann, email: "ann@new.example", current_password: "a password long enough").save }
+      assert_waits_for_lock(@household) { Profiles::SendEmailConfirmation.call(@ann) }
+    end
+  end
+
+  test "a link for a forgotten password waits for every other request, whose limits it shares" do
+    @ann.update!(email_confirmed_at: 1.day.ago)
+
+    with_relay { assert_waits_for_lock(advisory: Profiles::RequestPasswordLink::LOCK) { Profiles::RequestPasswordLink.call(@ann) } }
+  end
+
+  test "a forgotten password's link waits for its person, made as its mail goes and ended when it doesn't" do
+    @ann.update!(email_confirmed_at: 1.day.ago)
+    row = Emails::Enqueue.call(@ann, :password_link)
+    @ann.password_link_token!
+
+    assert_waits_for_lock(@ann) { assert_nil Emails::Kinds::PasswordLink.new([ OutgoingEmail.find(row.id) ]).message }
+    assert_waits_for_lock(@ann) { Emails::Kinds::PasswordLink.new([ OutgoingEmail.find(row.id) ]).ended }
+  end
+
+  test "a link to confirm an address waits for its person, made as its mail goes and ended when it doesn't" do
+    @ann.update!(email_confirmed_at: 1.day.ago)
+    row = Emails::Enqueue.call(@ann, :email_confirmation)
+
+    assert_waits_for_lock(@ann) { assert_nil Emails::Kinds::EmailConfirmation.new([ OutgoingEmail.find(row.id) ]).message }
+    assert_waits_for_lock(@ann) { Emails::Kinds::EmailConfirmation.new([ OutgoingEmail.find(row.id) ]).ended }
+  end
+
+  test "confirming an address waits for its person" do
+    token = @ann.email_confirmation_token!
+
+    assert_waits_for_lock(@ann) { assert_equal :expired, Profiles::ConfirmEmail.call(Profile.find(@ann.id), token: token, now: 2.days.from_now).error }
+  end
+
+  test "removing someone waits for their row before it touches anything of theirs" do
+    mail = Emails::Enqueue.call(@ann, :test_mail)
+
+    assert_waits_for_lock(@ann, while_waiting: -> { assert_not_locked(mail) }) { Profiles::Destroy.call(Profile.find(@ann.id)) }
+  end
+
+  test "removing a household waits for its row before it touches anyone in it" do
+    assert_waits_for_lock(@household, while_waiting: -> { assert_not_locked(@ann) }) { Households::Destroy.call(Household.find(@household.id)) }
   end
 
   test "a file's next chunk and its finish wait for the file" do

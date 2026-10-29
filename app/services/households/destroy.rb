@@ -11,6 +11,9 @@ module Households
   class Destroy
     def self.call(household)
       ActiveRecord::Base.transaction do
+        # Its row first, as a drain claiming its mail takes it before the
+        # mail's rows: neither then holds what the other waits for.
+        household.lock!
         Profiles::Destroy.call(household.profiles.to_a)
         Conversation.where(household_id: household.id).delete_all
         Unit.where(household_id: household.id).delete_all

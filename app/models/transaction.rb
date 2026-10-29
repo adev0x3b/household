@@ -18,6 +18,7 @@ class Transaction < Event
   def self.section = :finance
   def self.policy_class = TransactionOccurrencePolicy
   def self.costable? = false
+  def self.named_in_mail? = true
 
   # A card nests a payment inside what it pays for: what its day's details
   # or its series' are about (#about_for).
@@ -100,6 +101,19 @@ class Transaction < Event
 
     about = details.about
     about.is_a?(Event) ? about.occurrence_on(occurrence.date) : about
+  end
+
+  # A payment for something a mail doesn't name (a visit's fee, a
+  # medication's price, a medical supply bought) is only "your payment",
+  # even once that thing is deleted and the payment kept: the app titles it
+  # after what it pays for (Details#named_in_mail). What it pays for now is
+  # asked too, since a payment saved by an earlier version carries no mark.
+  def reminder_mail_thing(occurrence)
+    about = about_for(occurrence)
+    marked = [ details, occurrence.own_details ].compact.all?(&:named_in_mail?)
+    return super if marked && (about.nil? || about.named_in_mail?)
+
+    I18n.t("transactions.reminder_mail.thing_unnamed")
   end
 
   def about_day(occurrence)

@@ -72,4 +72,15 @@ class ProfilePolicyTest < ActiveSupport::TestCase
     assert_equal [ households(:example) ], HouseholdPolicy::Scope.new(@member, Household).resolve.to_a
     assert_includes HouseholdPolicy::Scope.new(@admin, Household).resolve, households(:elsewhere)
   end
+
+  test "one's own account is one's own to manage, and an open account's nobody's" do
+    assert allowed?(@member, @member, :manage_account?)
+    assert_not allowed?(@admin, @member, :manage_account?)
+    assert_not allowed?(@owner, @member, :manage_account?)
+
+    on_the_demo do
+      alex = demo_household.members.find_by!(username: "alex.demo")
+      assert_not allowed?(alex, alex, :manage_account?)
+    end
+  end
 end

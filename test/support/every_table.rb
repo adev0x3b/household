@@ -13,6 +13,7 @@ module EveryTable
     Notification.create!(profile: bob, actor: alice, kind: :shared, subject: recipes(:roast_chicken), subject_title: "Soup")
     events(:groceries).event_reminders.create!(profile: bob, offset_minutes: 60).deliveries.create!(date: Date.current)
     push_subscription_for(bob)
+    OutgoingEmail.create!(profile: bob, kind: :test_mail, not_before: Time.current, expires_at: 15.minutes.from_now)
     alice.bookshelf!.bookshelf_shares.create!(profile: bob)
 
     # Messages: a picture with a reaction, read by a housemate, and a direct conversation.

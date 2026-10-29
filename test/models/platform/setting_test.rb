@@ -30,6 +30,8 @@ class Platform::SettingTest < ActiveSupport::TestCase
     assert_equal "tok-saved", Platform.deploy_dispatch_token
     assert_equal :saved, Platform.source(:deploy_dispatch_token)
     assert_equal "aved", Platform.saved.hint(:deploy_dispatch_token)
+    Platform.saved.update!(smtp_password: "relay-secret")
+    assert_nil Platform.saved.hint(:smtp_password), "nothing of a password is shown"
     assert_equal "gb-env", Platform.google_books_api_key
     assert_equal :env, Platform.source(:google_books_api_key)
   end
@@ -49,6 +51,21 @@ class Platform::SettingTest < ActiveSupport::TestCase
     assert_not setting.valid?
     assert_equal %i[assistant_messages_per_day book_lookups_per_day files_quota household_size invitations_per_member],
                  setting.errors.attribute_names.sort
+  end
+
+  test "mail's budgets keep the least they may be, its port is a port and its encryption one the relay knows" do
+    setting = Platform::Setting.new(mails_per_hour: 1, mails_per_day: 5, reminder_mails_per_day: -1, smtp_port: 70_000, smtp_tls: "ssl")
+
+    assert_not setting.valid?
+    assert_equal %i[mails_per_day mails_per_hour reminder_mails_per_day smtp_port smtp_tls], setting.errors.attribute_names.sort
+    assert_predicate Platform::Setting.new(mails_per_hour: 2, mails_per_day: 6, reminder_mails_per_day: 0, smtp_port: 465, smtp_tls: "tls"), :valid?
+  end
+
+  test "the relay's password is encrypted like every secret, and its fields are kept trimmed" do
+    setting = Platform::Setting.create!(smtp_password: "relay-secret", smtp_host: " relay.example ", mail_from: " household@household.example ")
+
+    assert_not_equal "relay-secret", setting.ciphertext_for(:smtp_password)
+    assert_equal [ "relay.example", "household@household.example" ], [ setting.smtp_host, setting.mail_from ]
   end
 
   test "secrets are encrypted at rest, and the demo password follows Devise's rules" do

@@ -4,7 +4,8 @@ module Reminders
   # Sends the reminders that have come due (config/recurring.yml, every few
   # minutes): for each reminder, each day still to do whose time minus the
   # reminder's offset has passed, a `reminder_due` notification to its
-  # person (the bell, and the devices they turned push on for).
+  # person (the bell, and the devices they turned push on for), and a mail
+  # when they asked for the reminder by email (Emails::Kinds::Reminder).
   #
   # Late is better than never, but never after the fact: a reminder whose
   # time passed while the app was down still goes out as long as the thing
@@ -63,8 +64,9 @@ module Reminders
       end
     end
 
-    # The claim and the notification are saved together: a run that fails
-    # between the two leaves the reminder unclaimed, for the next run to send.
+    # The claim, the notification and the mail are saved together: a run
+    # that fails between them leaves the reminder unclaimed, for the next run
+    # to send.
     def deliver(reminder, event, occurrence, due_at, timed)
       EventReminderDelivery.transaction do
         claimed = EventReminderDelivery.insert(
@@ -76,8 +78,16 @@ module Reminders
             recipient: reminder.profile, kind: :reminder_due, subject: event, title: occurrence.event_label,
             data: { date: occurrence.date.iso8601, due_at: due_at.iso8601, timed: timed, time: occurrence.time_string, anchor: occurrence.anchor }.compact
           )
+          mail(reminder, occurrence, due_at) if reminder.by_email? && Emails.for_reminders(reminder.profile) == :available
         end
       end
+    end
+
+    # Worth sending until the thing is due; what it says is made as it goes,
+    # from the day as it is then.
+    def mail(reminder, occurrence, due_at)
+      data = { "event_reminder_id" => reminder.id, "date" => occurrence.date.iso8601, "time" => occurrence.time_string }.compact
+      Emails::Enqueue.call(reminder.profile, :reminder, data: data, latest: due_at)
     end
   end
 end

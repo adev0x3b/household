@@ -4,13 +4,16 @@ Rails.application.routes.draw do
   # Every route lives under the app's mount path (config.x.mount_path).
   scope path: Rails.configuration.x.mount_path.delete_prefix("/").presence do
     # Invite only: no sign-up. Of devise_invitable's routes only accepting an
-    # invitation is kept; inviting is /household_invitations. Of Devise's
-    # password routes only setting one from a link (Profiles::PasswordLink):
-    # nothing asks for one by email.
+    # invitation is kept; inviting is /household_invitations. Devise's
+    # password routes ask for a link by mail (a 404 where the installation
+    # mails nothing) and set a password from a link, mailed or made on the
+    # household page (Profiles::PasswordLink).
     devise_for :profiles, controllers: { sessions: "profiles/sessions" }, skip: [ :invitations, :passwords ]
     devise_scope :profile do
       get "profiles/invitation/accept", to: "profiles/invitations#edit", as: :accept_profile_invitation
       match "profiles/invitation", to: "profiles/invitations#update", via: %i[put patch], as: :profile_invitation
+      get "profiles/password/new", to: "profiles/passwords#new", as: :new_profile_password
+      post "profiles/password", to: "profiles/passwords#create"
       get "profiles/password/edit", to: "profiles/passwords#edit", as: :edit_profile_password
       match "profiles/password", to: "profiles/passwords#update", via: %i[put patch], as: :profile_password
     end
@@ -36,6 +39,22 @@ Rails.application.routes.draw do
 
     # The current profile's household: its people, and inviting more of them.
     resource :household, only: :show
+
+    # The signed-in person's own account: the address the app mails, a
+    # change of it (asked for, or taken back while it waits for its link),
+    # that link mailed again, the link's page and the press that confirms,
+    # and the password.
+    resource :account, only: :show do
+      resource :email_change, only: %i[create destroy], controller: "account_email_changes"
+      resource :email_confirmation_link, only: :create, controller: "account_email_confirmation_links"
+      resource :email_confirmation, only: %i[show create], controller: "account_email_confirmations"
+      resource :password, only: :update, controller: "account_passwords"
+    end
+
+    # The link at the foot of a reminder mail, for whoever holds it, signed
+    # in or not: its page, and the press, or a mail client's one click,
+    # that stops every reminder by email. The token travels in the query.
+    resource :email_unsubscription, only: %i[show create]
 
     # Links between housemates: asking, accepting, ending one (declined or
     # taken back while it waits, unlinked once accepted), what each lets the
@@ -267,6 +286,10 @@ Rails.application.routes.draw do
       resource :settings, only: %i[show update] do
         delete "values/:key", action: :clear, as: :value, constraints: { key: Regexp.union(Platform::KEYS.map(&:to_s)) }
       end
+      # The mail the app sends (Admin::EmailsController), and a test of it
+      # to the admin themselves (Admin::TestMailsController).
+      resources :emails, only: :index
+      resource :test_mail, only: :create
       resources :lexicons, only: %i[index show new create], param: :language do
         # An import of the language (Admin::LexiconImportsController): its
         # modal and its start; then, once its cases are confirmed, going on

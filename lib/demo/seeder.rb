@@ -99,9 +99,12 @@ module Demo
     end
 
     def member(name, first_name, last_name, gender)
+      # Confirmed addresses, as a household that uses mail has: a development
+      # copy with a relay shows and sends what theirs would, and the demo,
+      # whose mail is off, sends nothing.
       profile = Profile.create!(
-        household: household, username: "#{name}.demo", email: "#{name}@demo.example", password: @password,
-        first_name: first_name, last_name: last_name, gender: gender, role: :user
+        household: household, username: "#{name}.demo", email: "#{name}@demo.example", email_confirmed_at: Time.current,
+        password: @password, first_name: first_name, last_name: last_name, gender: gender, role: :user
       )
       Profiles::Join.call(profile)
     end

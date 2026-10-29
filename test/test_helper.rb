@@ -56,6 +56,7 @@ module ActiveSupport
     include UploadBuilders
     include EveryTable
     include EnvironmentVariables
+    include MailBuilders
     include RateLimits
     include Swapping
     include ResponseAssertions
@@ -76,10 +77,11 @@ module ActiveSupport
     end
 
     # Nothing is sent with the keys .env may hold: push is off until a test
-    # turns it on (with_push_keys), no test can start a deploy, and Google
-    # Books is never asked. No installation limit (Platform) is on until a
-    # test sets one (with_env, on_the_demo).
-    isolate_env "VAPID_PUBLIC_KEY", "VAPID_PRIVATE_KEY", "DEPLOY_DISPATCH_TOKEN", "GOOGLE_BOOKS_API_KEY",
+    # turns it on (with_push_keys), no test can start a deploy, Google Books
+    # is never asked, and no mail has a relay until a test sets one
+    # (with_relay). Every installation limit (Platform) is at its default
+    # until a test sets one (with_env, on_the_demo).
+    isolate_env "VAPID_PUBLIC_KEY", "VAPID_PRIVATE_KEY", *Platform::ENV_NAMES.values,
                 *Platform::LIMITS.values.map(&:env), Platform::OPEN_ACCOUNTS
 
     # The deployment console sees the same made-up pipeline everywhere, CI

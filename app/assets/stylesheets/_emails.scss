@@ -1,0 +1,50 @@
+@use "variables" as *;
+
+// Admin: the page of mail (Views::Admin::Emails::Index). The page, its
+// status card, rows and disclosures are the shared pieces (_report.scss,
+// _disclosure.scss); here are only the card's facts and a row of the outbox.
+
+.emails__facts > li {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.emails__label {
+  color: $text-muted;
+  font-size: $type-14;
+}
+
+.emails__value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+// A row of the outbox: what and whose, then when, then why it waits or
+// failed and what the relay answered.
+.report-rows > .emails__row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+.emails__who {
+  margin-left: 0.5rem;
+  color: $text-muted;
+  font-size: $type-14;
+  overflow-wrap: anywhere;
+}
+
+.emails__when {
+  color: $text-muted;
+  font-size: $type-14;
+}
+
+.emails__reason {
+  font-size: $type-14;
+}
+
+.emails__detail {
+  color: $text-muted;
+}

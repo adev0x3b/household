@@ -10,6 +10,7 @@ module Views::Setup::Steps
     Installation::Allowances => Views::Installation::Allowances,
     Installation::Assistant => Views::Setup::Steps::Assistant,
     Installation::Books => Views::Installation::Books,
+    Installation::Mail => Views::Installation::Mail,
     Setup::Housemates => Views::Setup::Steps::Housemates
   }.freeze
 end

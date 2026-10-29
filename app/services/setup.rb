@@ -15,6 +15,7 @@ module Setup
     Installation::Allowances,
     Installation::Assistant,
     Installation::Books,
+    Installation::Mail,
     Setup::Housemates
   ].freeze
 end

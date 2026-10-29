@@ -12,10 +12,13 @@ class Views::Devise::Sessions::New < Views::Base
   include Phlex::Rails::Helpers::T
 
   # open_profiles: the accounts anyone may enter as (Platform.open_profiles);
-  # demo_url: another copy's demo to try (none on the demo itself).
-  def initialize(resource:, resource_name:, devise_mapping:, open_profiles: [], demo_url: nil)
+  # demo_url: another copy's demo to try (none on the demo itself); mail:
+  # whether the installation mails (Emails.enabled?), so a forgotten
+  # password can be asked for by mail.
+  def initialize(resource:, resource_name:, devise_mapping:, open_profiles: [], demo_url: nil, mail: false)
     @open_profiles = open_profiles
     @demo_url = demo_url
+    @mail = mail
     @resource = resource
     @resource_name = resource_name
     @devise_mapping = devise_mapping
@@ -111,10 +114,16 @@ class Views::Devise::Sessions::New < Views::Base
     end
   end
 
-  # No email resets a password here: whoever runs the household makes a link.
+  # A forgotten password: a link by mail where the installation mails, and
+  # always a link from whoever runs the household.
   def render_links
     div(class: "auth-card__links") do
-      p(class: "auth-card__note") { t("sessions.new.forgot") }
+      if @mail
+        a(href: new_profile_password_path, class: "auth-card__link") { t("sessions.new.forgot_link") }
+        p(class: "auth-card__note") { t("sessions.new.forgot_owner") }
+      else
+        p(class: "auth-card__note") { t("sessions.new.forgot") }
+      end
       a(href: @demo_url, class: "auth-card__link") { t("demo.sign_in_link") } if @demo_url
     end
   end

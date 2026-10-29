@@ -11,6 +11,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     AttentionResolutionsController#create
     CalendarController#show
     DemosController#create DemosController#show
+    EmailUnsubscriptionsController#create EmailUnsubscriptionsController#show
     HomeController#report HomeController#show
     LinksController#index
     LocalesController#update

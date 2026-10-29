@@ -5,7 +5,7 @@
 # admin types their password once, inside the action's own modal, and
 # it holds for FOR in their session. A stolen session alone can't deploy,
 # nor take over or remove anyone, nor guess its way there: a wrong
-# password here counts as a wrong sign-in (Devise's lockable), and the
+# password here counts as a wrong sign-in (Profile#try_password), and the
 # account locked after ten signs that session out.
 #
 #   sudo = Admin::Sudo.new(session, current_profile)
@@ -29,9 +29,8 @@ class Admin::Sudo
   def passed?(password) = !required? || verify(password)
 
   def verify(password)
-    return false unless password.present? && @profile.valid_for_authentication? { @profile.valid_password?(password) }
+    return false unless @profile.try_password(password)
 
-    @profile.reset_failed_attempts!
     @session[:sudo_until] = FOR.from_now.to_i
     true
   end

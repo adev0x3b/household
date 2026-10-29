@@ -31,7 +31,9 @@ class SetupControllerTest < ActionDispatch::IntegrationTest
       allowances: { assistant: "1", uploads: "1", pictures: "1", invitations: "1", push_notifications: "1", release_check: "1",
                     assistant_messages_per_day: "", files_quota_amount: "50", files_quota_unit: "GB", household_size: "", invitations_per_member: "" },
       assistant: { provider: "ollama", model: "qwen3:8b", ollama_url: "http://localhost:11434" },
-      books: { google_books_api_key: "", book_lookups_per_day: "" }
+      books: { google_books_api_key: "", book_lookups_per_day: "" },
+      mail: { outgoing_mail: "1", smtp_host: "", smtp_port: "", smtp_tls: "", smtp_username: "", smtp_password: "", mail_from: "",
+              mails_per_hour: "6", mails_per_day: "40", reminder_mails_per_day: "20" }
     }.deep_merge(steps)
   end
 
@@ -195,7 +197,7 @@ class SetupControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_form_error "Who else lives here, row 1: Email is yours: you're in already"
     assert_form_error "Who else lives here, row 2: Email is invalid"
-    assert_select "form[data-setup-wizard-start-value='5']"
+    assert_select "form[data-setup-wizard-start-value='#{Setup::STEPS.index(Setup::Housemates)}']"
     assert_select ".setup-housemates__row.is-invalid input[name='setup[housemates][people][1][email]'][value='sam.example.com'][aria-invalid=true]"
   end
 

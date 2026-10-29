@@ -130,6 +130,13 @@ jobs:
       ASSISTANT_PROVIDER: ${{ vars.ASSISTANT_PROVIDER }}
       ASSISTANT_MODEL: ${{ vars.ASSISTANT_MODEL }}
       OLLAMA_BASE_URL: ${{ vars.OLLAMA_BASE_URL }}
+      OUTGOING_MAIL: ${{ vars.OUTGOING_MAIL }}
+      SMTP_HOST: ${{ vars.SMTP_HOST }}
+      SMTP_HOST_ADDRESS: ${{ vars.SMTP_HOST_ADDRESS }}
+      SMTP_PORT: ${{ vars.SMTP_PORT }}
+      SMTP_TLS: ${{ vars.SMTP_TLS }}
+      SMTP_USERNAME: ${{ vars.SMTP_USERNAME }}
+      MAIL_FROM: ${{ vars.MAIL_FROM }}
       WEB_MEMORY: ${{ vars.WEB_MEMORY }}
       JOB_MEMORY: ${{ vars.JOB_MEMORY }}
       DB_MEMORY: ${{ vars.DB_MEMORY }}
@@ -138,6 +145,7 @@ jobs:
       GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }}
       DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
       DEPLOY_DISPATCH_TOKEN: ${{ secrets.DEPLOY_DISPATCH_TOKEN }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
     steps:
       # What bin/provision and the Tailscale console set up: a
       # missing one fails here, by name, rather than as a timeout later (a

@@ -22,6 +22,7 @@ env:
     DB_HOST: household-dev-db
     DEPLOY_GITHUB_CANNED: "1"
     OPEN_ACCOUNTS: "<%= ENV["OPEN_ACCOUNTS"].presence || "alex.demo,sam.demo,robin.demo" %>"
+    OUTGOING_MAIL: "<%= ENV["OUTGOING_MAIL"].presence || "off" %>" # mail goes out from production alone
 
 volumes:
   - household_dev_storage:/rails/storage

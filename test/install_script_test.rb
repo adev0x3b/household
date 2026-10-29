@@ -8,14 +8,14 @@ require "pty"
 # sudo, curl, crontab and ss are stand-ins that record what they were asked:
 # each way of reaching the app writes its few lines, a port another program
 # holds is asked again, a first start that fails can be tried again, the
-# release is checked
-# before anything is installed, the setup code is the app's, and the
-# household command backs up, updates, puts the old version back and
-# uninstalls what it is told to. What is typed back is typed on a terminal
-# of the test's own.
+# release is checked before anything is installed, the setup code and a
+# link to set a password are the app's, and the household command backs
+# up, updates, puts the old version back and uninstalls what it is told to.
+# What is typed back is typed on a terminal of the test's own.
 class InstallScriptTest < ActiveSupport::TestCase
   SCRIPT = Rails.root.join("install.sh").to_s
   CODE = "K7QM-2XRD-9VWP-HC4T"
+  LINK_TOKEN = "s3t-a-new-0ne"
   IMAGE = "ghcr.io/owner/household:2026.11.1@sha256:#{"a" * 64}"
 
   setup do
@@ -35,6 +35,9 @@ class InstallScriptTest < ActiveSupport::TestCase
           [ -f "#{@root}/account" ] && { echo "Someone has an account already." >&2; exit 3; }
           echo "Setup code: #{CODE}" >&2
           echo "#{CODE}" ;;
+        *"exec -T -e RAILS_LOG_LEVEL=warn -e USERNAME=alex web bin/rails admin:password_link")
+          echo "Open this to set alex's password, within 30 minutes:"
+          echo "http://localhost/profiles/password/edit?reset_password_token=#{LINK_TOKEN}" ;;
         *"exec -T db pg_dump"*) echo "the database" ;;
         *"config --images") printf '%s\n' "#{IMAGE}" postgres:16 ;;
         *"--entrypoint tar web czf"*) echo "the files" ;;
@@ -229,6 +232,12 @@ class InstallScriptTest < ActiveSupport::TestCase
     FileUtils.touch(File.join(@root, "account"))
     out = household("setup-code", success: false)
     assert_includes out, "Someone has an account already"
+  end
+
+  test "the household command: a link to set someone's password, the admin's way back, printed by the app" do
+    install!(exposure: "local")
+    assert_includes household("password-link", "alex"), "reset_password_token=#{LINK_TOKEN}"
+    assert_includes household("password-link", success: false), "Whose?"
   end
 
   test "a nightly backup unless told not to, in the crontab once however often it is installed" do

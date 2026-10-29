@@ -55,13 +55,19 @@ servers:
       memory: "<%= ENV["WEB_MEMORY"] %>"
 <%- end -%>
   # Solid Queue: the jobs and config/recurring.yml. Boots once web is
-  # healthy, so after the migrations.
+  # healthy, so after the migrations. It alone sends mail: where the relay's
+  # name doesn't lead there from inside (SMTP_HOST_ADDRESS), it is pointed
+  # at the relay's address, and the certificate is still checked against the name.
   job:
     hosts:
       - <%= ENV.fetch("DEPLOY_HOST") %>
     cmd: bin/jobs
     options:
-      add-host: host.docker.internal:host-gateway
+      add-host:
+        - host.docker.internal:host-gateway
+<%- if ENV["SMTP_HOST_ADDRESS"].present? -%>
+        - "<%= ENV["SMTP_HOST"].presence || raise("SMTP_HOST_ADDRESS is the address of SMTP_HOST, which is unset") %>:<%= ENV["SMTP_HOST_ADDRESS"] %>"
+<%- end -%>
 <%- if ENV["JOB_MEMORY"].present? -%>
       memory: "<%= ENV["JOB_MEMORY"] %>"
 <%- end -%>
@@ -146,6 +152,14 @@ env:
     ASSISTANT_PROVIDER: "<%= ENV["ASSISTANT_PROVIDER"].presence || "ollama" %>"
     ASSISTANT_MODEL: "<%= ENV["ASSISTANT_MODEL"].presence || "qwen3:8b" %>"
     OLLAMA_BASE_URL: "<%= ENV["OLLAMA_BASE_URL"].presence || "http://host.docker.internal:11434" %>"
+    # Mail (Emails): the switch, and the relay it goes out through, field by
+    # field where /admin/settings leaves one empty; its password is a key.
+    OUTGOING_MAIL: "<%= ENV["OUTGOING_MAIL"].presence || "on" %>"
+    SMTP_HOST: "<%= ENV["SMTP_HOST"].presence %>"
+    SMTP_PORT: "<%= ENV["SMTP_PORT"].presence %>"
+    SMTP_TLS: "<%= ENV["SMTP_TLS"].presence %>"
+    SMTP_USERNAME: "<%= ENV["SMTP_USERNAME"].presence %>"
+    MAIL_FROM: "<%= ENV["MAIL_FROM"].presence %>"
     # What the delivery console links to: the repositories and every
     # destination's address, under the same mount path (Deployment.url). The
     # demo's is also where /demo sends a visitor from any other copy.
@@ -165,7 +179,7 @@ env:
     # The destination's keys (.kamal/secrets-common names them), each only
     # where the environment has it: an absent key stays absent in the
     # container rather than arriving as "".
-<%- %w[ANTHROPIC_API_KEY OPENAI_API_KEY GOOGLE_BOOKS_API_KEY DEMO_PASSWORD DEPLOY_DISPATCH_TOKEN].each do |name| -%>
+<%- %w[ANTHROPIC_API_KEY OPENAI_API_KEY GOOGLE_BOOKS_API_KEY DEMO_PASSWORD DEPLOY_DISPATCH_TOKEN SMTP_PASSWORD].each do |name| -%>
 <%- if ENV[name].present? -%>
     - <%= name %>
 <%- end -%>

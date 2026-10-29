@@ -101,7 +101,7 @@ class Households::InviteTest < ActiveSupport::TestCase
     assert_equal 5, @household.invites_left_for(admin)
   end
 
-  test "an address already known is refused the same way wherever it is; a bad one too" do
+  test "an address already known is refused the same way wherever it is; a bad one, or a list of them, too" do
     theirs = invite("erin@example.com", inviter: profiles(:outsider), household: households(:elsewhere)).profile
 
     [ "erin@example.com", profiles(:outsider).email, profiles(:bob).email ].each do |email|
@@ -110,6 +110,7 @@ class Households::InviteTest < ActiveSupport::TestCase
     end
     assert_equal households(:elsewhere), theirs.reload.household
     assert invite("not an email").profile.errors.of_kind?(:email, :invalid)
+    assert invite("erin@example.com,bob").profile.errors.of_kind?(:email, :invalid), "one mailbox, never a list"
   end
 
   test "inviting someone already waiting here makes a new link and ends the old one, still the first inviter's" do

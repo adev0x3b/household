@@ -24,6 +24,25 @@ class PlatformTest < ActiveSupport::TestCase
     assert_not Platform.open_account?(nil)
   end
 
+  test "mail is on, with a budget always: the defaults, else a number from the environment no lower than the least allowed" do
+    assert_predicate Platform, :outgoing_mail?
+    assert_equal [ 6, 40, 20 ], [ Platform.mails_per_hour, Platform.mails_per_day, Platform.reminder_mails_per_day ]
+
+    with_env("MAILS_PER_HOUR" => "12", "MAILS_PER_DAY" => "100", "REMINDER_MAILS_PER_DAY" => "0") do
+      assert_equal [ 12, 100, 0 ], [ Platform.mails_per_hour, Platform.mails_per_day, Platform.reminder_mails_per_day ]
+    end
+    with_env("MAILS_PER_HOUR" => "1", "MAILS_PER_DAY" => "5", "REMINDER_MAILS_PER_DAY" => "plenty") do
+      assert_equal [ 6, 40, 20 ], [ Platform.mails_per_hour, Platform.mails_per_day, Platform.reminder_mails_per_day ]
+    end
+    with_env("OUTGOING_MAIL" => "off") { assert_not Platform.outgoing_mail? }
+
+    Platform::Setting.create!(mails_per_hour: 3)
+    with_env("MAILS_PER_HOUR" => "12", "MAILS_PER_DAY" => "100") do
+      assert_equal 3, Platform.mails_per_hour
+      assert_equal 40, Platform.mails_per_day, "left empty on the row: the default, never no limit"
+    end
+  end
+
   test "a switch is off for off, false, no or 0, whatever the case; anything else leaves it on" do
     %w[off OFF false no 0].each { |value| with_env("UPLOADS" => value) { assert_not Platform.uploads?, value } }
     %w[on yes 1 maybe].each { |value| with_env("PICTURES" => value) { assert_predicate Platform, :pictures?, value } }

@@ -26,6 +26,8 @@ Commands, run from the installation's directory:
   restore <backup>      a backup put back, over what is there now
   config                how people reach it, asked again
   setup-code            a new code for the setup page, while nobody has an account
+  password-link <user>  a link to set that person's password, printed here: the
+                        admin's way back, since none is mailed to them
   status                what runs, and the version
   logs                  the app's log, followed (Ctrl-C stops following)
   stop, start           stop the app, start it again
@@ -587,6 +589,12 @@ command_setup_code() {
   note "It replaces any code made before."
 }
 
+command_password_link() {
+  in_installation
+  [ -n "$1" ] || die "Whose? household password-link <username>"
+  compose exec -T -e RAILS_LOG_LEVEL=warn -e "USERNAME=$1" web bin/rails admin:password_link
+}
+
 command_status() {
   in_installation
   say "Household $(installed_version) in $DIR, at $(address)"
@@ -873,7 +881,7 @@ main() {
       *)
         if [ -z "$command" ]; then
           command=$1
-        elif [ "$command" = restore ] && [ -z "$argument" ]; then
+        elif { [ "$command" = restore ] || [ "$command" = password-link ]; } && [ -z "$argument" ]; then
           argument=$1
         else
           usage >&2
@@ -899,6 +907,7 @@ main() {
     config) command_config ;;
     uninstall) command_uninstall ;;
     setup-code) command_setup_code ;;
+    password-link) command_password_link "$argument" ;;
     status) command_status ;;
     logs) in_installation; compose logs -f --tail 100 web job ;;
     stop) in_installation; compose stop ;;

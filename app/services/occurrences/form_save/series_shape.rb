@@ -6,7 +6,7 @@ module Occurrences
     # its times of the day and the submitter's "Remind me" rows.
     class SeriesShape
       PARAMS = [ :frequency, :interval, *Events::SeriesEnd::PARAMS, :collection_id, :reminders_submitted, :slots_submitted,
-                 { week_days: [], reminders: %i[amount unit], slots: [] } ].freeze
+                 { week_days: [], reminders: %i[amount unit by_email], slots: [] } ].freeze
 
       def initialize(params, actor:)
         @params = params.to_h.with_indifferent_access

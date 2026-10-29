@@ -12,7 +12,11 @@ class ThemeTest < ActiveSupport::TestCase
     "ACCENT" => "accent",
     "ACCENT_PRESSED" => "accent-pressed",
     "TEXT" => "text",
-    "MUTED" => "text-muted"
+    "MUTED" => "text-muted",
+    "MAIL_PAGE" => "mail-page",
+    "MAIL_CARD" => "mail-card",
+    "MAIL_TEXT" => "mail-text",
+    "MAIL_MUTED" => "mail-muted"
   }.freeze
 
   test "every colour is the stylesheet's" do

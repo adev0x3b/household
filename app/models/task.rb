@@ -8,6 +8,7 @@ class Task < Event
 
   def self.section = :agenda
   def self.allowed_statuses = %w[pending in_progress completed cancelled skipped]
+  def self.named_in_mail? = true
 
   # Higher sorts earlier on a day card.
   def priority_rank

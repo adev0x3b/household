@@ -62,11 +62,6 @@ module HouseholdApp
     # was, so renaming the module signs nobody out.
     config.session_store :cookie_store, key: "_household_session", path: config.x.cookie_path
 
-    # Who the app's mail would come from (Devise's sender): MAIL_FROM, else
-    # the address at the app's own host. No mail is sent today: links are
-    # shown once instead.
-    config.x.mail_from = ENV.fetch("MAIL_FROM") { "noreply@#{ENV.fetch("APP_HOST", "localhost")}" }
-
     # Whether the setup page may make its own one-time code and print it where
     # the server runs. A copy that is installed gets its code from the machine
     # (bin/rails setup:code), and never writes one to a log it keeps.

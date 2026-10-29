@@ -10,7 +10,8 @@
 #   result.token       # goes in the accept link, readable only now (the database keeps a digest)
 #
 # The link is the invitation: the inviter hands it over (copied once from the
-# household page). Nothing is emailed: mail is link-only.
+# household page). It is never mailed, even where the installation mails,
+# since the app mails no address its owner hasn't confirmed.
 #
 # Limits (Household): the installation's household size, counting
 # invitations not yet accepted, and its invitations per member into their

@@ -55,10 +55,12 @@ en:
       finance: "Finance"
       pantry: "Pantry"
     links:
+      account: "Account"
       household: "Household"
       households: "Households"
       deployment: "Deployment"
       settings: "Settings"
+      emails: "Mail"
       errors: "Errors"
       jobs: "Jobs"
       home: "Home"
@@ -525,6 +527,8 @@ en:
       remember_me: "Remember me"
       submit: "Sign in"
       forgot: "Forgot your password? Whoever runs your household can give you a link to set a new one."
+      forgot_link: "Forgot your password?"
+      forgot_owner: "Whoever runs your household can also give you a link to set a new one."
 
   invitations:
     edit:
@@ -581,6 +585,38 @@ en:
       google_books_api_key: "Google Books API key"
       book_lookups_per_day: "Book lookups per household, per day"
       book_lookups_per_day_help: "How many times a day one household may look a book up. Leave it empty for no limit."
+    mail:
+      title: "Mail"
+      hint: "What this installation mails: the reminders its people ask for by email, links to set a password, confirmations of an address, notices about an account. It goes out through an SMTP relay. An empty field follows the environment, whose value it shows, and the environment's username and password go only to the environment's relay server."
+      outgoing_mail:
+        name: "Send mail"
+        help: "When this is off, nothing is mailed, even with a relay set."
+      smtp_host: "Relay server"
+      smtp_host_help: "The SMTP server's name, without https:// or a port."
+      smtp_port: "Port"
+      smtp_tls: "Encryption"
+      tls_modes:
+        starttls: "STARTTLS, usually port 587"
+        tls: "TLS, usually port 465"
+        none: "None, for a server on this machine only, usually port 25"
+      smtp_username: "Username"
+      smtp_password: "Password"
+      mail_from: "Sender address"
+      mail_from_help: "The address mail comes from. The relay must allow it."
+      from_env: "%{value} (from %{variable})"
+      placeholders:
+        smtp_host: "Not set: nothing is mailed"
+        smtp_port: "The encryption's usual port (the default)"
+        smtp_tls: "STARTTLS (the default)"
+        smtp_username: "None"
+        mail_from: "Not set: nothing is mailed"
+      default: "%{count} (the default)"
+      mails_per_hour: "Mail per hour"
+      mails_per_hour_help: "Everything this installation mails in an hour, every household together. The last one of each hour is kept for account mail, such as a link to set a password, and one household's account mail takes half at most."
+      mails_per_day: "Mail per day"
+      mails_per_day_help: "Everything this installation mails in a day, every household together. The last five of each day are kept for account mail, and one household's account mail takes half at most."
+      reminder_mails_per_day: "Reminder mails per household, per day"
+      reminder_mails_per_day_help: "The reminder mails one household's people get in a day, all together. Reminders due at the same time go in one mail. 0 sends none."
     deploy_token:
       title: "Deployment"
       hint: "A fine-grained GitHub token for %{repository} with Actions: read & write, Contents: read & write, Deployments: read, Pull requests: read & write and Variables: read & write. It lets the Deployment page start CI and the Deploy workflow, read what runs where and what would ship, merge a branch's pull request, and hold or release automatic deploys. It is tried on save."
@@ -592,6 +628,7 @@ en:
       hint: "The password of alex.demo, sam.demo and robin.demo. Applies when the demo is rebuilt: every night, or with bin/rails demo:seed."
     secret:
       saved: "Saved, ends in …%{last4}"
+      saved_password: "Saved"
       from_env: "From the environment (%{variable})"
       clear: "Forget the saved %{name}"
       clear_confirm: "Forget the saved %{name}? The environment's value, if any, takes over."
@@ -599,10 +636,12 @@ en:
         google_books_api_key: "Google Books API key"
         deploy_dispatch_token: "GitHub deploy token"
         demo_password: "Demo password"
+        smtp_password: "Mail relay password"
       none:
         google_books_api_key: "Not set: Open Library only"
         deploy_dispatch_token: "Not set: no buttons on the Deployment page"
         demo_password: "Not set: the default, demo-household"
+        smtp_password: "Not set: needed only when the relay asks for a login"
 
   setup:
     title: "Welcome to Household"
@@ -684,12 +723,82 @@ en:
     exceeded: "Too many attempts. Wait a moment and try again."
 
   passwords:
+    # "Forgot your password?" (Views::Devise::Passwords::New).
+    new:
+      title: "Forgot your password?"
+      subtitle: "Type your username or your address. If your account has a confirmed address, a link to set a new password goes there, and works for %{minutes} minutes."
+      login_label: "Username or email"
+      submit: "Mail me a link"
+      no_mail: "No mail came? Whoever runs your household can give you a link to set a new password."
+      back: "Back to signing in"
+    notices:
+      asked: "If that account can have one, a link is on its way to its confirmed address. It works for %{minutes} minutes."
     edit:
       title: "Choose a new password"
       subtitle: "Then sign in with it."
       password_label: "New password"
       password_confirmation_label: "Confirm the new password"
       submit: "Save the password"
+
+  # The signed-in person's own account (/account, Views::Accounts::Show), and the page a link to confirm an address opens.
+  accounts:
+    show:
+      title: "Account"
+      signed_in_as: "You sign in as %{username}."
+      current_password: "Your password"
+      address:
+        title: "Your address"
+        hint_confirmed: "Household mails your reminders here and, if you ever forget your password, a link to set a new one."
+        hint_confirmed_reminders: "Household mails your reminders here."
+        hint_confirmed_password_link: "If you ever forget your password, Household mails a link here to set a new one."
+        hint_confirmed_notices: "Household mails you here when your password or your address changes."
+        hint_unconfirmed: "Household mails it only once it's confirmed, from a link mailed to it."
+        hint_no_mail: "Household sends no mail here, so your address is only for signing in."
+        confirmed: "Confirmed"
+        not_confirmed: "Not confirmed"
+        send_link: "Mail me a link to confirm it"
+        link_sent: "A link went out on %{sent}. It works until %{expires}."
+        link_on_its_way: "A link is on its way."
+        reminders_not_mailed:
+          one: "In the last day, a reminder couldn't be mailed. Your bell still had it."
+          other: "In the last day, %{count} reminders couldn't be mailed. Your bell still had them."
+      waiting:
+        body: "%{address} is waiting to be confirmed: open the link mailed to it, in a browser where you're signed in."
+        no_mail: "Household sends no mail here now, so no link can reach it."
+        send_again: "Mail the link again"
+        keep: "Keep %{address}"
+      change_address:
+        title: "Change your address"
+        hint: "A link goes to the new address, which takes over once you open it and confirm with your password. Until then, nothing changes."
+        hint_no_mail: "The new address takes over at once."
+        email: "New address"
+        submit: "Change address"
+      change_password:
+        title: "Change your password"
+        hint: "Every other browser where you're signed in is signed out."
+        password: "New password"
+        password_confirmation: "Repeat the new password"
+        submit: "Change password"
+    email_confirmation:
+      title: "Confirm your address"
+      body: "Type your password to make this the address Household mails."
+      submit: "Confirm my address"
+      problem_title: "This link can't confirm an address"
+      to_account: "Go to your account"
+      problems:
+        expired: "It has expired, or a newer link took its place. Ask for a new one on your account page."
+        not_yours: "It was mailed to someone else. Sign out, then open it again signed in as them."
+        taken: "Someone else uses that address on Household now."
+    notices:
+      link_sent: "A link to confirm %{address} is on its way."
+      email_changed: "Your address is now %{address}."
+      email_confirmed: "%{address} is confirmed."
+      email_kept: "You keep %{address}."
+      password_changed: "Your password has changed. Every other browser was signed out."
+    errors:
+      mail_off: "Household sends no mail here."
+      nothing_to_confirm: "Your address is confirmed already."
+      no_links_left: "You've had %{count} links to confirm an address today: ask again tomorrow."
 
   households:
     people:
@@ -764,6 +873,8 @@ en:
       cancelled: "Cancelled"
       skipped: "Skipped"
     default_title: "Task"
+    reminder_mail:
+      thing: "your task “%{name}”"
     form:
       new_title: "New task"
       edit_title: "Edit task"
@@ -823,6 +934,9 @@ en:
       cancelled: "Cancelled"
       skipped: "Skipped"
     default_title: "Payment"
+    reminder_mail:
+      thing: "your payment “%{name}”"
+      thing_unnamed: "your payment"
     attached_to: "Attached to: %{thing}"
     attached_cost:
       mark_paid: "Mark as paid"
@@ -885,6 +999,8 @@ en:
       cancelled: "Cancelled"
       skipped: "Skipped"
     default_title: "Appointment"
+    reminder_mail:
+      thing: "your appointment"
     form:
       new_title: "New appointment"
       edit_title: "Edit appointment"
@@ -951,6 +1067,8 @@ en:
 
   meals:
     default_title: "Meal"
+    reminder_mail:
+      thing: "your meal “%{name}”"
     low_stock_warning: "Some ingredients are missing or running short in the pantry."
     kind:
       home: "Cooked at home"
@@ -1044,6 +1162,8 @@ en:
       cancelled: "Cancelled"
       skipped: "Skipped"
     default_title: "Medication"
+    reminder_mail:
+      thing: "your medication"
     low_stock_warning: "The linked supply is running low: plan a refill soon."
     form:
       new_title: "New medication"
@@ -1099,6 +1219,8 @@ en:
       cancelled: "Cancelled"
       skipped: "Skipped"
     default_title: "Lab result"
+    reminder_mail:
+      thing: "your lab result"
     results_count:
       one: "1 value"
       other: "%{count} values"
@@ -2210,6 +2332,7 @@ en:
       eval_cases_failed: "The %{language} test cases couldn't be written"
       eval_run_finished: "The eval run with %{model} finished"
       reminder_due: "Reminder: %{title}"
+      reminder_mails_stopped: "Your reminders no longer come by email"
       message_received:
         direct: "%{actor} sent you a message"
         household: "%{actor} wrote in %{title}"
@@ -2264,6 +2387,7 @@ en:
     details:
       eval_run_finished: "%{passed} of %{total} passed"
       reminder_due: "Due %{when}"
+      reminder_mails_stopped: "They were stopped from the link in a reminder mail. Tick “Also by email” in a reminder's form to have it by email again."
       upload_ready: "Ready to share or download"
       release_available: "See what's new, and how to update this copy."
       upload_failed: "%{title} was removed: upload it again"
@@ -2341,12 +2465,84 @@ en:
       amount: "How long before"
       unit: "Hours or days"
       before: "before"
+      by_email: "Also by email"
+      email_unconfirmed: "Reminders can come by email too, once your address is confirmed."
+      confirm_address: "Confirm it on your account page."
     units:
       hours: "hours"
       days: "days"
     formats:
       day: "%a %-d %b"
       day_time: "%a %-d %b, %H:%M"
+      mail_day: "%A %-d %B"
+      mail_time: "%H:%M"
+
+  emails:
+    greeting: "Hello %{name},"
+    account_action: "Open your account"
+    # The admin's test from the mail page (AdminMailer#test_mail).
+    test_mail:
+      subject: "A test mail from Household"
+      body: "You asked for this test on the mail page. If you're reading it, this copy's mail goes out."
+      sent_at: "Sent on %{time}."
+      action: "Open the mail page"
+    # The link that confirms an address, the link to set a forgotten password, and the notices about an account (AccountMailer).
+    password_link:
+      subject: "Set a new password for Household"
+      body: "Someone asked for a link to set a new password for your Household account, %{username}. It works for %{minutes} minutes, once."
+      action: "Set a new password"
+      closing: "If you didn't ask for it, you can ignore this mail: your password stays as it is."
+    email_confirmation:
+      subject: "Confirm your address for Household"
+      body: "Press the button to confirm %{address} as the address of your Household account. The link works for %{hours} hours, in a browser where you're signed in to Household."
+      action: "Confirm my address"
+      closing: "If you didn't ask for this, you can ignore this mail: nothing changes."
+    email_change_requested:
+      subject: "A new address was asked for on Household"
+      body: "Someone signed in to your Household account asked for a new address for it. It only takes over once it's confirmed, from a link mailed to it."
+      when: "Asked on %{time}."
+      not_you: "If it wasn't you, change your password now: that also stops the change."
+    email_changed:
+      subject: "Your Household address has changed"
+      body: "The address of your Household account is now %{address}: Household's mail goes there from now on."
+      when: "Changed on %{time}."
+      not_you: "If it wasn't you, tell your household's owner or the admin at once."
+    password_changed:
+      subject: "Your Household password has changed"
+      body: "The password of your Household account has changed, and every other browser signed in to it has been signed out."
+      when: "Changed on %{time}."
+      not_you: "If it wasn't you, tell your household's owner or the admin at once: they can give you a link to set a new one."
+    # Reminders asked for by email (RemindersMailer), one mail for those due together.
+    reminders:
+      subject:
+        one: "A reminder from Household"
+        other: "%{count} reminders from Household"
+      one:
+        timed: "This is your reminder for %{thing} at %{time} on %{day}."
+        untimed: "This is your reminder for %{thing} on %{day}."
+      several: "These are your reminders:"
+      item:
+        timed: "%{thing}, at %{time} on %{day}"
+        untimed: "%{thing}, on %{day}"
+      action:
+        one: "Open it in Household"
+        other: "Open your calendar"
+      closing:
+        one: "You asked for this reminder by email. To stop it, untick “Also by email” in its form."
+        other: "You asked for these reminders by email. To stop one, untick “Also by email” in its form."
+      unsubscribe: "Stop every reminder by email"
+
+  # The page a reminder mail's link opens (EmailUnsubscriptionsController).
+  email_unsubscriptions:
+    show:
+      title: "Reminders by email"
+      emailed: "Stop every reminder you asked for by email? They keep coming to your bell, and to your devices with notifications on."
+      none: "None of your reminders comes by email. To have one by email, tick “Also by email” in its form."
+      gone: "This link no longer works: the address it went to has changed, or it's too old. You can stop a reminder's email in its form."
+      submit: "Stop reminders by email"
+      to_household: "Go to Household"
+    notices:
+      stopped: "Your reminders no longer come by email."
 
   toast:
     close: "Close"
@@ -2711,6 +2907,85 @@ en:
       notices:
         saved: "Settings saved."
         cleared: "The saved %{name} is forgotten."
+    # The page of mail (Views::Admin::Emails::Index) and its test (Admin::TestMailsController).
+    emails:
+      title: "Mail"
+      hint: "The mail this copy sends: the reminders people ask to get by email, the links to set a password, the notices about an account. Its relay and its budgets are in the settings."
+      settings_link: "Open the settings"
+      states:
+        sending: "Going out"
+        paused: "Paused"
+        "off": "Off"
+        unconfigured: "Not set up"
+      now:
+        sending: "Mail goes out within a minute of falling due."
+        paused: "The relay refused this copy's settings, so mail waits until %{time}, or until a test mail."
+        "off": "Mail is turned off in the settings: nothing goes out, and nobody is offered mail."
+      unconfigured:
+        host: "Mail is on, but the relay has no server. Set it in the settings."
+        from: "Mail is on, but it has no sender address. Set one in the settings."
+        port: "Mail is on, but the relay's port isn't a port. Fix it in the settings."
+        tls: "Mail is on, but the relay's encryption isn't one the app knows. Fix it in the settings."
+        login_in_clear: "Mail is on, but the relay has a login and no encryption, which would send the password in the clear. Choose an encryption in the settings, or remove the login."
+      problems:
+        login: "It refused the login: check the username and the password."
+        password: "It has a username but no password: set the password."
+        username: "It has a password but no username: set the username."
+        starttls: "It doesn't offer STARTTLS: check the port and the encryption."
+        encryption: "It doesn't speak TLS from the start on that port: check the port and the encryption."
+        certificate: "Its certificate doesn't verify for its name: check the server's name."
+        sender: "It won't send as the sender address: check that its login may send as that address."
+      replied: "The relay answered: %{reply}"
+      facts:
+        relay: "Relay"
+        sender: "Sender"
+        last_hour: "Last hour"
+        last_day: "Last day"
+      relay: "%{host}, port %{port}, %{tls}"
+      tls_modes:
+        starttls: "STARTTLS"
+        tls: "TLS"
+        none: "no encryption"
+      not_set: "Not set"
+      of_budget:
+        one: "%{count} of %{budget} used"
+        other: "%{count} of %{budget} used"
+      who: "%{username}, %{household}"
+      more:
+        one: "And one more."
+        other: "And %{count} more."
+      waiting:
+        title: "Waiting"
+        empty: "Nothing is waiting."
+        due: "Due: %{time}"
+        sending: "On its way"
+      failed:
+        title: "Couldn't go out in the last %{days} days"
+        empty: "Everything went out."
+        when: "Given up: %{time}"
+      # Why a mail waits, or why it couldn't go out (OutgoingEmail#reason).
+      reasons:
+        over_budget: "Its household had used its budget for now."
+        drain_stopped: "Sending stopped before it went out."
+        unavailable: "The relay wasn't answering."
+        misconfigured: "The relay refused this copy's settings."
+        held: "The relay refused it, maybe for this mail, maybe for this copy's settings: the mail sent meanwhile tells which."
+        refused: "The relay refused it."
+        not_made: "The app couldn't compose it: the error is on the errors page."
+        unexpected: "An unforeseen error stopped it: it is on the errors page."
+        expired: "It waited past the time it was worth sending."
+      kinds:
+        password_link: "Link to set a password"
+        password_changed: "Password changed"
+        email_change_requested: "Change of address asked"
+        email_changed: "Address changed"
+        email_confirmation: "Address to confirm"
+        test_mail: "Test mail"
+        reminder: "Reminder"
+      test:
+        label: "Send a test mail to me"
+        queued: "A test mail is on its way to %{address}. How it went shows on this page."
+        unavailable: "Mail is off, or its relay isn't set. See the settings."
     households:
       index:
         title: "Households"
@@ -3642,6 +3917,11 @@ en:
         files_quota: "Files per household"
         household_size: "People per household"
         invitations_per_member: "Invitations per member"
+        mails_per_hour: "Mail per hour"
+        mails_per_day: "Mail per day"
+        reminder_mails_per_day: "Reminder mails per household, per day"
+        smtp_port: "Port"
+        smtp_tls: "Encryption"
       lexicon_language:
         wiktionary: "Language"
         code: "Code"
@@ -3816,6 +4096,15 @@ en:
 
   activemodel:
     attributes:
+      accounts/email_change:
+        email: "New address"
+        current_password: "Your password"
+      accounts/email_confirmation:
+        current_password: "Your password"
+      accounts/password_change:
+        current_password: "Your password"
+        password: "New password"
+        password_confirmation: "Repeat the new password"
       installation/assistant:
         provider: "Provider"
         model: "Model"
@@ -3849,6 +4138,16 @@ en:
         book_lookups_per_day: "Book lookups per household, per day"
       installation/demo_password:
         demo_password: "Demo password"
+      installation/mail:
+        smtp_host: "Relay server"
+        smtp_port: "Port"
+        smtp_tls: "Encryption"
+        smtp_username: "Username"
+        smtp_password: "Password"
+        mail_from: "Sender address"
+        mails_per_hour: "Mail per hour"
+        mails_per_day: "Mail per day"
+        reminder_mails_per_day: "Reminder mails per household, per day"
       assistant_eval/scenario_draft:
         name: "Name"
         today: "Today"
@@ -3858,6 +4157,26 @@ en:
         tags: "Tags"
     errors:
       models:
+        accounts/email_change:
+          no_links_left: "You've had %{count} links to confirm an address today: ask again tomorrow."
+          attributes:
+            email:
+              same: "is your address already"
+              taken: "is someone else's on Household"
+            current_password:
+              invalid: "is wrong"
+        accounts/email_confirmation:
+          attributes:
+            current_password:
+              invalid: "is wrong"
+        accounts/password_change:
+          attributes:
+            current_password:
+              invalid: "is wrong"
+        installation/mail:
+          attributes:
+            smtp_tls:
+              login_in_clear: "can't be None with a username or a password: the password would go in the clear"
         setup/housemates:
           attributes:
             people:

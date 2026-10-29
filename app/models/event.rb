@@ -86,6 +86,12 @@ class Event < ApplicationRecord
     def route_key = model_name.singular_route_key
     def default_title = I18n.t("#{model_name.route_key}.default_title")
     def costable? = true
+    # Whether a reminder mail may name its series. Mail is read on lock
+    # screens and kept on servers the household doesn't choose, so a kind
+    # whose names could tell of someone's health (a medication, a lab test,
+    # an appointment that may be a doctor's) is called by its kind alone,
+    # and a kind is named only once it says it may be.
+    def named_in_mail? = false
     def section_scope(section) = section.to_s == self.section.to_s ? all : none
 
     # What its days' calendar cards read beyond their series and details,
@@ -210,10 +216,20 @@ class Event < ApplicationRecord
   def section = self.class.section
   def fee_category = self.class.fee_category
   def costable? = self.class.costable?
+  def named_in_mail? = self.class.named_in_mail?
   def event_label = title.presence || self.class.default_title
   def shared_name = event_label
   # The label of one of its days; a kind may word a day by its own details.
   def occurrence_label(_occurrence) = event_label
+
+  # What a reminder mail calls one of its days: "your task “Water the
+  # plants”", or "your medication" for a kind a mail doesn't name
+  # (Event.named_in_mail?).
+  def reminder_mail_thing(occurrence)
+    key = "#{self.class.model_name.route_key}.reminder_mail.thing"
+    named_in_mail? ? I18n.t(key, name: occurrence.event_label) : I18n.t(key)
+  end
+
   # The title of a cost attached to one of its days, and who it was paid
   # to unless the cost says: a visit's provider, the place a meal was eaten.
   def cost_title(occurrence) = occurrence.event_label
@@ -294,7 +310,9 @@ class Event < ApplicationRecord
   # Whoever saw this series sees its continuation, and their reminders follow.
   def hand_over_audience_to!(continuation)
     event_shares.each { |share| continuation.event_shares.create!(profile_id: share.profile_id) }
-    event_reminders.each { |reminder| continuation.event_reminders.create!(profile_id: reminder.profile_id, offset_minutes: reminder.offset_minutes) }
+    event_reminders.each do |reminder|
+      continuation.event_reminders.create!(profile_id: reminder.profile_id, offset_minutes: reminder.offset_minutes, by_email: reminder.by_email)
+    end
   end
 
   # Whether the series repeats, or did before this save: its done days are

@@ -17,6 +17,7 @@ class Setup::CompleteTest < ActiveSupport::TestCase
                     files_quota_amount: "50", files_quota_unit: "GB" },
       assistant: { provider: "ollama", model: "qwen3:8b", ollama_url: "http://localhost:11434" },
       books: {},
+      mail: {},
       housemates: {}
     }.deep_merge(steps))
   end
@@ -34,6 +35,20 @@ class Setup::CompleteTest < ActiveSupport::TestCase
     assert_equal result.profile, Platform::Setting.first.updated_by
     assert_not Platform.release_check?
     assert_equal [ "ollama", result.profile ], [ Assistant::Setting.saved.provider, Assistant::Setting.saved.updated_by ]
+  end
+
+  test "the relay and the budgets given are saved with the rest, the relay's password encrypted" do
+    result = Setup::Complete.call(form(mail: { outgoing_mail: "1", smtp_host: "relay.example", smtp_port: "465", smtp_tls: "tls", smtp_username: "household",
+                                               smtp_password: "relay-secret", mail_from: "household@household.example", mails_per_hour: "10",
+                                               mails_per_day: "", reminder_mails_per_day: "5" }))
+
+    assert_predicate result, :success?
+    setting = Platform::Setting.sole
+    assert_equal [ "relay.example", 465, "tls", "household", "household@household.example" ],
+                 [ setting.smtp_host, setting.smtp_port, setting.smtp_tls, setting.smtp_username, setting.mail_from ]
+    assert_not_equal "relay-secret", setting.ciphertext_for(:smtp_password)
+    assert_equal [ 10, 40, 5 ], [ Platform.mails_per_hour, Platform.mails_per_day, Platform.reminder_mails_per_day ]
+    assert_predicate Emails, :enabled?
   end
 
   test "a step with something wrong saves nothing, and each step keeps its own errors" do

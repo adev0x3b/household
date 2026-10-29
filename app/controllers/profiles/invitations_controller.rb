@@ -4,6 +4,8 @@
 # form to choose a username and a password, and the person is in. Inviting
 # is HouseholdInvitationsController; this app has no sign-up.
 class Profiles::InvitationsController < Devise::InvitationsController
+  include TokenInAddress
+
   # An invitation's token can't be guessed; trying anyway is slowed like signing in.
   rate_limit to: 10, within: 3.minutes, only: :update, with: -> { rate_limited }
 

@@ -89,6 +89,7 @@ class Views::Layouts::Navbar::Sheet < Views::Base
                    Components::NavItem.new(href: admin_households_path, icon: "fa-city", label: t("navbar.links.households")),
                    Components::NavItem.new(href: admin_deployment_path, icon: "fa-rocket", label: t("navbar.links.deployment")),
                    Components::NavItem.new(href: admin_settings_path, icon: "fa-gear", label: t("navbar.links.settings")),
+                   Components::NavItem.new(href: admin_emails_path, icon: "fa-envelope", label: t("navbar.links.emails")),
                    Components::NavItem.new(href: admin_errors_path, icon: "fa-bug", label: t("navbar.links.errors")),
                    Components::NavItem.new(href: admin_jobs_path, icon: "fa-list-check", label: t("navbar.links.jobs")),
                    Components::NavItem.new(href: assistant_settings_path, icon: "fa-sliders", label: t("navbar.links.assistant_settings")),

@@ -17,7 +17,7 @@ class ApplicationClientTest < ActiveSupport::TestCase
     files = Dir[Rails.root.join("app/clients/*/*.rb")]
     names = files.map { _1.delete_prefix(Rails.root.join("app/clients/").to_s).delete_suffix(".rb").camelize }
 
-    assert_equal 8, names.size
+    assert_equal 9, names.size
     names.each do |name|
       assert_operator name.constantize, :<, ApplicationClient, name
       assert_operator name.constantize::Error, :<=, ApplicationClient::Error, name

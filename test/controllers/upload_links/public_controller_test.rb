@@ -12,6 +12,7 @@ class UploadLinks::PublicControllerTest < ActionDispatch::IntegrationTest
 
     get public_upload_link_path(token)
     assert_response :success
+    assert_equal "same-origin", response.headers["Referrer-Policy"], "no other site learns the link"
     assert_select ".public-upload-link__name", text: "Lease 2026.pdf"
     assert_select ".auth-card__subtitle", text: /11 B · shared by Alice/
     assert_select ".public-upload-link__terms", text: /1 download left/

@@ -28,8 +28,10 @@ module Profiles
       return if @ids.empty?
 
       ActiveRecord::Base.transaction do
+        lock_profiles
         delete_conversations
         delete_notifications
+        delete_mail
         delete_console_presses
         delete_links
         delete_series
@@ -44,6 +46,11 @@ module Profiles
     end
 
     private
+
+    # Their rows first, before anything of theirs: whatever locks a person's
+    # row and then writes what they keep (a link made for their mail) waits
+    # for all of this, rather than each holding what the other needs.
+    def lock_profiles = Profile.where(id: @ids).order(:id).lock.ids
 
     # Their chats with the assistant, with the photos sent to it once
     # committed; their messages and reactions; the direct conversations they
@@ -75,6 +82,10 @@ module Profiles
       Notification.where(profile_id: @ids).or(Notification.where(actor_id: @ids)).delete_all
       PushSubscription.where(profile_id: @ids).delete_all
     end
+
+    # Their mail, waiting or kept for the admin's page: none goes to
+    # someone who is gone.
+    def delete_mail = OutgoingEmail.where(profile_id: @ids).delete_all
 
     # What they pressed on the delivery console: GitHub keeps each run's own
     # record of who asked.

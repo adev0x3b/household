@@ -3,11 +3,21 @@
 class Profile < ApplicationRecord
   # Invite only: nobody signs up. A profile is created by an invitation
   # (Households::Invite) and becomes usable when it is accepted. A password
-  # is reset by a link from the household page (Profiles::PasswordLink),
-  # never by email; how long, how many tries, how idle:
+  # is reset by a link from the household page (Profiles::PasswordLink), or
+  # one mailed to the person's confirmed address when they forget it
+  # (Profiles::RequestPasswordLink); how long, how many tries, how idle:
   # config/initializers/devise.rb.
   devise :invitable, :database_authenticatable, :recoverable, :rememberable, :validatable, :trackable,
          :lockable, :timeoutable
+
+  # How long a link that confirms an address works.
+  EMAIL_CONFIRMATION_FOR = 24.hours
+  # How long the link in a reminder mail that stops them all works.
+  EMAIL_UNSUBSCRIPTION_FOR = 90.days
+  # How long a link to set a password works when it is mailed or printed on
+  # the server, where more than the person may read it. One the household's
+  # owner or the admin hands over lasts Devise's reset_password_within.
+  SHORT_PASSWORD_LINK_FOR = 30.minutes
 
   belongs_to :household
 
@@ -54,7 +64,7 @@ class Profile < ApplicationRecord
 
   attr_writer :login
 
-  normalizes :email, with: ->(email) { email.strip.downcase }
+  normalizes :email, :unconfirmed_email, with: ->(email) { email.strip.downcase }
 
   # Who has an account: never invited (seeds), or accepted. The others are
   # invitations waiting for an answer: an email, no username, nothing to share with.
@@ -80,14 +90,118 @@ class Profile < ApplicationRecord
   enum :gender, { male: 0, female: 1, non_binary: 2 }
   enum :role, { user: 0, admin: 1 }
 
+  # Whatever writes the profile: another address ends the links made for
+  # the one before (to confirm it, to set a password) and is confirmed only
+  # when the save is its confirmation; another address waiting ends the link
+  # made for the one before it; and a new password ends a change of address
+  # still waiting, so whoever had the account can't finish it.
+  before_update :leave_the_old_address, if: :will_save_change_to_email?
+  before_update :forget_the_confirmation_link, if: :will_save_change_to_unconfirmed_email?
+  before_update :end_a_change_of_address, if: :will_save_change_to_encrypted_password?
+
   def login
     @login || self.username || self.email
   end
 
-  # A token for the link that sets a new password (Profiles::PasswordLink),
-  # readable only now: the database keeps its digest, and an earlier link
-  # stops working.
-  def password_link_token! = set_reset_password_token
+  # Devise never mails: every mail goes through the outbox (Emails), within
+  # the installation's budgets and in the person's language. Whatever of
+  # Devise's would mail fails here instead of sending around them.
+  def send_devise_notification(notification, *)
+    raise NotImplementedError, "Devise would mail #{notification}: the app's mail goes through Emails::Enqueue"
+  end
+
+  # A token for the link that sets a new password, handed over by the
+  # household's owner or the admin (Profiles::PasswordLink), readable only
+  # now: the database keeps its digest, and an earlier link stops working.
+  # Its time is written even when it reads empty here, since a link mailed
+  # since this was read would otherwise lend it its 30 minutes.
+  def password_link_token!
+    self.reset_password_expires_at = nil
+    reset_password_expires_at_will_change!
+    set_reset_password_token
+  end
+
+  # The same, for a link that goes by mail (Emails::Kinds::PasswordLink) or
+  # is printed on the server (admin:password_link): it works for
+  # SHORT_PASSWORD_LINK_FOR.
+  def short_password_link_token!(now = Time.current)
+    self.reset_password_expires_at = now + SHORT_PASSWORD_LINK_FOR
+    set_reset_password_token
+  end
+
+  # Whether a short link is out and still works.
+  def short_password_link_open?(now = Time.current)
+    reset_password_token.present? && reset_password_expires_at.present? && reset_password_expires_at > now
+  end
+
+  # Whichever link there is stops working.
+  def forget_password_link! = update_columns(reset_password_token: nil, reset_password_sent_at: nil, reset_password_expires_at: nil)
+
+  # Devise's question when a link is opened and when it sets the password:
+  # a short link's own time, else Devise's.
+  def reset_password_period_valid?
+    reset_password_expires_at ? reset_password_expires_at.future? : super
+  end
+
+  # Whether this is their password, counted as a sign-in is: a wrong one
+  # brings Devise's lock nearer, and the right one starts the count again.
+  # Asked before something only the person may do (Admin::Sudo, the Account
+  # page), so a stolen session can't guess its way there.
+  def try_password(password)
+    return false unless password.present? && valid_for_authentication? { valid_password?(password) }
+
+    reset_failed_attempts!
+    true
+  end
+
+  # Mail goes to an address once the person has shown it is theirs: a link
+  # mailed to it, opened in their own session and confirmed with their
+  # password (Accounts::EmailConfirmation).
+  def email_confirmed? = email_confirmed_at.present?
+
+  # The address a confirmation link is for: a new one waiting, else the one in use.
+  def address_to_confirm = unconfirmed_email.presence || email
+
+  # A token for the link that confirms the address (Emails::Kinds::EmailConfirmation),
+  # readable only now: the database keeps its digest, with when it was made
+  # and for which address, and an earlier link stops working.
+  def email_confirmation_token!
+    token, digest = Devise.token_generator.generate(Profile, :email_confirmation_digest)
+    update_columns(email_confirmation_digest: digest, email_confirmation_sent_at: Time.current,
+                   email_confirmation_address_digest: Profile.address_digest(address_to_confirm))
+    token
+  end
+
+  # Its confirmation link stops working.
+  def forget_email_confirmation_link! = update_columns(email_confirmation_digest: nil, email_confirmation_sent_at: nil, email_confirmation_address_digest: nil)
+
+  # Whose confirmation link this is, while it still confirms the address it
+  # was made for; nil otherwise.
+  def self.with_email_confirmation_token(token, now: Time.current)
+    return if token.blank?
+
+    profile = find_by(email_confirmation_digest: Devise.token_generator.digest(Profile, :email_confirmation_digest, token.to_s))
+    profile if profile&.email_confirmation_open?(now)
+  end
+
+  # An address kept only to compare with: a token's, never written out.
+  def self.address_digest(address) = OpenSSL::Digest::SHA256.hexdigest(address.to_s.strip.downcase)
+
+  # The link in a reminder mail that stops every reminder by email
+  # (EmailUnsubscriptionsController), working while the address it went to
+  # is the one confirmed. Its token can be read, so it holds when the
+  # address was confirmed, which every confirmed address has its own of,
+  # rather than the address.
+  generates_token_for :email_unsubscription, expires_in: EMAIL_UNSUBSCRIPTION_FOR do
+    email_confirmed_at&.to_i
+  end
+
+  # Whether its confirmation link still works: made less than
+  # EMAIL_CONFIRMATION_FOR ago, for the address that is still to confirm.
+  def email_confirmation_open?(now = Time.current)
+    email_confirmation_sent_at.present? && email_confirmation_sent_at > now - EMAIL_CONFIRMATION_FOR &&
+      email_confirmation_address_digest == Profile.address_digest(address_to_confirm)
+  end
 
   # Their clock (the browser's, saved by time_zone_controller.js), for
   # "3 hours before"; the app's until a browser has said.
@@ -148,6 +262,25 @@ class Profile < ApplicationRecord
   def full_name = [ first_name, last_name ].compact_blank.join(" ").presence || display_name
 
   private
+
+  def leave_the_old_address
+    self.email_confirmed_at = nil unless will_save_change_to_email_confirmed_at?
+    self.reset_password_token = nil
+    self.reset_password_sent_at = nil
+    self.reset_password_expires_at = nil
+    forget_the_confirmation_link
+  end
+
+  def end_a_change_of_address
+    self.unconfirmed_email = nil
+    forget_the_confirmation_link
+  end
+
+  def forget_the_confirmation_link
+    self.email_confirmation_digest = nil
+    self.email_confirmation_sent_at = nil
+    self.email_confirmation_address_digest = nil
+  end
 
   def time_zone_known
     errors.add(:time_zone, :inclusion) if time_zone.present? && ActiveSupport::TimeZone[time_zone].nil?

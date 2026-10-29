@@ -3,9 +3,9 @@
 # own that starts over every night (Demo::ResetJob), with no access gate in
 # front. Its three accounts are open to anyone (OPEN_ACCOUNTS, /demo),
 # so what a public playground mustn't do is off here (Platform): no uploads
-# or public links, no pictures, no invitations, no push, and a day's budget
-# for the assistant and for Open Library. Everything else is the app as it
-# is: nothing of the demo is code.
+# or public links, no pictures, no invitations, no push, no mail, and a
+# day's budget for the assistant and for Open Library. Everything else is
+# the app as it is: nothing of the demo is code.
 
 proxy:
   host: <%= ENV.fetch("DEMO_HOST") %>
@@ -24,6 +24,7 @@ env:
     PUSH_NOTIFICATIONS: "<%= ENV["PUSH_NOTIFICATIONS"].presence || "off" %>"
     ASSISTANT_MESSAGES_PER_DAY: "<%= ENV["ASSISTANT_MESSAGES_PER_DAY"].presence || "30" %>"
     BOOK_LOOKUPS_PER_DAY: "<%= ENV["BOOK_LOOKUPS_PER_DAY"].presence || "50" %>"
+    OUTGOING_MAIL: "<%= ENV["OUTGOING_MAIL"].presence || "off" %>"
 
 volumes:
   - household_demo_storage:/rails/storage

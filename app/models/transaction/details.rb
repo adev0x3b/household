@@ -36,6 +36,7 @@ class Transaction
 
     before_validation :normalize_counterparty_selection
     before_validation :normalize_currency
+    before_save :keep_out_of_mail, if: :about_changed?
 
     validates :currency, format: { with: /\A[A-Z]{3}\z/ }, allow_nil: true
     validate :amount_must_be_positive
@@ -72,6 +73,14 @@ class Transaction
     end
 
     private
+
+    # Once about something a mail doesn't name, a payment is never named in
+    # mail again, even after that thing is deleted or another is chosen: its
+    # title may still be the one made after it, by the app or by whoever
+    # added the cost (Transaction#reminder_mail_thing).
+    def keep_out_of_mail
+      self.named_in_mail = false if about && !about.named_in_mail?
+    end
 
     # A day's currency as it will be stored, upper case, before #assign_own
     # compares it with the series'.

@@ -39,6 +39,11 @@
   color: $text-muted;
   font-size: $type-14;
   overflow-wrap: anywhere;
+
+  // A link in running text is underlined, never told by colour alone.
+  a {
+    text-decoration: underline;
+  }
 }
 
 .report-mono {

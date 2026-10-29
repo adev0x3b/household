@@ -77,6 +77,9 @@ ignore_unused:
   - "*.index.empty_search"
   - "assistant.chats.{empty,empty_search}"         # Views::Assistant::Chats::List
   - "reminders.formats.*"                           # Notification#due_label
+  - "*.reminder_mail.thing"                         # Event#reminder_mail_thing (each kind's scope)
+  - "emails.reminders.{one,item}.*"                 # Emails::RemindersWording#said (timed or untimed)
+  - "email_unsubscriptions.show.{emailed,none}"     # Views::EmailUnsubscriptions::Show (by state)
   - "households.link.{emailed,not_emailed}"         # Views::Households::People
   - "home.overview.cards.agenda.{caption,none_today}"  # Views::Home::Overview
   - "assistant.evals.run.{unreliable_title,unreliable_gave_up_title}"  # Views::Assistant::Evals::ReliabilityBadge

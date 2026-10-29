@@ -89,6 +89,10 @@ class PolicyMatrixTest < ActiveSupport::TestCase
     "a device's push subscription" => {
       record: -> { push_subscription_for(@alice) },
       owner: %i[destroy?]
+    },
+    "an account" => {
+      record: -> { @alice },
+      owner: %i[manage_account?]
     }
   }.freeze
 

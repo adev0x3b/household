@@ -75,20 +75,32 @@ class Provision::DeployConfigTest < ActiveSupport::TestCase
     end
   end
 
+  test "the job container, which alone sends mail, takes the relay's name to its address where one is given, the certificate still checked against the name" do
+    with_env(INSTALLATION.merge("SMTP_HOST" => "mail.example.com", "SMTP_HOST_ADDRESS" => "")) do
+      assert_equal [ "host.docker.internal:host-gateway" ], merged("production").dig("servers", "job", "options", "add-host")
+    end
+    with_env(INSTALLATION.merge("SMTP_HOST" => "mail.example.com", "SMTP_HOST_ADDRESS" => "100.64.0.7")) do
+      assert_equal [ "host.docker.internal:host-gateway", "mail.example.com:100.64.0.7" ], merged("staging").dig("servers", "job", "options", "add-host")
+      assert_equal "host.docker.internal:host-gateway", merged("staging").dig("servers", "web", "options", "add-host")
+      assert_equal "mail.example.com", kamal_env("staging").fetch("SMTP_HOST")
+    end
+    with_env(INSTALLATION.merge("SMTP_HOST" => "", "SMTP_HOST_ADDRESS" => "100.64.0.7")) do
+      assert_raises(RuntimeError, match: /SMTP_HOST/) { render("deploy.yml") }
+    end
+  end
+
   private
 
-  def memory(destination, setting)
-    config = [ "deploy.yml", "deploy.#{destination}.yml" ].map { render(_1) }.inject { |base, own| base.deep_merge(own) }
-    config.dig(*CAPPED.fetch(setting)).to_h["memory"]
-  end
+  def memory(destination, setting) = merged(destination).dig(*CAPPED.fetch(setting)).to_h["memory"]
 
   # The merged env as Kamal reads it: `clear`, plus the names of `secret`
   # (each worth :secret here; the values come from .kamal/secrets-common).
   def kamal_env(destination)
-    config = [ "deploy.yml", "deploy.#{destination}.yml" ].map { render(_1) }.inject { |base, own| base.deep_merge(own) }
-    env = config.fetch("env")
+    env = merged(destination).fetch("env")
     env.fetch("clear").merge(env.fetch("secret").to_h { [ _1.split(":").first, :secret ] })
   end
+
+  def merged(destination) = [ "deploy.yml", "deploy.#{destination}.yml" ].map { render(_1) }.inject { |base, own| base.deep_merge(own) }
 
   def render(file)
     YAML.safe_load(ERB.new(Rails.root.join("config", file).read, trim_mode: "-").result, aliases: true)

@@ -19,6 +19,8 @@ class Demo::SeederTest < ActiveSupport::TestCase
     assert_nil household.owner, "nobody of the demo can remove the others"
     assert_equal %w[alex.demo sam.demo robin.demo], [ alex, sam, robin ].map(&:username)
     assert alex.valid_password?("demo-household")
+    assert [ alex, sam, robin ].all?(&:email_confirmed?), "as the addresses of a household that uses mail"
+    assert_predicate EventReminder.for_profile(alex).where(by_email: true), :exists?
     assert_equal others, Event.where.not(profile: household.profiles).count
 
     # Every kind has series that began months ago, days done, and days ahead.

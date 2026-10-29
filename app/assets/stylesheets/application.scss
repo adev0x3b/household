@@ -88,8 +88,10 @@
 @use "assistant-settings";
 @use "lexicons";
 @use "households";
+@use "account";
 @use "links";
 @use "deployment";
+@use "emails";
 @use "demo-banner";
 
 // The app has one theme, dark (_bulma-theme.scss), and Bulma's own

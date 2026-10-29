@@ -53,6 +53,14 @@ $text: #f0f2f5; // Body text, titles
 $text-muted: #acb1be; // Secondary text
 $text-faint: #878c99; // Captions, hints, axis ticks: never on the raised surface
 
+// Mail: light, since mail is read among light pages. No stylesheet reaches
+// a mail, so Theme repeats these for its HTML; its one button is the
+// accent, with the page's own surface as its text.
+$mail-page: #f3f4f7; // Behind the mail's card
+$mail-card: #fff; // The card that holds what the mail says
+$mail-text: #1d2233; // What it says
+$mail-muted: #5d6375; // Its closing line, and the links under its button
+
 // Tints: a color at one of five fixed strengths over whatever is behind
 // it. Use tint($color, "step") instead of rgba($color, <any alpha>).
 //   faint   zebra rows, the lightest wash

@@ -69,8 +69,10 @@ Rails.application.configure do
   # image is built (assets precompile in production mode, with no destination).
   host = ENV.fetch("APP_HOST", "localhost")
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: host, protocol: ssl ? "https" : "http" }
+  # Links made outside a request, a mail's, go where people open the app:
+  # https://host, or over plain HTTP the port the copy is published on
+  # (APP_PORT, from compose.yml).
+  config.action_mailer.default_url_options = { host: host, protocol: ssl ? "https" : "http", port: (ENV["APP_PORT"].presence unless ssl) }.compact
 
   # The browser talks to /cable from the public origin only: https://host, or
   # over plain HTTP from whichever port the copy is published on.

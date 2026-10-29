@@ -15,6 +15,8 @@
 # Every press and every refusal goes on the file's trail. Rate limited by
 # address: nobody guesses tokens or passwords here.
 class UploadLinks::PublicController < ApplicationController
+  include TokenInAddress
+
   without_authorization "public: whoever holds a link's token (UploadLink), rate limited by address", only: %i[show create file]
 
   TICKET_PURPOSE = :upload_link_file

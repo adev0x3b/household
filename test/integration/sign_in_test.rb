@@ -4,7 +4,8 @@ require "test_helper"
 
 # Signing in and keeping an account safe: how long a password is, what
 # many wrong ones do, how long an idle session lasts, and how a forgotten
-# password is replaced — a link from the household page, never an email.
+# password is replaced where nothing is mailed: a link from the household
+# page (ForgotPasswordTest has the mailed one).
 class SignInTest < ActionDispatch::IntegrationTest
   PASSWORD = "a-long-password"
 
@@ -80,7 +81,7 @@ class SignInTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "the sign-in page ticks Remember me, and says how a forgotten password is replaced: no email form exists" do
+  test "the sign-in page ticks Remember me, and says how a forgotten password is replaced: with no mail, no email form exists" do
     get new_profile_session_path
 
     assert_select "input[type=checkbox][name='profile[remember_me]'][checked]"

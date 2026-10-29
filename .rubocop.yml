@@ -48,6 +48,7 @@ Household/HtmlSafe:
     - "app/presenters/**/*.rb"
     - "app/controllers/**/*.rb"
     - "app/helpers/**/*.rb"
+    - "app/mailers/**/*.rb"
 
 # ARIA attributes are written the way a browser reads them: a state is the
 # word "true" or "false", and a form builder takes them in an aria: hash.

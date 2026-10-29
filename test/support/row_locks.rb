@@ -9,20 +9,23 @@
 # A record's row is held FOR KEY SHARE, the weakest lock that stands in the
 # way of the code's own SELECT … FOR UPDATE: its plain updates of the row,
 # and the rows it adds that point at it, go through, so only locking the row
-# is made to wait. Code that locks the row FOR NO KEY UPDATE is held up only
-# from FOR SHARE, which its plain updates wait for too, so its test picks a
-# case that doesn't update the row.
+# is made to wait. An update of a column in a unique index (a token's
+# digest) waits for it as well, so a test of code that writes one picks a
+# case that doesn't. Code that locks the row FOR NO KEY UPDATE is held up
+# only from FOR SHARE, which its plain updates wait for too, so its test
+# picks a case that doesn't update the row.
 #
 #   assert_waits_for_lock(household) { Households::Invite.call(household, …) }     # the record's row
 #   assert_waits_for_lock(event, holding: "FOR SHARE") { event.advance_unsaved_from! }
 #   assert_waits_for_lock(advisory: KEY) { Admins::Create.call(…) }             # an advisory lock
+#   assert_waits_for_lock(profile, while_waiting: -> { … }) { … }               # and what holds while it waits
 #
 # A race run on two threads, counting who won, passes most of the time with
 # the lock gone; this fails every time. Each thread needs a connection of its
 # own, which a transactional test doesn't give: a test that uses it turns
 # them off (LocksTest).
 module RowLocks
-  def assert_waits_for_lock(record = nil, holding: "FOR KEY SHARE", advisory: nil, &code)
+  def assert_waits_for_lock(record = nil, holding: "FOR KEY SHARE", advisory: nil, while_waiting: nil, &code)
     pool = ActiveRecord::Base.connection_pool
     holder = pool.checkout
     holder.begin_db_transaction
@@ -34,12 +37,19 @@ module RowLocks
       (blocked = blocked_by?(holder, waiter)) || !worker.alive?
     end
     assert blocked, "the code finished without waiting for the lock"
+    while_waiting&.call
   ensure
     if holder
       holder.rollback_db_transaction
       pool.checkin(holder)
     end
     worker&.value
+  end
+
+  # That nobody holds the record's row, as this connection locks it at
+  # once: what code waiting for a lock hasn't touched yet.
+  def assert_not_locked(record)
+    assert_nothing_raised { record.class.lock("FOR UPDATE NOWAIT").find(record.id) }
   end
 
   private

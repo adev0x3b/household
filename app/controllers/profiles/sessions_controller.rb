@@ -23,7 +23,8 @@ class Profiles::SessionsController < Devise::SessionsController
       resource_name: resource_name,
       devise_mapping: devise_mapping,
       open_profiles: Platform.open_profiles,
-      demo_url: (Deployment.url(:demo) if Platform.open_accounts.empty?)
+      demo_url: (Deployment.url(:demo) if Platform.open_accounts.empty?),
+      mail: Emails.enabled?
     )
   end
 end

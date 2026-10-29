@@ -20,7 +20,8 @@ module Provision
     # options; whether it is a secret (hidden when typed, a GitHub secret
     # rather than a variable); the destinations it is asked for (nil: every
     # one); whether only the pipeline has a use for it; whether the app reads
-    # it, or only config/deploy*.yml does, to size the containers.
+    # it, or only config/deploy*.yml does, to size the containers or to point
+    # a name at an address.
     Setting = Data.define(:name, :kind, :question, :default, :overrides, :choices, :secret, :asked_on, :pipeline_only, :app) do
       def default_for(destination) = overrides.fetch(destination, default)
       def secret? = secret
@@ -54,6 +55,22 @@ module Provision
       setting("DEMO_PASSWORD", :secret, "The open accounts' password", "demo-household", secret: true, asked_on: %w[dev demo]),
       setting("DEPLOY_DISPATCH_TOKEN", :secret, "The GitHub token behind the delivery console's buttons", "", secret: true,
                                                                                                               asked_on: %w[production staging], pipeline_only: true),
+      # Mail goes out from production alone: the others start with it off,
+      # and the demo, open to anyone, is never asked.
+      setting("OUTGOING_MAIL", :switch, "Mail: reminders by email, password links, notices about an account", "on",
+              { staging: "off", dev: "off", demo: "off" }, asked_on: %w[production staging dev]),
+      setting("SMTP_HOST", :text, "The mail relay's name, the one its certificate has (blank: no mail)", "", asked_on: %w[production]),
+      # Where the relay's name doesn't lead from inside the job container (a
+      # relay on another machine of a private network): the job role resolves
+      # the name to this address (config/deploy.yml), and the certificate is
+      # still checked against the name.
+      setting("SMTP_HOST_ADDRESS", :text, "The relay's address, when its name doesn't lead there from this machine (blank: its name's)", "",
+              asked_on: %w[production], pipeline_only: true, app: false),
+      setting("SMTP_PORT", :count, "The relay's port (blank: the encryption's usual one, 587, 465 or 25)", "", asked_on: %w[production]),
+      setting("SMTP_TLS", :choice, "How the relay is spoken to (blank: starttls)", "", choices: %w[starttls tls none], asked_on: %w[production]),
+      setting("SMTP_USERNAME", :text, "The relay's login (blank: none)", "", asked_on: %w[production]),
+      setting("SMTP_PASSWORD", :secret, "The relay login's password", "", secret: true, asked_on: %w[production]),
+      setting("MAIL_FROM", :text, "The address mail comes from, which the relay must allow (blank: no mail)", "", asked_on: %w[production]),
       # The most each container may take of the machine (blank: no cap), so
       # destinations sharing a machine can't starve each other.
       setting("WEB_MEMORY", :memory, "The most memory the web container may take (blank: the destination's default)", "", { staging: "1GB", dev: "1GB", demo: "1GB" },
@@ -69,7 +86,7 @@ module Provision
     # What the app is passed, in plain or as a key; and what sizes its containers.
     def self.clear = CATALOGUE.select { _1.app? && !_1.secret? }
     def self.secret = CATALOGUE.select(&:secret?)
-    def self.caps = CATALOGUE.reject(&:app?)
+    def self.caps = CATALOGUE.select { _1.kind == :memory }
     # What compose.yml passes to a copy run without the pipeline.
     def self.compose = CATALOGUE.reject(&:pipeline_only?)
 

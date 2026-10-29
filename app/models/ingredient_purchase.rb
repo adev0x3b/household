@@ -51,6 +51,9 @@ class IngredientPurchase < ApplicationRecord
     "#{ingredient.name} × #{[ amount, unit&.name ].compact_blank.join(" ")}"
   end
 
+  # Groceries, which a reminder mail for their payment may name.
+  def named_in_mail? = true
+
   # Title of the cost transaction. "2" rather than "2.0", the way a person says it.
   def cost_title
     amount = quantity == quantity.to_i ? quantity.to_i.to_s : quantity.to_s

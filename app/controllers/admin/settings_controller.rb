@@ -2,8 +2,8 @@
 
 # /admin/settings — what the admin sets for the whole installation, one card
 # per section (Installation::*): what it allows, the bookshelf's sources, the
-# GitHub token /admin/deployment's buttons use, the demo household's
-# password. Admins only. A secret never comes back to the page; a blank
+# mail it sends, the GitHub token /admin/deployment's buttons use, the demo
+# household's password. Admins only. A secret never comes back to the page; a blank
 # field keeps the saved value. A save waits for the admin's password
 # (Admin::Sudo): a stolen session could otherwise point the deploy buttons
 # at a token of its own. Forgetting a value doesn't, since the
@@ -12,7 +12,7 @@
 #   show / update   the page and its form
 #   clear           forgets one saved secret (the environment's, if any, takes over)
 class Admin::SettingsController < Admin::BaseController
-  SECTIONS = [ Installation::Allowances, Installation::Books, Installation::DeployToken, Installation::DemoPassword ].freeze
+  SECTIONS = [ Installation::Allowances, Installation::Books, Installation::Mail, Installation::DeployToken, Installation::DemoPassword ].freeze
 
   def show
     render_page settings_page(SECTIONS.to_h { |section| [ section.param_key, section.current ] })

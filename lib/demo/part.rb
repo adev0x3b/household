@@ -73,9 +73,11 @@ module Demo
       Occurrences::Create.call(event, by: profile, recurrence: recurrence, collection_id: collection&.id)
     end
 
-    # Who wants to hear about a series, and how long before: remind(task, alex, [ 1, "days" ], [ 3, "hours" ]).
-    def remind(event, profile, *offsets)
-      Events::SetReminders.call(event, profile: profile, entries: offsets.map { |amount, unit| { amount: amount, unit: unit } })
+    # Who wants to hear about a series, how long before, and whether by email
+    # too: remind(task, alex, [ 1, "days" ], [ 3, "hours" ], by_email: true).
+    def remind(event, profile, *offsets, by_email: false)
+      entries = offsets.map { |amount, unit| { amount: amount, unit: unit, by_email: by_email } }
+      Events::SetReminders.call(event, profile: profile, entries: entries)
     end
 
     def follow(event, done: 0.9, skipped: 0.03, late: 0.1, early: 0, force: {}, before: nil, after: nil, apart: false)

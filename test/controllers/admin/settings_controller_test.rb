@@ -200,6 +200,70 @@ class Admin::SettingsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "the mail card shows where each of the relay's values comes from, and never its password" do
+    Platform::Setting.create!(smtp_password: "relay-secret")
+
+    with_relay("SMTP_TLS" => "tls") { get admin_settings_path }
+    assert_response :success
+    assert_select "input[name='settings[mail][smtp_host]']:not([value])[placeholder='relay.example (from SMTP_HOST)']"
+    assert_select "input[name='settings[mail][smtp_username]']:not([value])[placeholder='household (from SMTP_USERNAME)']"
+    assert_select "input[name='settings[mail][mail_from]'][placeholder='household@household.example (from MAIL_FROM)']"
+    assert_select "select[name='settings[mail][smtp_tls]'] option[value='']", text: "tls (from SMTP_TLS)"
+    assert_select "input[type=password][name='settings[mail][smtp_password]'][value=''][placeholder='Saved']"
+    assert_select "a[href=?][data-turbo-method=delete]", value_admin_settings_path("smtp_password")
+    assert_select "input[name='settings[mail][mails_per_hour]'][value='6'][min='2']"
+    assert_no_match "relay-secret", response.body
+
+    get admin_settings_path
+    assert_select "input[name='settings[mail][smtp_port]'][placeholder=?]", "The encryption's usual port (the default)"
+    assert_select "input[name='settings[mail][mail_from]'][placeholder='Not set: nothing is mailed']"
+  end
+
+  test "a relay saved on the card takes no login from the environment, and the card doesn't offer one" do
+    Platform::Setting.create!(smtp_host: "saved.example")
+
+    with_relay { get admin_settings_path }
+
+    assert_select "input[name='settings[mail][smtp_host]'][value='saved.example']"
+    assert_select "input[name='settings[mail][smtp_username]']:not([value])[placeholder='None']"
+    assert_select "input[type=password][name='settings[mail][smtp_password]'][placeholder='Not set: needed only when the relay asks for a login']"
+    assert_select "a[href=?]", value_admin_settings_path("smtp_password"), count: 0
+  end
+
+  test "the relay and mail's budgets are saved from their card, a blank password keeps the saved one" do
+    Platform::Setting.create!(smtp_password: "relay-secret")
+
+    patch admin_settings_path, params: settings(mail: { outgoing_mail: "1", smtp_host: " relay.example ", smtp_port: "465", smtp_tls: "tls",
+                                                        smtp_username: "household", smtp_password: "", mail_from: "household@household.example",
+                                                        mails_per_hour: "10", mails_per_day: "", reminder_mails_per_day: "0" })
+
+    assert_redirected_to admin_settings_path
+    setting = Platform::Setting.sole
+    assert_equal [ "relay.example", 465, "tls", "household", "relay-secret", "household@household.example" ],
+                 [ setting.smtp_host, setting.smtp_port, setting.smtp_tls, setting.smtp_username, setting.smtp_password, setting.mail_from ]
+    assert_equal [ true, 10, nil, 0 ], [ setting.outgoing_mail, setting.mails_per_hour, setting.mails_per_day, setting.reminder_mails_per_day ]
+
+    patch admin_settings_path, params: settings(mail: { outgoing_mail: "0" })
+    delete value_admin_settings_path("smtp_password")
+    assert_match(/Mail relay password/, flash[:success])
+
+    relay = Emails::RelaySettings.current
+    assert_equal [ "relay.example", nil ], [ relay.host, relay.password ]
+    assert_equal [ 10, 40, 0 ], [ Platform.mails_per_hour, Platform.mails_per_day, Platform.reminder_mails_per_day ], "an empty budget is its default"
+    assert_not_predicate Emails, :enabled?
+  end
+
+  test "a relay that can't be one, or a budget under its least, is refused with the fields marked" do
+    patch admin_settings_path, params: settings(mail: { smtp_host: "https://relay.example", smtp_port: "smtp", mail_from: "household", mails_per_hour: "1" })
+
+    assert_response :unprocessable_content
+    assert_select ".notice--critical", text: /Relay server/
+    %w[smtp_host smtp_port mail_from mails_per_hour].each do |name|
+      assert_select ".field.is-invalid input[name='settings[mail][#{name}]'][aria-invalid=true]"
+    end
+    assert_not Platform::Setting.exists?
+  end
+
   test "a limit that isn't a whole number in range is refused, and nothing is saved" do
     patch admin_settings_path, params: settings(allowances: { assistant_messages_per_day: "-2", files_quota_amount: "0", files_quota_unit: "GB", household_size: "0",
                                                               invitations_per_member: "0" })

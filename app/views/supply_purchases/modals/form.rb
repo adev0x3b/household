@@ -5,7 +5,7 @@
 # cost if the buyer says.
 class Views::SupplyPurchases::Modals::Form < Views::Base
   # The form for a purchase the assistant drafted, posting under its supply.
-  def self.draft(purchase, viewer:, housemates:)
+  def self.draft(purchase, viewer:, housemates:, **)
     new(supply_purchase: purchase, url: Rails.application.routes.url_helpers.supply_purchases_path(purchase.supply), current_profile: viewer,
         available_transaction_counterparties: housemates)
   end

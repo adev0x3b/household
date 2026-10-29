@@ -47,13 +47,15 @@ module OccurrenceForms
   end
 
   # The kind's form (Views::Occurrences::Forms) for the viewer, with their
-  # own "remind me" rows on the series, and the owner's housemates for a
-  # form that offers them (a payment's other side).
+  # own "remind me" rows on the series and whether those may come by email,
+  # and the owner's housemates for a form that offers them (a payment's
+  # other side).
   def form_of(occurrence, ends_sent: {})
     owner = occurrence.event.profile || current_profile
     Views::Occurrences::Forms.for(occurrence.event.class).new(
       occurrence: occurrence, url: form_url(occurrence), current_profile: current_profile,
-      reminders: reminders_of(occurrence), housemates: owner.housemates.order(:username), ends_sent: ends_sent
+      reminders: reminders_of(occurrence), reminder_mail: Emails.for_reminders(current_profile),
+      housemates: owner.housemates.order(:username), ends_sent: ends_sent
     )
   end
 

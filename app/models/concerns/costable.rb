@@ -20,6 +20,11 @@ module Costable
   # answers for its kind.
   def costable? = true
 
+  # Whether a reminder mail may name a payment for it, which the app titles
+  # after it (Transaction#reminder_mail_thing): only what says so, since a
+  # supply bought may be a medication.
+  def named_in_mail? = false
+
   # The Transaction days paying for this thing, earliest first: the days
   # whose own row names it, and — for a day of a series — the same-day
   # days of the Transaction series whose series' row names its series.

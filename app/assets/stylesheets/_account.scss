@@ -1,0 +1,42 @@
+@use "variables" as *;
+
+// The Account page (Views::Accounts::Show) and the page a link to confirm
+// an address opens. The page and its panels are the shared pieces
+// (_report.scss, _panel.scss); here are only the address with its badge,
+// and a panel's presses.
+
+.account__address {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.account__value {
+  min-width: 0;
+  color: $text;
+  font-size: $type-16;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+// A panel's presses, main one first in the page: at the panel's foot on
+// the right with the main one rightmost, as in a modal's footer; on a phone
+// one under the other, the whole width, the main one on top.
+.account__actions {
+  display: flex;
+  flex-flow: row-reverse wrap;
+  gap: 0.5rem;
+}
+
+// A press's own form (button_to) leaves its button to the row.
+.account__press {
+  display: contents;
+}
+
+@include until("tablet") {
+  .account__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

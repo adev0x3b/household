@@ -2,8 +2,8 @@
 
 # /admin/settings: what the admin sets for the whole installation, one card
 # per section, the same sections the first setup asks (Installation::*):
-# what the installation allows, the bookshelf's sources, the deploy token,
-# the demo household's password. One form and one save. A secret is never
+# what the installation allows, the bookshelf's sources, the mail it sends,
+# the deploy token, the demo household's password. One form and one save. A secret is never
 # shown back (Views::Installation::SecretField). The assistant's own
 # settings have their page (/assistant/settings), linked at the top.
 class Views::Admin::Settings::Show < Views::Base
@@ -31,6 +31,7 @@ class Views::Admin::Settings::Show < Views::Base
       form_with(url: admin_settings_path, method: :patch, scope: :settings, class: "report-form") do |f|
         section(f, :allowances) { |form, section| render Views::Installation::Allowances.new(form:, section:) }
         section(f, :books) { |form, section| render Views::Installation::Books.new(form:, section:) }
+        section(f, :mail) { |form, section| render Views::Installation::Mail.new(form:, section:) }
         section(f, :deploy_token) { |form, section| render Views::Installation::DeployToken.new(form:, section:, token_expiry: @token_expiry) }
         section(f, :demo_password) { |form, section| render Views::Installation::DemoPassword.new(form:, section:) }
         render Views::Admin::SettingsPassword.new(form: f, wrong: @wrong_password) if @ask_password

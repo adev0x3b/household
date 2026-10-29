@@ -1,4 +1,4 @@
-# Due reminders (Reminders::DispatchJob), wherever bin/jobs runs.
+# Due reminders (Reminders::DispatchJob) and mail (Emails::DrainJob), wherever bin/jobs runs.
 development:
   dispatch_reminders:
     class: Reminders::DispatchJob
@@ -6,6 +6,12 @@ development:
   sweep_uploads:
     class: Uploads::SweepJob
     schedule: every hour at minute 25
+  send_mail:
+    class: Emails::DrainJob
+    schedule: every minute
+  sweep_mail:
+    class: Emails::SweepJob
+    schedule: every hour at minute 40
 
 production:
   dispatch_reminders:
@@ -23,6 +29,14 @@ production:
   sweep_uploads:
     class: Uploads::SweepJob
     schedule: every hour at minute 25
+  # The outbox: what is due goes (Emails::DrainJob, which does nothing
+  # where mail is off), and what ended long ago is cleared (Emails::SweepJob).
+  send_mail:
+    class: Emails::DrainJob
+    schedule: every minute
+  sweep_mail:
+    class: Emails::SweepJob
+    schedule: every hour at minute 40
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

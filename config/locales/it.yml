@@ -100,10 +100,12 @@ it:
       finance: "Finanze"
       pantry: "Dispensa"
     links:
+      account: "Account"
       household: "Casa"
       households: "Case"
       deployment: "Deploy"
       settings: "Impostazioni"
+      emails: "Posta"
       errors: "Errori"
       jobs: "Lavori in coda"
       home: "Home"
@@ -724,6 +726,8 @@ it:
       remember_me: "Ricordami"
       submit: "Accedi"
       forgot: "Password dimenticata? Chi gestisce la tua casa può darti un link per sceglierne una nuova."
+      forgot_link: "Password dimenticata?"
+      forgot_owner: "Anche chi gestisce la tua casa può darti un link per sceglierne una nuova."
 
   invitations:
     edit:
@@ -780,6 +784,38 @@ it:
       google_books_api_key: "Chiave API Google Books"
       book_lookups_per_day: "Ricerche di libri per casa, al giorno"
       book_lookups_per_day_help: "Quante volte al giorno una casa può cercare un libro. Lascia vuoto per nessun limite."
+    mail:
+      title: "Posta"
+      hint: "Cosa invia per posta questa installazione: i promemoria che le persone chiedono per email, i link per impostare una password, le conferme di un indirizzo, gli avvisi su un account. Parte attraverso un relay SMTP. Un campo vuoto segue l'ambiente, di cui mostra il valore, e il nome utente e la password dell'ambiente vanno solo al server di invio dell'ambiente."
+      outgoing_mail:
+        name: "Invia posta"
+        help: "Quando è disattivato non parte nessuna email, anche con un relay impostato."
+      smtp_host: "Server di invio"
+      smtp_host_help: "Il nome del server SMTP, senza https:// né porta."
+      smtp_port: "Porta"
+      smtp_tls: "Cifratura"
+      tls_modes:
+        starttls: "STARTTLS, di solito porta 587"
+        tls: "TLS, di solito porta 465"
+        none: "Nessuna, solo per un server su questa macchina, di solito porta 25"
+      smtp_username: "Nome utente"
+      smtp_password: "Password"
+      mail_from: "Indirizzo del mittente"
+      mail_from_help: "L'indirizzo da cui parte la posta. Il relay deve permetterlo."
+      from_env: "%{value} (da %{variable})"
+      placeholders:
+        smtp_host: "Non impostato: non parte nessuna email"
+        smtp_port: "La porta abituale della cifratura (predefinita)"
+        smtp_tls: "STARTTLS (predefinita)"
+        smtp_username: "Nessuno"
+        mail_from: "Non impostato: non parte nessuna email"
+      default: "%{count} (predefinito)"
+      mails_per_hour: "Email all'ora"
+      mails_per_hour_help: "Tutto ciò che questa installazione invia in un'ora, tutte le case insieme. L'ultima di ogni ora resta per la posta dell'account, come un link per impostare la password, e la posta dell'account di una casa ne prende al massimo metà."
+      mails_per_day: "Email al giorno"
+      mails_per_day_help: "Tutto ciò che questa installazione invia in un giorno, tutte le case insieme. Le ultime cinque di ogni giorno restano per la posta dell'account, e la posta dell'account di una casa ne prende al massimo metà."
+      reminder_mails_per_day: "Email di promemoria per casa, al giorno"
+      reminder_mails_per_day_help: "Le email di promemoria che le persone di una casa ricevono in un giorno, tutte insieme. I promemoria in scadenza alla stessa ora vanno in un'unica email. 0 non ne invia."
     deploy_token:
       title: "Deploy"
       hint: "Un token GitHub fine-grained per %{repository} con Actions: lettura e scrittura, Contents: lettura e scrittura, Deployments: lettura, Pull requests: lettura e scrittura e Variables: lettura e scrittura. Permette alla pagina Deploy di avviare la CI e il workflow Deploy, leggere cosa gira dove e cosa partirebbe, unire la pull request di un ramo, e sospendere o riprendere i deploy automatici. Viene verificato quando lo salvi."
@@ -791,6 +827,7 @@ it:
       hint: "La password di alex.demo, sam.demo e robin.demo. Vale dalla prossima ricostruzione: ogni notte, o con bin/rails demo:seed."
     secret:
       saved: "Salvato, finisce con …%{last4}"
+      saved_password: "Salvata"
       from_env: "Dall'ambiente (%{variable})"
       clear: "Dimentica il valore salvato: %{name}"
       clear_confirm: "Dimenticare il valore salvato (%{name})? Se c'è, subentra quello dell'ambiente."
@@ -798,10 +835,12 @@ it:
         google_books_api_key: "Chiave API Google Books"
         deploy_dispatch_token: "Token GitHub per il deploy"
         demo_password: "Password della demo"
+        smtp_password: "Password del relay di posta"
       none:
         google_books_api_key: "Non impostata: solo Open Library"
         deploy_dispatch_token: "Non impostato: nessun pulsante nella pagina Deploy"
         demo_password: "Non impostata: quella predefinita, demo-household"
+        smtp_password: "Non impostata: serve solo se il relay chiede un login"
 
   setup:
     title: "Benvenuti in Household"
@@ -883,12 +922,82 @@ it:
     exceeded: "Troppi tentativi. Aspetta un momento e riprova."
 
   passwords:
+    # "Password dimenticata?" (Views::Devise::Passwords::New).
+    new:
+      title: "Password dimenticata?"
+      subtitle: "Scrivi il tuo nome utente o il tuo indirizzo. Se il tuo account ha un indirizzo confermato, lì arriva un link per sceglierne una nuova, che funziona per %{minutes} minuti."
+      login_label: "Nome utente o email"
+      submit: "Mandami un link"
+      no_mail: "Non è arrivato niente? Chi gestisce la tua casa può darti un link per scegliere una nuova password."
+      back: "Torna all'accesso"
+    notices:
+      asked: "Se quell'account può averne uno, un link sta arrivando al suo indirizzo confermato. Funziona per %{minutes} minuti."
     edit:
       title: "Scegli una nuova password"
       subtitle: "Poi accedi con quella."
       password_label: "Nuova password"
       password_confirmation_label: "Conferma la nuova password"
       submit: "Salva la password"
+
+  # L'account di chi ha fatto l'accesso (/account, Views::Accounts::Show), e la pagina che apre un link per confermare un indirizzo.
+  accounts:
+    show:
+      title: "Account"
+      signed_in_as: "Accedi come %{username}."
+      current_password: "La tua password"
+      address:
+        title: "Il tuo indirizzo"
+        hint_confirmed: "Household ti manda qui i promemoria e, se dimentichi la password, un link per sceglierne una nuova."
+        hint_confirmed_reminders: "Household ti manda qui i promemoria."
+        hint_confirmed_password_link: "Se dimentichi la password, Household ti manda qui un link per sceglierne una nuova."
+        hint_confirmed_notices: "Household ti scrive qui quando cambiano la tua password o il tuo indirizzo."
+        hint_unconfirmed: "Household ti scrive qui solo dopo la conferma, con un link mandato a questo indirizzo."
+        hint_no_mail: "Qui Household non manda email: il tuo indirizzo serve solo per accedere."
+        confirmed: "Confermato"
+        not_confirmed: "Da confermare"
+        send_link: "Mandami un link per confermarlo"
+        link_sent: "Il link è partito il %{sent} e funziona fino al %{expires}."
+        link_on_its_way: "Sta arrivando un link."
+        reminders_not_mailed:
+          one: "Nell'ultimo giorno un promemoria non è potuto partire per email. La campanella l'ha avuto comunque."
+          other: "Nell'ultimo giorno %{count} promemoria non sono potuti partire per email. La campanella li ha avuti comunque."
+      waiting:
+        body: "%{address} aspetta la conferma: apri il link che gli è stato mandato, in un browser in cui hai fatto l'accesso."
+        no_mail: "Ora qui Household non manda email, quindi nessun link può arrivarci."
+        send_again: "Manda di nuovo il link"
+        keep: "Tieni %{address}"
+      change_address:
+        title: "Cambia indirizzo"
+        hint: "Mandiamo un link al nuovo indirizzo, che diventa quello in uso quando apri il link e confermi con la tua password. Fino ad allora non cambia niente."
+        hint_no_mail: "Il nuovo indirizzo diventa subito quello in uso."
+        email: "Nuovo indirizzo"
+        submit: "Cambia indirizzo"
+      change_password:
+        title: "Cambia password"
+        hint: "Ogni altro browser in cui hai fatto l'accesso viene disconnesso."
+        password: "Nuova password"
+        password_confirmation: "Ripeti la nuova password"
+        submit: "Cambia password"
+    email_confirmation:
+      title: "Conferma il tuo indirizzo"
+      body: "Scrivi la tua password perché Household scriva a questo indirizzo."
+      submit: "Conferma il mio indirizzo"
+      problem_title: "Questo link non può confermare un indirizzo"
+      to_account: "Vai al tuo account"
+      problems:
+        expired: "È scaduto, o ne è arrivato uno più recente. Chiedine uno nuovo dalla pagina del tuo account."
+        not_yours: "È stato mandato a un'altra persona. Esci, poi aprilo di nuovo dopo aver fatto l'accesso come lei."
+        taken: "Ora quell'indirizzo lo usa un'altra persona su Household."
+    notices:
+      link_sent: "Sta arrivando un link per confermare %{address}."
+      email_changed: "Ora il tuo indirizzo è %{address}."
+      email_confirmed: "%{address} è confermato."
+      email_kept: "Tieni %{address}."
+      password_changed: "La password è cambiata. Ogni altro browser è stato disconnesso."
+    errors:
+      mail_off: "Qui Household non manda email."
+      nothing_to_confirm: "Il tuo indirizzo è già confermato."
+      no_links_left: "Oggi hai già avuto %{count} link per confermare un indirizzo: chiedine un altro domani."
 
   households:
     people:
@@ -963,6 +1072,8 @@ it:
       cancelled: "Annullata"
       skipped: "Saltata"
     default_title: "Attività"
+    reminder_mail:
+      thing: "la tua attività “%{name}”"
     form:
       new_title: "Nuova attività"
       edit_title: "Modifica attività"
@@ -1022,6 +1133,9 @@ it:
       cancelled: "Annullato"
       skipped: "Saltato"
     default_title: "Pagamento"
+    reminder_mail:
+      thing: "il tuo pagamento “%{name}”"
+      thing_unnamed: "il tuo pagamento"
     attached_to: "Collegato a: %{thing}"
     attached_cost:
       mark_paid: "Segna come pagato"
@@ -1084,6 +1198,8 @@ it:
       cancelled: "Annullato"
       skipped: "Saltato"
     default_title: "Appuntamento"
+    reminder_mail:
+      thing: "il tuo appuntamento"
     form:
       new_title: "Nuovo appuntamento"
       edit_title: "Modifica appuntamento"
@@ -1150,6 +1266,8 @@ it:
 
   meals:
     default_title: "Pasto"
+    reminder_mail:
+      thing: "il tuo pasto “%{name}”"
     low_stock_warning: "Alcuni ingredienti mancano o stanno finendo in dispensa."
     kind:
       home: "A casa"
@@ -1243,6 +1361,8 @@ it:
       cancelled: "Annullata"
       skipped: "Saltata"
     default_title: "Farmaco"
+    reminder_mail:
+      thing: "il tuo farmaco"
     low_stock_warning: "La fornitura collegata sta per finire: conviene ricomprarla presto."
     form:
       new_title: "Nuovo farmaco"
@@ -1298,6 +1418,8 @@ it:
       cancelled: "Annullato"
       skipped: "Saltato"
     default_title: "Esame"
+    reminder_mail:
+      thing: "il tuo esame"
     results_count:
       one: "1 valore"
       other: "%{count} valori"
@@ -2409,6 +2531,7 @@ it:
       eval_cases_failed: "Non è stato possibile scrivere i casi di prova di %{language}"
       eval_run_finished: "L'esecuzione delle valutazioni con %{model} è terminata"
       reminder_due: "Promemoria: %{title}"
+      reminder_mails_stopped: "I tuoi promemoria non arrivano più per email"
       message_received:
         direct: "%{actor} ti ha scritto"
         household: "%{actor} ha scritto in %{title}"
@@ -2463,6 +2586,7 @@ it:
     details:
       eval_run_finished: "%{passed} su %{total} superati"
       reminder_due: "Scadenza %{when}"
+      reminder_mails_stopped: "Sono stati fermati dal link in un'email di promemoria. Metti la spunta a “Anche per email” nel modulo di un promemoria per riceverlo di nuovo per email."
       release_available: "Guarda le novità, e come aggiornare questa copia."
       upload_ready: "Pronto da condividere o scaricare"
       upload_failed: "%{title} è stato rimosso: caricalo di nuovo"
@@ -2540,12 +2664,84 @@ it:
       amount: "Quanto prima"
       unit: "Ore o giorni"
       before: "prima"
+      by_email: "Anche per email"
+      email_unconfirmed: "I promemoria possono arrivare anche per email, una volta confermato il tuo indirizzo."
+      confirm_address: "Confermalo nella pagina del tuo account."
     units:
       hours: "ore"
       days: "giorni"
     formats:
       day: "%a %-d %b"
       day_time: "%a %-d %b, %H:%M"
+      mail_day: "%A %-d %B"
+      mail_time: "%H:%M"
+
+  emails:
+    greeting: "Ciao %{name},"
+    account_action: "Apri il tuo account"
+    # La prova dell'amministratore dalla pagina della posta (AdminMailer#test_mail).
+    test_mail:
+      subject: "Un'email di prova da Household"
+      body: "Hai chiesto questa prova dalla pagina della posta. Se la stai leggendo, la posta di questa copia parte."
+      sent_at: "Inviata il %{time}."
+      action: "Apri la pagina della posta"
+    # Il link che conferma un indirizzo, il link per impostare una password dimenticata, e gli avvisi su un account (AccountMailer).
+    password_link:
+      subject: "Imposta una nuova password per Household"
+      body: "Qualcuno ha chiesto un link per impostare una nuova password per il tuo account Household, %{username}. Funziona per %{minutes} minuti, una volta sola."
+      action: "Imposta una nuova password"
+      closing: "Se non l'hai chiesto tu, puoi ignorare questa email: la tua password resta com'è."
+    email_confirmation:
+      subject: "Conferma il tuo indirizzo per Household"
+      body: "Premi il pulsante per confermare %{address} come indirizzo del tuo account Household. Il link funziona per %{hours} ore, in un browser in cui hai fatto l'accesso a Household."
+      action: "Conferma il mio indirizzo"
+      closing: "Se non l'hai chiesto tu, puoi ignorare questa email: non cambia nulla."
+    email_change_requested:
+      subject: "È stato chiesto un nuovo indirizzo su Household"
+      body: "Qualcuno con l'accesso al tuo account Household ha chiesto un nuovo indirizzo. Diventa quello in uso solo dopo la conferma, da un link inviato al nuovo indirizzo."
+      when: "Richiesto il %{time}."
+      not_you: "Se non l'hai chiesto tu, cambia subito la password: così si ferma anche il cambio."
+    email_changed:
+      subject: "Il tuo indirizzo su Household è cambiato"
+      body: "L'indirizzo del tuo account Household ora è %{address}: da adesso la posta di Household arriva lì."
+      when: "Cambiato il %{time}."
+      not_you: "Se non l'hai cambiato tu, avvisa subito il proprietario della casa o l'amministratore."
+    password_changed:
+      subject: "La tua password di Household è cambiata"
+      body: "La password del tuo account Household è cambiata, e ogni altro browser in cui era stato fatto l'accesso è stato disconnesso."
+      when: "Cambiata il %{time}."
+      not_you: "Se non l'hai cambiata tu, avvisa subito il proprietario della casa o l'amministratore: può darti un link per impostarne una nuova."
+    # I promemoria chiesti per email (RemindersMailer), una sola email per quelli in scadenza insieme.
+    reminders:
+      subject:
+        one: "Un promemoria da Household"
+        other: "%{count} promemoria da Household"
+      one:
+        timed: "Questo è il promemoria per %{thing}, %{day} alle %{time}."
+        untimed: "Questo è il promemoria per %{thing}, %{day}."
+      several: "Questi sono i tuoi promemoria:"
+      item:
+        timed: "%{thing}, %{day} alle %{time}"
+        untimed: "%{thing}, %{day}"
+      action:
+        one: "Aprilo in Household"
+        other: "Apri il tuo calendario"
+      closing:
+        one: "Hai chiesto questo promemoria per email. Per fermarlo, togli la spunta a “Anche per email” nel suo modulo."
+        other: "Hai chiesto questi promemoria per email. Per fermarne uno, togli la spunta a “Anche per email” nel suo modulo."
+      unsubscribe: "Ferma tutti i promemoria per email"
+
+  # La pagina che apre il link in un'email di promemoria (EmailUnsubscriptionsController).
+  email_unsubscriptions:
+    show:
+      title: "Promemoria per email"
+      emailed: "Vuoi fermare tutti i promemoria che hai chiesto per email? Continueranno ad arrivare alla campanella, e ai tuoi dispositivi con le notifiche attive."
+      none: "Nessuno dei tuoi promemoria arriva per email. Per riceverne uno per email, metti la spunta a “Anche per email” nel suo modulo."
+      gone: "Questo link non funziona più: l'indirizzo a cui è arrivato è cambiato, oppure è troppo vecchio. Puoi fermare l'email di un promemoria nel suo modulo."
+      submit: "Ferma i promemoria per email"
+      to_household: "Vai a Household"
+    notices:
+      stopped: "I tuoi promemoria non arrivano più per email."
 
   toast:
     close: "Chiudi"
@@ -2910,6 +3106,84 @@ it:
       notices:
         saved: "Impostazioni salvate."
         cleared: "Il valore salvato (%{name}) è stato dimenticato."
+    # La pagina della posta (Views::Admin::Emails::Index) e la sua prova (Admin::TestMailsController).
+    emails:
+      title: "Posta"
+      hint: "La posta che questa copia invia: i promemoria che le persone chiedono per email, i link per impostare una password, gli avvisi sull'account. Relay e limiti sono nelle impostazioni."
+      settings_link: "Apri le impostazioni"
+      states:
+        sending: "In uscita"
+        paused: "In pausa"
+        "off": "Spenta"
+        unconfigured: "Da configurare"
+      now:
+        sending: "La posta parte entro un minuto dalla scadenza."
+        paused: "Il relay ha rifiutato le impostazioni di questa copia: la posta aspetta fino alle %{time}, o fino a un'email di prova."
+        "off": "La posta è spenta nelle impostazioni: non parte nulla e a nessuno viene proposta."
+      unconfigured:
+        host: "La posta è attiva, ma il relay non ha un server. Indicalo nelle impostazioni."
+        from: "La posta è attiva, ma manca l'indirizzo del mittente. Indicalo nelle impostazioni."
+        port: "La posta è attiva, ma la porta del relay non è valida. Correggila nelle impostazioni."
+        tls: "La posta è attiva, ma la cifratura del relay non è tra quelle che l'app conosce. Correggila nelle impostazioni."
+        login_in_clear: "La posta è attiva, ma il relay ha un accesso e nessuna cifratura, che manderebbe la password in chiaro. Scegli una cifratura nelle impostazioni, o togli l'accesso."
+      problems:
+        login: "Ha rifiutato l'accesso: controlla nome utente e password."
+        password: "Ha un nome utente ma nessuna password: imposta la password."
+        username: "Ha una password ma nessun nome utente: imposta il nome utente."
+        starttls: "Non offre STARTTLS: controlla la porta e la cifratura."
+        encryption: "Su quella porta non parla TLS dall'inizio: controlla la porta e la cifratura."
+        certificate: "Il suo certificato non è valido per il suo nome: controlla il nome del server."
+        sender: "Non invia con l'indirizzo del mittente: controlla che il suo accesso possa usarlo."
+      replied: "Il relay ha risposto: %{reply}"
+      facts:
+        relay: "Relay"
+        sender: "Mittente"
+        last_hour: "Ultima ora"
+        last_day: "Ultimo giorno"
+      relay: "%{host}, porta %{port}, %{tls}"
+      tls_modes:
+        starttls: "STARTTLS"
+        tls: "TLS"
+        none: "senza cifratura"
+      not_set: "Non impostato"
+      of_budget:
+        one: "%{count} usata su %{budget}"
+        other: "%{count} usate su %{budget}"
+      who: "%{username}, %{household}"
+      more:
+        one: "E un'altra."
+        other: "E altre %{count}."
+      waiting:
+        title: "In attesa"
+        empty: "Non c'è nulla in attesa."
+        due: "In partenza: %{time}"
+        sending: "In invio"
+      failed:
+        title: "Non partite negli ultimi %{days} giorni"
+        empty: "È partito tutto."
+        when: "Abbandonata: %{time}"
+      reasons:
+        over_budget: "La sua casa aveva esaurito il suo limite per ora."
+        drain_stopped: "L'invio si è interrotto prima che partisse."
+        unavailable: "Il relay non rispondeva."
+        misconfigured: "Il relay ha rifiutato le impostazioni di questa copia."
+        held: "Il relay l'ha rifiutata, forse per questa email, forse per le impostazioni di questa copia: la posta inviata nel frattempo dirà quale."
+        refused: "Il relay l'ha rifiutata."
+        not_made: "L'app non è riuscita a comporla: l'errore è nella pagina degli errori."
+        unexpected: "Un errore imprevisto l'ha fermata: è nella pagina degli errori."
+        expired: "Ha aspettato oltre il tempo in cui valeva la pena inviarla."
+      kinds:
+        password_link: "Link per impostare la password"
+        password_changed: "Password cambiata"
+        email_change_requested: "Cambio di indirizzo chiesto"
+        email_changed: "Indirizzo cambiato"
+        email_confirmation: "Indirizzo da confermare"
+        test_mail: "Email di prova"
+        reminder: "Promemoria"
+      test:
+        label: "Mandami un'email di prova"
+        queued: "Un'email di prova sta partendo per %{address}. Come è andata si vede in questa pagina."
+        unavailable: "La posta è spenta, o il suo relay non è impostato. Vedi le impostazioni."
     households:
       index:
         title: "Case"
@@ -3841,6 +4115,11 @@ it:
         files_quota: "File per casa"
         household_size: "Persone per casa"
         invitations_per_member: "Inviti per membro"
+        mails_per_hour: "Email all'ora"
+        mails_per_day: "Email al giorno"
+        reminder_mails_per_day: "Email di promemoria per casa, al giorno"
+        smtp_port: "Porta"
+        smtp_tls: "Cifratura"
       lexicon_language:
         wiktionary: "Lingua"
         code: "Codice"
@@ -4019,6 +4298,15 @@ it:
 
   activemodel:
     attributes:
+      accounts/email_change:
+        email: "Nuovo indirizzo"
+        current_password: "La tua password"
+      accounts/email_confirmation:
+        current_password: "La tua password"
+      accounts/password_change:
+        current_password: "La tua password"
+        password: "Nuova password"
+        password_confirmation: "Ripeti la nuova password"
       installation/assistant:
         provider: "Provider"
         model: "Modello"
@@ -4052,6 +4340,16 @@ it:
         book_lookups_per_day: "Ricerche di libri per casa, al giorno"
       installation/demo_password:
         demo_password: "Password della demo"
+      installation/mail:
+        smtp_host: "Server di invio"
+        smtp_port: "Porta"
+        smtp_tls: "Cifratura"
+        smtp_username: "Nome utente"
+        smtp_password: "Password"
+        mail_from: "Indirizzo del mittente"
+        mails_per_hour: "Email all'ora"
+        mails_per_day: "Email al giorno"
+        reminder_mails_per_day: "Email di promemoria per casa, al giorno"
       assistant_eval/scenario_draft:
         name: "Nome"
         today: "Oggi"
@@ -4061,6 +4359,26 @@ it:
         tags: "Etichette"
     errors:
       models:
+        accounts/email_change:
+          no_links_left: "Oggi hai già avuto %{count} link per confermare un indirizzo: chiedine un altro domani."
+          attributes:
+            email:
+              same: "è già il tuo indirizzo"
+              taken: "è di un'altra persona su Household"
+            current_password:
+              invalid: "è sbagliata"
+        accounts/email_confirmation:
+          attributes:
+            current_password:
+              invalid: "è sbagliata"
+        accounts/password_change:
+          attributes:
+            current_password:
+              invalid: "è sbagliata"
+        installation/mail:
+          attributes:
+            smtp_tls:
+              login_in_clear: "non può essere Nessuna con un nome utente o una password: la password viaggerebbe in chiaro"
         setup/housemates:
           attributes:
             people:

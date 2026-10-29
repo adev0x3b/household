@@ -14,22 +14,23 @@
 # are drawn here. Every form takes the same inputs, so whoever opens one
 # needs to know nothing of the kind: the day, where the form is sent, the
 # viewer, the viewer's own "remind me" rows on the series (none on a new
-# one) and the owner's housemates, for a form that offers them (a
-# payment's other side).
+# one) and whether they may come by email (Emails.for_reminders), and the
+# owner's housemates, for a form that offers them (a payment's other side).
 class Views::Occurrences::Form < Views::Base
   # The form for a day the assistant drafted: a new series of the kind,
   # posting to the kind's create route, for the viewer.
-  def self.draft(occurrence, viewer:, housemates: [])
+  def self.draft(occurrence, viewer:, housemates: [], reminder_mail: :off)
     url = Rails.application.routes.url_helpers.polymorphic_path(occurrence.event.class)
-    new(occurrence: occurrence, url: url, current_profile: viewer, housemates: housemates)
+    new(occurrence: occurrence, url: url, current_profile: viewer, housemates: housemates, reminder_mail: reminder_mail)
   end
 
   # ends_sent: how a refused form said the series ends, drawn again as it was typed.
-  def initialize(occurrence:, url:, current_profile:, reminders: [], housemates: [], ends_sent: {})
+  def initialize(occurrence:, url:, current_profile:, reminders: [], reminder_mail: :off, housemates: [], ends_sent: {})
     @occurrence = occurrence
     @url = url
     @current_profile = current_profile
     @reminders = reminders
+    @reminder_mail = reminder_mail
     @housemates = housemates
     @ends_sent = ends_sent
   end
@@ -87,7 +88,7 @@ class Views::Occurrences::Form < Views::Base
   # The series' repeat rule and the viewer's own "Remind me" rows.
   def render_event_fields
     render Views::Occurrences::EventFields.new(event: event, ends_sent: @ends_sent, ends_errors: Forms::Errors.new(@occurrence).for(:rrule))
-    render Views::Occurrences::ReminderFields.new(reminders: @reminders)
+    render Views::Occurrences::ReminderFields.new(reminders: @reminders, mail: @reminder_mail)
   end
 
   def render_collection_picker

@@ -30,6 +30,7 @@ class Provision::SettingsTest < ActiveSupport::TestCase
     assert_equal "30", demo.fetch("ASSISTANT_MESSAGES_PER_DAY")
     assert_equal "50", demo.fetch("BOOK_LOOKUPS_PER_DAY")
     assert_equal "64MB", demo.fetch("FILES_QUOTA")
+    assert_equal(%w[on off off off], Provision::Settings::DESTINATIONS.map { Provision::Settings.defaults(_1).fetch("OUTGOING_MAIL") })
     assert_equal "50GB", Provision::Settings.defaults("production").fetch("FILES_QUOTA")
     assert_equal "512MB", Provision::Settings.defaults("staging").fetch("FILES_QUOTA")
     assert_equal "512MB", Provision::Settings.defaults("dev").fetch("FILES_QUOTA")
@@ -45,25 +46,30 @@ class Provision::SettingsTest < ActiveSupport::TestCase
     assert_equal expected, DemoBuilders::DEMO_SETTINGS
   end
 
-  test "what is asked where: open accounts and their password on dev and the demo, the deploy token on production and staging" do
+  test "what is asked where: open accounts and their password on dev and the demo, the deploy token on production and staging, the mail relay on production" do
     asked = ->(destination) { Provision::Settings.for(destination).map(&:name) }
+    relay = %w[SMTP_HOST SMTP_HOST_ADDRESS SMTP_PORT SMTP_TLS SMTP_USERNAME SMTP_PASSWORD MAIL_FROM]
     assert_includes asked.call("demo"), "OPEN_ACCOUNTS"
     assert_includes asked.call("dev"), "DEMO_PASSWORD"
     assert_not_includes asked.call("production"), "OPEN_ACCOUNTS"
     assert_not_includes asked.call("staging"), "DEMO_PASSWORD"
     assert_includes asked.call("production"), "DEPLOY_DISPATCH_TOKEN"
     assert_not_includes asked.call("demo"), "DEPLOY_DISPATCH_TOKEN"
-    assert_equal Provision::Settings.names - %w[OPEN_ACCOUNTS DEMO_PASSWORD], asked.call("staging")
+    assert_equal relay, asked.call("production") & relay
+    assert_not_includes asked.call("demo"), "OUTGOING_MAIL", "the demo, open to anyone, never mails"
+    assert_equal Provision::Settings.names - %w[OPEN_ACCOUNTS DEMO_PASSWORD] - relay, asked.call("staging")
   end
 
-  test "a copy without the pipeline is passed everything but the deploy token, which only the pipeline's console uses" do
-    assert_equal Provision::Settings.names - %w[DEPLOY_DISPATCH_TOKEN WEB_MEMORY JOB_MEMORY DB_MEMORY], Provision::Settings.compose.map(&:name)
+  test "a copy without the pipeline is passed everything but what only the pipeline uses: the deploy token, the relay's address, the caps" do
+    assert_equal Provision::Settings.names - %w[DEPLOY_DISPATCH_TOKEN SMTP_HOST_ADDRESS WEB_MEMORY JOB_MEMORY DB_MEMORY], Provision::Settings.compose.map(&:name)
   end
 
-  test "the keys are the secrets, everything else a plain setting" do
-    assert_equal %w[ANTHROPIC_API_KEY OPENAI_API_KEY GOOGLE_BOOKS_API_KEY DEMO_PASSWORD DEPLOY_DISPATCH_TOKEN], Provision::Settings.secret.map(&:name)
-    assert_equal Provision::Settings.names - Provision::Settings.secret.map(&:name) - Provision::Settings.caps.map(&:name), Provision::Settings.clear.map(&:name)
+  test "the keys are the secrets, everything the app reads else a plain setting" do
+    assert_equal %w[ANTHROPIC_API_KEY OPENAI_API_KEY GOOGLE_BOOKS_API_KEY DEMO_PASSWORD DEPLOY_DISPATCH_TOKEN SMTP_PASSWORD], Provision::Settings.secret.map(&:name)
+    assert_equal Provision::Settings.names - Provision::Settings.secret.map(&:name) - Provision::Settings.caps.map(&:name) - %w[SMTP_HOST_ADDRESS],
+                 Provision::Settings.clear.map(&:name)
     assert_equal %w[ollama anthropic openai], Provision::Settings.find("ASSISTANT_PROVIDER").choices
+    assert_equal Emails::RelaySettings::TLS_MODES, Provision::Settings.find("SMTP_TLS").choices
   end
 
   test "the memory caps size the containers and never reach the app: capped where destinations share a machine with production, production not" do

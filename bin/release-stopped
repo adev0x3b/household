@@ -22,8 +22,9 @@
 # the page comes down: nothing is lost, since nothing could be written.
 #
 # The rehearsal does the same on staging with a copy of production's
-# database, made on the machine (production's data never leaves it), and
-# keeps staging's job worker stopped while it holds production's people.
+# database, made on the machine (production's data never leaves it). The
+# copy's mail is turned off before the new version boots on it, and
+# staging's job worker stays stopped while it holds production's people.
 # Then staging gets its own data back, migrated too: a second rehearsal.
 #
 # The smoke test reads RELEASE_SMOKE_PATHS (default the health check and the
@@ -142,6 +143,13 @@ migration_seconds=$(( $(seconds) - started ))
 report="$(sed 's/\x1b\[[0-9;]*m//g' "$log" | grep -E '^(==|-- [^(]*$)' || true)"
 rm -f "$log"
 printf '%s\n' "$report"
+
+# Production's settings came with its data, and its mail is on: none goes
+# out from staging to production's people, whatever their outbox holds.
+if $REHEARSAL; then
+  remote "docker exec $DB psql -U household -d household_production -c 'UPDATE platform_settings SET outgoing_mail = false'" > /dev/null ||
+    undo "mail didn't turn off on production's copy"
+fi
 
 say "Booting ${NEW:0:7}"
 bin/kamal setup -d "$DEST" --skip-push --version "$NEW" > /dev/null || undo "${NEW:0:7} didn't boot"

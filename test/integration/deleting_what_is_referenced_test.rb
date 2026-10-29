@@ -56,6 +56,7 @@ class DeletingWhatIsReferencedTest < ActionDispatch::IntegrationTest
     "assistant/chat_replies" => "stops a reply; the chat stays",
     "assistant/change_set_applications" => "undoes a change set; the set stays",
     "assistant/settings" => "clears a provider's key, not a record",
+    "account_email_changes" => "takes back a new address still waiting for its link, a column of the person's own profile",
     "profiles/sessions" => "signs out"
   }.freeze
 

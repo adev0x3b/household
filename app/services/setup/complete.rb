@@ -2,8 +2,8 @@
 
 module Setup
   # Saves the first setup (Setup::Form) at once: the household and its
-  # admin (Admins::Create), what the installation allows and the
-  # bookshelf's sources (Platform::Setting), the assistant's model
+  # admin (Admins::Create), what the installation allows, the bookshelf's
+  # sources and the mail it sends (Platform::Setting), the assistant's model
   # (Assistant::Setting) and the housemates' invitations. All of it or
   # none: the steps then carry what was wrong.
   #
@@ -56,6 +56,7 @@ module Setup
       setting = Platform::Setting.first_or_start
       step(Installation::Allowances).apply_to(setting)
       step(Installation::Books).apply_to(setting)
+      step(Installation::Mail).apply_to(setting)
       setting.updated_by = profile
       setting.save!
 

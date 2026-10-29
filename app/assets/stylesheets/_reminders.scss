@@ -3,12 +3,20 @@
 
 // "Remind me" in every kind's form (Views::Occurrences::ReminderFields): one
 // row per reminder, "[2] [days] before  ×", and an add button under them.
+// Where reminders may come by email, a row's box for it takes a second line
+// with the button that removes the row, so a phone's width still holds the
+// rest on the first, in the order they are reached.
 
 .reminder-fields {
   margin-bottom: 0.75rem;
 
   .label i {
     color: $text-muted;
+  }
+
+  // A link in running text is underlined, never told by colour alone.
+  .help a {
+    text-decoration: underline;
   }
 
   &__rows {
@@ -25,6 +33,26 @@
 
   &__before {
     flex: 1;
+    color: $text-muted;
+    font-size: $type-14;
+  }
+
+  &--email &__row {
+    display: grid;
+    grid-template-columns: 4.5rem auto minmax(0, 1fr) auto;
+    row-gap: 0.25rem;
+
+    > .nested-fields__error {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__email {
+    grid-column: 1 / 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 1.75rem;
     color: $text-muted;
     font-size: $type-14;
   }

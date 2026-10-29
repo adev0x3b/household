@@ -12,4 +12,19 @@ namespace :admin do
 
     puts "Created #{profile.household.name}: #{profile.username} <#{profile.email}> can sign in and manage households on /admin/households."
   end
+
+  # The admin gets no link by mail when they forget their password, and
+  # may be the only one who could make them one: whoever runs the machine can.
+  desc "A link to set the password of USERNAME, printed here: it works once, for 30 minutes, and ends any link made before"
+  task password_link: :environment do
+    username = ENV["USERNAME"].to_s
+    abort "USERNAME is needed, e.g. USERNAME=alex bin/rails admin:password_link" if username.blank?
+
+    profile = Profile.joined.with_username(username).first
+    abort "Nobody here goes by #{username}." if profile.nil?
+
+    token = profile.short_password_link_token!
+    url = Rails.application.routes.url_helpers.edit_profile_password_url(reset_password_token: token, **ActionMailer::Base.default_url_options)
+    puts "Open this to set #{profile.username}'s password, within #{Profile::SHORT_PASSWORD_LINK_FOR.in_minutes.to_i} minutes:", url
+  end
 end

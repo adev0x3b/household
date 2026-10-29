@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 # A link for someone who has an account to set a password: for a member who
-# never got one (a seeded account), or who lost theirs. There is no
-# "forgot your password" email: the household's owner or the admin makes
-# this on the household page and hands it over. It lasts Devise's
-# reset_password_within, any earlier one stops working, and setting the
-# password opens an account locked by wrong passwords.
+# never got one (a seeded account), or who lost theirs. The household's
+# owner or the admin makes this on the household page and hands it over,
+# for anyone, mail or not (a link by mail is Profiles::RequestPasswordLink's).
+# It lasts Devise's reset_password_within, any earlier one stops working,
+# and setting the password opens an account locked by wrong passwords.
 #
 # The person is told, on every device they turned notifications on for:
 # whoever opens the link becomes them, so a link they didn't ask for is

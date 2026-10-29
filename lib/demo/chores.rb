@@ -101,7 +101,7 @@ module Demo
       chore = create(send(who), Task.new(title: title, notes: notes, starts_on: first, details_attributes: { priority: priority }),
                      recurrence: recurrence)
       share(chore, with: send(shared)) if shared
-      remind(chore, alex, [ 3, "hours" ]) if who == :alex # Alex likes a nudge for their chores
+      remind(chore, alex, [ 3, "hours" ], by_email: true) if who == :alex # Alex likes a nudge for their chores, in their inbox too
       follow(chore, done: done, skipped: 0.04, late: 0.12, early: 0.05)
     end
 

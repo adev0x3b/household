@@ -14,6 +14,10 @@
 #                       invited them, or the admin — the people who can
 #                       hand the link over
 #   cancel_invitation?  take an invitation back: the same, and the owner
+#   manage_account?     their own address and password (the Account page):
+#                       the person alone, and never on an account anyone
+#                       may enter (Platform.open_account?), which is every
+#                       visitor's
 class ProfilePolicy < ApplicationPolicy
   def destroy?
     return false if record == user
@@ -26,6 +30,8 @@ class ProfilePolicy < ApplicationPolicy
   def renew_invitation? = record.invitation_pending? && (user.admin? || inviter?)
 
   def cancel_invitation? = record.invitation_pending? && (user.admin? || inviter? || owner_of_record?)
+
+  def manage_account? = record == user && !Platform.open_account?(user)
 
   # The people of one's own household; everyone, for the admin.
   class Scope < ApplicationPolicy::Scope
