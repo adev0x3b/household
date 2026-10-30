@@ -30,7 +30,7 @@ pull request: CI ──merge──► main ──CI──► image ghcr.io/<owne
 - **Only a commit on `main`** may reach staging, the demo or production. A branch's image only ever reaches dev.
 - **The demo's data is disposable** and starts over every night, so it takes deploys and restarts and nothing else.
 - **Dev can be stopped** while nothing is previewed. Its data is kept, and the next preview starts it again.
-- **Each destination's GitHub environment names its machine**, so the four can share one host or spread over several, and one moves to another machine with `bin/provision move`, run there. Each container's memory cap is a setting of its destination, so a smaller machine takes smaller ones.
+- **Each destination's GitHub environment names its machine**, so the four can share one host or spread over several, and one moves to another machine with `bin/provision move`, run there. Each container's memory cap is a setting of its destination.
 
 ## Two ways to run a copy
 

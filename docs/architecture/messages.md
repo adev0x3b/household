@@ -16,7 +16,7 @@ A `ConversationParticipant` is a person's place in a conversation, and their **r
 
 A `Message` is words, up to `Message::MAX_IMAGES` pictures, or both.
 - **Pictures** come from the phone's camera (a `capture="environment"` file input) or its library.
-  - **Kept without their metadata:** each is turned upright and saved again, without location or device. What a file is comes from its bytes, not from the type the browser declared, and one that can't be saved again is refused rather than kept as it came (`Messages::CleanPicture`). The sender is told why, and nothing of that message is sent; the admin gets a report, since a picture the app can't read is the app's to fix.
+  - **Kept without their metadata:** each is turned upright and saved again, without location or device. What a file is comes from its bytes, not from the type the browser declared, and one that can't be saved again is refused rather than kept as it came (`Messages::CleanPicture`). The sender is told why, nothing of that message is sent, and the admin gets a report.
   - **Two versions:** the page shows a shrunk version, and the original on a tap.
   - **Served by an authorizing controller**, to the conversation's people alone, and cached by their browser only.
 - **A send repeated by a bad connection is saved once.** The client mints a UUID for each message, unique per sender.

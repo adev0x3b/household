@@ -36,7 +36,7 @@ Two housemates **link** (`Link`): one asks, the other accepts or declines, from 
 
 Turning reading off turns the rest off. Each grant is set with a row of pills on the Links page, and the other housemate is told about the change once.
 
-The defaults apply when the link is accepted. A kind of item added to the app later is off on the links made before it: nobody agreed to share it, so it stays hidden until its owner turns it on, and the first tap saves its grant.
+The defaults apply when the link is accepted. A kind of item added to the app later is off on the links made before it until its owner turns it on, and the first tap saves its grant.
 
 **Where the grants act:**
 - **Reading** is a branch of `Event.accessible_by`. The calendar, home and its statistics, reminders and the assistant therefore all see a partner's items without knowing about links.
@@ -63,7 +63,7 @@ The menu's Links entry shows a count of what waits for an answer, and it stays l
 
 Whatever more than one person can edit keeps a version and who saved it last: a series and its days, a recipe, a collection, a grocery list and its items, a therapy's purchases, the household's conversation.
 - **The version** is the table's `lock_version`. Rails checks it on every update and moves it on, and refuses an update made from an older copy, undoing the whole save.
-- **Who saved it** is `updated_by`, which a save names with `edited_by(profile)`: a form's save, and a press too (a day's circle, a grocery item's tick, settling "Needs attention"), so a form a press crossed can name who pressed. A save that names nobody leaves nobody named, so the name is never the wrong person's.
+- **Who saved it** is `updated_by`, which a save names with `edited_by(profile)`: a form's save, and a press too (a day's circle, a grocery item's tick, settling "Needs attention"), so a form a press crossed can name who pressed. A save that names nobody leaves nobody named.
 - **What it holds moves it too.** A change to a day's or a series' own fields, its times of the day or a lab result's values moves the version of the day or series it describes.
 - **A form carries the version it was drawn at.** A save after someone else's is refused on the form, which says who saved meanwhile (or that it was oneself in another window). The form also says which fields were typed in it (`typed_fields_controller.js`, `EditedTogether::TypedFields`), and comes back with what was typed in those over what the other person saved; it now carries the new version, so saving again keeps both (`edit_as`). A day's form carries its series' version too (see [the calendar](calendar.md#saving-this-day-or-the-whole-series)).
 - **A write that isn't an edit leaves it**: a conversation's latest message, what a done day keeps when its series changes, and where a series' days with nothing stored start.

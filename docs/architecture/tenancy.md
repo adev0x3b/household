@@ -18,7 +18,7 @@ Records are only ever reached through `accessible_by(profile)` scopes and Pundit
 
 All three stay inside the household.
 
-Each way in is looked up on its own, through an index that starts from the profile (the record's owner, the share's sharee, the grant's grantee), and the scope reads only the rows those lookups name. So what a person's page reads grows with their household, never with how many households the installation serves.
+Each way in is looked up on its own, through an index that starts from the profile (the record's owner, the share's sharee, the grant's grantee), and the scope reads only the rows those lookups name.
 
 ## How the boundary is held
 

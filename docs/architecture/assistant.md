@@ -151,7 +151,7 @@ Every turn replays the chat, and the tool schemas and instructions take most of 
 
 An admin chooses the provider, the model, the keys and the tuning on `/assistant/settings`. Keys are encrypted in the database and never rendered back. Until a value is saved, it comes from the environment. A provider other than Ollama sends what is typed to that provider, and the composer says so.
 
-The page's Test press tries the form's values without saving them, and lists the models that the typed key or server reaches, so a model can be picked from the provider's own names rather than typed. The first setup's assistant step has the same press and list (`Assistant::ConnectionAnswers`), open to the browser that gave the setup code.
+The page's Test press tries the form's values without saving them, and lists the models that the typed key or server reaches. The first setup's assistant step has the same press and list (`Assistant::ConnectionAnswers`), open to the browser that gave the setup code.
 
 ---
 
