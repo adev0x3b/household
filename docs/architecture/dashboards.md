@@ -6,7 +6,7 @@ The landing page (`/`) is the **home dashboard**: what needs attention, today, a
 
 ## Deciding what to measure
 
-Each headline figure answers a question someone would act on, and is defined before it is built, down to what an empty period shows:
+Each headline figure is defined like this, down to what an empty period shows:
 
 ```
 Metric:       Dose adherence
@@ -64,7 +64,7 @@ The figures come from one namespace, `Reports::` (`app/reports`).
 
 Every section's "needs attention" item is one `Reports::AttentionItem`: a missed dose, a supply about to run out, a payment due, a lab value out of range. Each has a severity and a link that opens the item in place: the day it is about, for a supply a new purchase of it, for a batch its own purchase. Its kind names the sentence that words it, and the report hands over what that sentence fills in (a lab value, the ingredients short), so the list draws every kind the same way. Home gathers them from every section, sorted by severity.
 
-**An item about a day that passed unrecorded can be settled from the list itself.** The item says so (`resolvable`), and a press beside it marks every such day of its series as skipped, through `Attention::Resolve`: what was never recorded stays unrecorded, on the record as skipped, and the series leaves the list. The list's footer settles every such item of the page's list at once, after a confirmation. Both go through `AttentionResolutionsController` and come back to the page, which draws itself again. Each day is checked with its own policy: the press is offered only to someone who may change the day outright, never to a linked housemate who would have to ask, since the list promises to settle, not to send a request. What is still to come, was already skipped, or is about a supply or a value is not settled this way.
+**An item about a day that passed unrecorded can be settled from the list itself.** The item says so (`resolvable`), and a press beside it marks every such day of its series as skipped, through `Attention::Resolve`: what was never recorded stays unrecorded, on the record as skipped, and the series leaves the list. The list's footer settles every such item of the page's list at once, after a confirmation. Both go through `AttentionResolutionsController` and come back to the page, which draws itself again. Each day is checked with its own policy: the press is offered only to someone who may change the day outright, never to a linked housemate who would have to ask. What is still to come, was already skipped, or is about a supply or a value is not settled this way.
 
 **Every day that has passed and is still to do counts, however long ago**: a task, an appointment of any kind, a dose, a meal, a lab result or a payment that is neither done, cancelled nor skipped. The list shows each series once, at its newest such day, with how many it has ("6 times"); urgent items first, then the nearest to today, six to a page with their own page links. `Reports::Unfinished` reads them apart from the page's window, which loads a span whole for the figures: it reads however long ago, but loads only the unfinished days, looks for a day nothing was saved about only from the first day its series may have one (`Event#unsaved_since`, see [calendar.md](calendar.md)), and learns which of those were saved from their dates alone. The window holds one per page, and the kinds a page names are read together.
 

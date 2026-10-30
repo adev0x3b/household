@@ -41,7 +41,7 @@ There is no password reset by email. If you forget your password, the household'
 
 The app speaks English or Italian. Each person picks their own, on the account menu in the top bar, and it also sets the language the assistant answers in.
 
-Days are your days: the app reads your time zone from your browser and keeps it, so a reminder "3 hours before" and today's list follow the clock where you are.
+The app reads your time zone from your browser, and reminders and today's list follow it.
 
 ---
 

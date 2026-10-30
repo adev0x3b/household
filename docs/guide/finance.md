@@ -8,7 +8,7 @@ Finance is the household's money: payments on the calendar, and the Finance page
 
 ## Payments
 
-A payment is a series on the calendar like any other, so a one-off bill and the rent on the first of every month are made the same way. Its form asks:
+A payment is a series on the calendar like any other. Its form asks:
 
 - **Amount**, in the household's currency, with no sign: the kind carries the direction.
 - **Kind**: an expense or income.

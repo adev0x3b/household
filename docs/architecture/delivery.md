@@ -8,7 +8,7 @@ The deploy host runs four copies of the app, behind one proxy:
 - **demo**, the public demo, at its own address with nothing in front;
 - **dev**, behind an access gate.
 
-GitHub Actions builds each commit once into an image, and Kamal puts that image on the host. This page is the shape and the reasons. The runbook, with every command, is kept with the deploy configuration, outside this repository: in this one the deploy workflows do nothing, since it has no `DEPLOY_HOST`.
+GitHub Actions builds each commit once into an image, and Kamal puts that image on the host. The deploy workflows do nothing in a repository without a `DEPLOY_HOST`.
 
 ## A change travels dev → main → staging → production
 
@@ -23,28 +23,18 @@ pull request: CI ──merge──► main ──CI──► image ghcr.io/<owne
 
 - **CI** runs on every pull request and push: RuboCop with the app's own cops, ESLint, Stylelint and Prettier for the front end, ShellCheck, Brakeman, `bundler-audit`, the importmap audit, `npm audit` (critical advisories only), gitleaks, and the whole suite, browser tests included.
   - A pull request's new migrations are also run on the schema they merge into, which is what a deploy will do. strong_migrations refuses an operation the version still serving couldn't survive.
-  - Every night, `main`'s tests run again with the clock a year ahead, so a test that depends on today's date fails long before the date comes.
+  - Every night, `main`'s tests run again with the clock a year ahead.
 - **The image** is built once, for a commit on `main`, and tagged with its sha. **The host never builds:** staging and production run that exact image, and a rollback is the image of an earlier commit.
-- **Staging** follows `main` by itself, and **the demo** takes the same version right after staging has it. **Production** never does: someone looks at staging, then promotes.
-- **A promotion is also a release** when it puts a newer version on production: a calendar version, the image tagged with it, and a GitHub Release with the files a copy of one's own installs from. Those copies follow releases, never `main`.
+- **Staging** follows `main` by itself, and **the demo** takes the same version right after staging has it. **Production** moves only when promoted.
+- **A promotion is also a release** when it puts a newer version on production: a calendar version, the image tagged with it, and a GitHub Release with the files a self-hosted copy installs from. Self-hosted copies follow releases, never `main`.
 - **Only a commit on `main`** may reach staging, the demo or production. A branch's image only ever reaches dev.
 - **The demo's data is disposable** and starts over every night, so it takes deploys and restarts and nothing else.
-- **Dev can be stopped** while nothing is previewed, since the four copies share one host's memory. Its data is kept, and the next preview starts it again.
-- **Each destination's GitHub environment names its machine**, so the four can share one host or spread over several, and one moves to another machine with `bin/provision move`, run there. Each container's memory cap is a setting of its destination, so a smaller machine takes smaller ones.
-
-## Who runs where
-
-Every job runs on GitHub's runners, a throwaway machine each. Two rules keep the deploy keys where they belong:
-- **What holds a deploy secret, or builds the image, runs `main`'s code.** Each destination's secrets sit in a GitHub environment only `main` may use. A preview on dev runs the branch's image, but `main`'s configuration and scripts drive it.
-- **A cache only feeds what is as trusted as what wrote it.** A branch's build keeps its layers apart from `main`'s.
-
-The deploy secrets can also live in a private repository of their own, whose `main` is this one's merged with files of its own: it deploys the images this repository's CI built and asks this repository for the release. Its pushes that change only its own files, which its `PRIVATE_PATHS` variable matches, deploy nothing.
-
-A pull request from a fork or from Dependabot runs only once a maintainer approved it. The repository can also send its jobs to a runner of its own, on a machine apart from the host; the runbook says what that runner may take.
+- **Dev can be stopped** while nothing is previewed. Its data is kept, and the next preview starts it again.
+- **Each destination's GitHub environment names its machine**, so the four can share one host or spread over several, and one moves to another machine with `bin/provision move`, run there. Each container's memory cap is a setting of its destination.
 
 ## Two ways to run a copy
 
-The pipeline above is how this repository's own copies run. A copy of one's own runs without it, from a release ([self-hosting](../self-hosting.md)): `install.sh` puts the release's `compose.yml` in a directory with the installation's answers, one Compose project with the database, the web server, the jobs and three volumes, and the image production runs pinned by its digest. The two share the image, the entrypoint that makes the secrets and migrates, and the names of every setting. What differs is what the machine does: the pipeline's host swaps versions with no gap; a copy of one's own takes a few seconds' pause on each update, with no migration ever running beside the version before it.
+The pipeline above runs the project's own copies. A self-hosted copy runs without it, from a release ([self-hosting](../self-hosting.md)): `install.sh` puts the release's `compose.yml` in a directory with the installation's answers, one Compose project with the database, the web server, the jobs and three volumes, and the image production runs pinned by its digest. The two share the image, the entrypoint that makes the secrets and migrates, and the names of every setting. What differs is what the machine does: the pipeline's host swaps versions with no gap; a self-hosted copy takes a few seconds' pause on each update, with no migration ever running beside the version before it.
 
 ## A deploy without a gap
 
@@ -73,7 +63,7 @@ Before every production deploy, a hook dumps the database.
 
 ## Releases
 
-A copy of one's own follows releases, never `main`. A release is a version someone promoted to production and production then ran: the promotion starts `release.yml`, which only the repository's owner may publish.
+A release is a version someone promoted to production and production then ran: the promotion starts `release.yml`, which only the repository's owner may publish.
 
 1. **`prepare`**, read-only, on `main`'s code: `bin/release` decides whether the commit is a new release and which version, then writes the notes and the files. A version older than the last release, or one released already, makes none.
 2. **`arm64`**: the same commit built for arm64, pushed as `<version>-arm64`.

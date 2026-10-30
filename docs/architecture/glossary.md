@@ -68,7 +68,7 @@ In code every one of them is `status: :completed`, set only through `complete!`.
 
 ## Words that look alike
 
-Some words mean two things, and each keeps both on purpose:
+Some words mean two things:
 
 - **Chat and conversation.** Housemates have conversations; the assistant has chats.
 - **Image and photo.** A file's kind is Image; a picture someone sends is a photo.
