@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Guide](README.md)
 
-The admin runs the copy: its households, its settings, the assistant's model, the assistant's languages, and the app's own health. The first account made on the setup page is the admin. The admin's pages are under **Admin** in the navigation, and nothing on them reaches into a household's records: the admin makes households, invites their first member, and helps a person back in, nothing more.
+The admin runs the copy: its households, its settings, the assistant's model, the assistant's languages, and the app's own health. The first account made on the setup page is the admin. The admin's pages are under **Admin** in the navigation, and none of them shows a household's records.
 
 Anything the admin does to someone else's account, and every save of the settings, asks for the admin's password again, which then holds for a while.
 
@@ -41,11 +41,11 @@ Every value here can be changed here. Where the copy's environment names one, th
 
 ## Evals
 
-**Evals** runs the assistant's test scenarios against the model in use and keeps each run: how many passed, how long and how many tokens a scenario took, and which scenarios fail most. It is how a change of model or settings is judged before people meet it.
+**Evals** runs the assistant's test scenarios against the model in use and keeps each run: how many passed, how long and how many tokens a scenario took, and which scenarios fail most.
 
 ## Deployment
 
-**Deployment** says what this copy runs: its version, environment, when it booted, and whether its database and job worker answer. On a self-hosted copy it also checks once a day whether a newer release is out and shows the command to update; on a copy that runs the repository's pipeline it is the delivery console, which previews a branch, merges it, promotes a version to production, rolls back, and shows the last runs and the delivery metrics.
+**Deployment** says what this copy runs: its version, environment, when it booted, and whether its database and job worker answer. On a self-hosted copy it also checks once a day whether a newer release is out and shows the command to update. On a copy that runs the pipeline it also shows dev, staging, the demo and production, and previews a branch, deploys, promotes a release to production, rolls back and freezes deploys.
 
 ---
 

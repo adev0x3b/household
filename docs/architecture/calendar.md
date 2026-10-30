@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Architecture](README.md)
 
-Everything on the calendar is one shape: a task, an appointment of any kind, a medication, a meal, a lab result, a payment. Each is a **series** (`Event`) with **days** (`Occurrence`). A one-off is a series with one day. A daily medication taken at breakfast and dinner is a series with two doses a day, every day. This page is about that shape, because every feature that touches the calendar builds on it.
+Everything on the calendar is one shape: a task, an appointment of any kind, a medication, a meal, a lab result, a payment. Each is a **series** (`Event`) with **days** (`Occurrence`). A one-off is a series with one day. A daily medication taken at breakfast and dinner is a series with two doses a day, every day.
 
 ## Kinds of series
 

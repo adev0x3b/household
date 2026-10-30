@@ -2,7 +2,7 @@
 
 [Documentation](README.md)
 
-One machine with Docker is enough. You install a **release**, a version of the app that the project's own production runs, and it lives in one directory: a Compose project with a database, the web server, the jobs and three volumes. There is no clone, no Ruby and no build. (The project's own copies run the other way, [a pipeline](architecture/delivery.md) that builds each commit once and deploys it with Kamal; the two run the same image.)
+One machine with Docker is enough. You install a **release**, a version of the app that the project's own production runs, and it lives in one directory: a Compose project with a database, the web server, the jobs and three volumes. There is no clone, no Ruby and no build.
 
 ## What you need
 
@@ -91,7 +91,7 @@ Updates never happen by themselves. The app checks once a day whether a newer re
 | the backups in `backups/` | stay | `--remove-backups` |
 | the images it pulled (the app's, Postgres, cloudflared) | go, unless something else on the machine uses them | `--keep-images` |
 
-Losing the data or the backups waits for the directory's name typed back, which `--yes` never types, so a scripted `household uninstall --yes --keep-data` is the most that runs without a hand. With the data kept, `household.env` stays too, because its password opens the database volume: `sh install.sh` into the same directory starts Household again with everything it held. The directory stays when anything is left in it, and goes with the last of its files otherwise. A Tailscale address keeps answering until `sudo tailscale serve reset`.
+Losing the data or the backups waits for the directory's name typed back, which `--yes` never types. With the data kept, `household.env` stays too, because its password opens the database volume: `sh install.sh` into the same directory starts Household again with everything it held. The directory stays when anything is left in it, and goes with the last of its files otherwise. A Tailscale address keeps answering until `sudo tailscale serve reset`.
 
 ## Settings
 

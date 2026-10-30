@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Guide](README.md)
 
-Home is where the day starts: what needs attention, what is due today, and one page per section with its figures. Nothing on Home sends you elsewhere to act. A row opens the item in place, and a figure is explained by its own hint.
+Home shows what needs attention, what is due today, and one page per section with its figures. A row opens the item in place, and each figure has a hint saying what it counts.
 
 <img src="images/home-overview-phone.png" width="300" alt="Home on a phone: Needs attention with missed doses, a supply running out and an overdue task, then today's card"> <img src="images/home-healthcare-phone.png" width="300" alt="The Healthcare page on a phone: the section tabs, the period and whose data, then Needs attention">
 

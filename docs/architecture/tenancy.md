@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Architecture](README.md)
 
-Each customer is a **household**, and nothing crosses from one household to another. That is the one rule every other part of the app is built on.
+Each customer is a **household**, and nothing crosses from one household to another.
 
 ## The model
 
@@ -73,7 +73,7 @@ Being the admin gives no access to any household's records, with one exception: 
 
 On an empty database the first visitor is sent to the **setup page**, which sets up the whole copy at once and signs its admin in. The page disappears once anyone exists.
 
-The first setup asks everything a copy needs before anyone uses it, so nobody has to find a setting in the menus afterwards. It is one form shown a step at a time: the admin's account and language, the household's name and currency, what the installation allows, the assistant's provider and model (skipped when the assistant is off; a Test press tries the key and lists the provider's models before anything is saved), the Bookshelf's key and budget, the people to invite, then a review of every answer. Each step is an ActiveModel form object, listed in `Setup::STEPS`, with its view in `Views::Setup::Steps::BY_STEP`; the allowances, the assistant and the Bookshelf are the same section objects `/admin/settings` and `/assistant/settings` edit. `Setup::Complete` checks every step and saves them in one transaction, or nothing. A refused form comes back at the first step with something to fix. The invitation links are shown on the page that answers the form, the only time they can be read. The time zone isn't asked: the browser tells it, as on every sign-in.
+The first setup asks everything a copy needs, in one form shown a step at a time: the admin's account and language, the household's name and currency, what the installation allows, the assistant's provider and model (skipped when the assistant is off; a Test press tries the key and lists the provider's models before anything is saved), the Bookshelf's key and budget, the people to invite, then a review of every answer. Each step is an ActiveModel form object, listed in `Setup::STEPS`, with its view in `Views::Setup::Steps::BY_STEP`; the allowances, the assistant and the Bookshelf are the same section objects `/admin/settings` and `/assistant/settings` edit. `Setup::Complete` checks every step and saves them in one transaction, or nothing. A refused form comes back at the first step with something to fix. The invitation links are shown on the page that answers the form, the only time they can be read. The time zone isn't asked: the browser tells it, as on every sign-in.
 
 Before anything else, the page asks for the copy's **setup code**: sixteen characters, made on the machine and printed to whoever runs it, so a stranger who reaches the address first can't make themselves the admin. The database keeps only the code's digest (`SetupCode`, on `Platform::Setting`). A right code opens the setup to that browser until the first account exists, which spends it; a wrong one is refused with the same words, five tries a minute from one address. `bin/rails setup:code` makes a new code, replacing any before it, and refuses once anyone exists. Without a code the page offers no form, only that command. A development server, which nothing installs, makes its own code the first time the page is opened and prints it in its output (`config.x.makes_its_own_setup_code`).
 
@@ -97,7 +97,7 @@ A policy or a controller asks `Platform` (`Platform.uploads?`, `Platform.picture
 ## The demo
 
 The public demo is an **installation of its own**, with its own database, running the same code as every other copy. Its data is a household with three members and six months of life ending today:
-- **Built by `Demo::Seeder`**, one day at a time, through the app's own code, so the demo shows what the app really does. It is also the sample data of every development database (`db/seeds.rb`). The household has no owner, so no visitor can remove the others.
+- **Built by `Demo::Seeder`**, one day at a time, through the app's own code. It is also the sample data of every development database (`db/seeds.rb`). The household has no owner, so no visitor can remove the others.
 - **Rebuilt every night** on the demo installation alone (`Demo::ResetJob`, `config/recurring.yml`).
 - **Entered without a password.** The demo installation declares its three accounts open (`OPEN_ACCOUNTS`): its sign-in page offers them as buttons, and entering is a POST (`DemosController`). A GET signs nobody in, because Turbo prefetches links and any site could link a browser in. On the way in the account is unlocked, so a stranger's wrong passwords never keep the next visitor out. An admin is never an open account, even when `OPEN_ACCOUNTS` names one: entering as them without a password would hand anyone the installation. Any other copy's `/demo` sends the visitor to the demo installation (`DEMO_HOST`).
 - **Limited by its settings**, not by code: uploads, pictures, invitations and push are off, the assistant and the bookshelf's lookups have a day's budget per household (the lookups' is `Books::LookupAllowance`). A feature that costs money or reaches outside the app gets a setting of its own, which the demo installation turns off.

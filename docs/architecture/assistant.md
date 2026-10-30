@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Architecture](README.md)
 
-The assistant is a chat that files things for you. You say "Cobalamin 250, the test was today", "I paid the plumber 80 in cash", "I took my metformin", or send a photo of a lab report, and it saves the records. It is built to be useful with a small local model (an 8B one, on Ollama), and the design follows from that.
+The assistant is a chat that files things for you. You say "Cobalamin 250, the test was today", "I paid the plumber 80 in cash", "I took my metformin", or send a photo of a lab report, and it saves the records. It is designed for a small local model (8B, on Ollama).
 
 ## The shape
 
@@ -132,7 +132,7 @@ A photo is read on the server with Tesseract, after preprocessing with libvips: 
 `bin/rails "assistant:eval[RUNS]"` plays scenarios against the configured model (`eval/assistant/scenarios/*.yml`). Each run uses a throwaway profile in a rolled-back transaction.
 - **A scenario** is the user's messages, an optional seeded state, a "today", and checks: on the data left behind, and on the turns (it asked rather than saved, it replied in Italian, it never claimed a save that didn't happen). Each check is a class under `lib/assistant_eval/checks/`, listed in `AssistantEval::Checks.all`, which also says what its argument means for the eval form.
 - **Scoring:** errors in the plumbing (the model unreachable, a timeout, another model answering) are not scored as failures. Pass rates are shown with a 95% Wilson interval, and a scenario that passes some repetitions and fails others is flagged as flaky.
-- **Honest scenarios:** every scenario must fail when the model does nothing (a null baseline), and the subtle ones have a test replaying what a good model would do.
+- **Scenarios that can fail:** every scenario must fail when the model does nothing (a null baseline), and the subtle ones have a test replaying what a good model would do.
 - **Admins** run evals, write scenarios and compare runs from `/assistant/evals`, with a live view of every tool call as it happens.
 
 ## Context budget
