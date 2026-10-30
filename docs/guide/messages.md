@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Guide](README.md)
 
-Messages is where the household talks: one conversation for everyone, and one between any two housemates. It is live, so a message sent from a phone is on a housemate's screen at once.
+Messages is where the household talks: one conversation for everyone, and one between any two housemates. Messages arrive live.
 
 <img src="images/messages-list-phone.png" width="300" alt="The Messages page on a phone: the household's conversation and one per housemate, with the unread count"> <img src="images/conversation-phone.png" width="300" alt="The household's conversation on a phone: bubbles with reactions, who has seen it, and the composer with its camera and photo buttons">
 

@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Architecture](README.md)
 
-The front end has no build step and no client-side state worth the name. Pages are rendered on the server by Phlex, Turbo moves between them and updates parts of them, and Stimulus controllers add the behaviour HTML can't. It is built for a phone first, and installs as a PWA.
+The front end has no build step and no client-side state. Pages are rendered on the server by Phlex, Turbo moves between them and updates parts of them, and Stimulus controllers add the behaviour HTML can't. It is built for a phone first, and installs as a PWA.
 
 ## Phlex
 
@@ -17,7 +17,7 @@ Views are Ruby classes, in two directories. `app/components` is the kit: pieces 
 
 ## Where actions go
 
-**Every button sits on the thing it acts on,** which is what keeps a phone screen from growing rows of mismatched buttons:
+**Every button sits on the thing it acts on:**
 
 | Acts on | Goes | Component |
 |---|---|---|
@@ -68,7 +68,7 @@ A page about a long job, or about an area's configuration, follows the shape of 
 
 ## Turbo
 
-The layout turns on page refreshes (`turbo-refresh-method=morph`, `turbo-refresh-scroll=preserve`). Each rule below was learnt from a bug:
+The layout turns on page refreshes (`turbo-refresh-method=morph`, `turbo-refresh-scroll=preserve`). The rules that go with them:
 
 1. **A control that revisits the page** (a filter, a sort, a period, a month) is a `replace` visit to the same path. Turbo morphs the page and keeps the reader's scroll. A plain link would scroll to the top.
 2. **A `turbo-frame` with a `src`** carries `refresh: :morph`, so a page refresh reloads it in place instead of leaving it on its placeholder.
@@ -115,7 +115,7 @@ The target is WCAG 2.2 AA. axe runs on every page a system test visits, and on e
 
 ## The installed app
 
-The app installs as a PWA. The service worker shows an offline page and push notifications, and never caches the app's pages or data. It keeps the offline page in every language and shows the one the browser reads first, since the people sharing a tablet may each read another; the page stands at the address that failed, so trying again asks for that page. The push notifications use Web Push (VAPID): each person turns them on per device, and every notification reaches their devices. Tapping one marks it read under the bell, then opens what it is about; a link to a notification only leads there and changes nothing. A push service that is busy or can't be reached is tried again, later each time; any other refusal is reported and the push dropped, and a device refused every push for a month is forgotten, as one the service says is gone.
+The app installs as a PWA. The service worker shows an offline page and push notifications, and never caches the app's pages or data. It keeps the offline page in every language and shows the one the browser reads first; the page stands at the address that failed, so trying again asks for that page. The push notifications use Web Push (VAPID): each person turns them on per device, and every notification reaches their devices. Tapping one marks it read under the bell, then opens what it is about; a link to a notification only leads there and changes nothing. A push service that is busy or can't be reached is tried again, later each time; any other refusal is reported and the push dropped, and a device refused every push for a month is forgotten, as one the service says is gone.
 
 The bell's list loads the first time it opens and again each time it opens after that, so its rows say what has been read since and how long ago; new rows arrive live while it is open, and older ones come a page at a time.
 

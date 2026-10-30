@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Architecture](README.md)
 
-The Files section keeps files of any size on the server: a lease, a scan, a holiday's photos. It is built the way enterprise file-sharing tools are, kept to what a household needs. A file is private to whoever uploaded it until they share it with a housemate or hand out a public link.
+The Files section keeps files of any size on the server. A file is private to whoever uploaded it until they share it with a housemate or hand out a public link.
 
 ## One file
 
@@ -14,12 +14,12 @@ Its bytes live under `storage/files/<key>` (`Uploads::Storage`), outside Active 
 
 ## Uploading in chunks, resumably
 
-The protocol is built in, in the spirit of [tus](https://tus.io):
+The upload protocol is the app's own, modelled on [tus](https://tus.io):
 
 1. `POST /files` makes the row with the size declared. The household's quota (`Uploads::Quota`) is checked and that size reserved, under the household's row lock, so two uploads at once can't both take the last space (`Uploads::Create`).
 2. `POST /files/:id/chunks` appends one chunk at the offset its `Upload-Offset` header names, under the row's lock (`Uploads::Append`). A wrong offset answers **409 with the right one**, so a client that lost track resumes from where the server is.
 3. `GET /files/:id/progress` says where to resume after a lost connection.
-4. The last chunk hands the file to `Uploads::FinishJob`. It checks the size, computes the SHA-256, reads the content type from the bytes rather than the name (Marcel), and marks it ready. That is the place a virus scan would go.
+4. The last chunk hands the file to `Uploads::FinishJob`. It checks the size, computes the SHA-256, reads the content type from the bytes rather than the name (Marcel), and marks it ready.
 
 Chunks are 16 MB. The tunnel in front of the app refuses request bodies over 100 MB, and a chunk is small enough to resend cheaply.
 

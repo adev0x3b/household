@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Architecture](README.md)
 
-The landing page (`/`) is the **home dashboard**: what needs attention, today, and the week ahead. Each section of the household (Agenda, Healthcare, Finance, Pantry) has a page of its own under `/home/<section>`. It shows what needs attention there, up to four headline figures, what's next, and then the section's statistics, for a period and a member picked on that page. There are no separate statistics pages. **Home never sends the reader elsewhere to act:** its rows open the item's own form in place. A household with nothing on any calendar yet is offered its first steps (the calendar, inviting its people) instead of figures of nothing.
+The landing page (`/`) is the **home dashboard**: what needs attention, today, and the week ahead. Each section of the household (Agenda, Healthcare, Finance, Pantry) has a page of its own under `/home/<section>`. It shows what needs attention there, up to four headline figures, what's next, and then the section's statistics, for a period and a member picked on that page. There are no separate statistics pages. **Home never sends the reader elsewhere to act:** its rows open the item's own form in place. A household with nothing on any calendar yet is offered its first steps (the calendar, inviting its people) instead of empty figures.
 
 ## Deciding what to measure
 
@@ -21,7 +21,7 @@ Empty means:  nothing was due, so show "—", never 0%
 Each edge of the definition is a test of its report, and the figure's hint on the page says it in one sentence.
 
 The rules that follow from that:
-- **Rates beat raw counts:** "12 taken" means nothing without "of 15 due".
+- **Rates, not bare counts:** a figure says "12 of 15 due", never "12 taken" alone.
 - **A past day nobody ticked is missed.** It exists even with no row (see [the calendar](calendar.md)), and the ledger counts it.
 - **Every figure is compared** with the previous period of the same length, as a difference: three more, €30 less, four points up. A count or an amount is never put as a percentage of what it was.
 - **At most four headline figures per section.** Everything else goes in a report below them.

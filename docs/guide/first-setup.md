@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Guide](README.md)
 
-Nobody can sign up to Household. The first person sets the copy up once, and everyone else comes in by invitation. This page is the first hour: the setup code, the setup page, inviting the others, and what each person does on their first visit.
+Nobody can sign up to Household. The first person sets the copy up once, and everyone else comes in by invitation. This page covers the setup code, the setup page, inviting the others, and what each person does on their first visit.
 
 ## The setup code
 

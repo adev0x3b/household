@@ -1,8 +1,8 @@
 # Household
 
-Household is a web app for running a home together. One calendar holds the tasks, the appointments, the medications, the meals, the lab results and the payments. Around it are the pantry and the grocery lists, the bookshelf, the household's files, the messages between housemates, and an assistant that files what you tell it. It's recommended to install it as a web app on mobile
+Household is a web app for running a home together. One calendar holds the tasks, the appointments, the medications, the meals, the lab results and the payments. Around it are the pantry and the grocery lists, the bookshelf, the household's files, the messages between housemates, and an assistant that files what you tell it. On a phone, install it as a web app.
 
-**[Try the live demo](https://juume.site/demo).** It is a household of three people with six months of life behind them. Pick one of them and you are in, with no account. Everyone who visits shares it, and it is rebuilt every night.
+**[Try the live demo](https://juume.site/demo).** It is a household of three people with six months of history. Pick one of them and you are in, with no account. Everyone who visits shares it, and it is rebuilt every night.
 
 <table>
   <tr>

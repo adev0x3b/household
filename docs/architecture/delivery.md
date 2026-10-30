@@ -18,7 +18,7 @@ a branch ──preview──► dev            (built from the branch, on dev's 
 pull request: CI ──merge──► main ──CI──► image ghcr.io/<owner>/household:<sha>, built once
                                               │
                                               ├──automatically──► staging ──then──► demo
-                                              └──a promotion press──► production (the very image staging runs)
+                                              └──a promotion press──► production (the image staging runs)
 ```
 
 - **CI** runs on every pull request and push: RuboCop with the app's own cops, ESLint, Stylelint and Prettier for the front end, ShellCheck, Brakeman, `bundler-audit`, the importmap audit, `npm audit` (critical advisories only), gitleaks, and the whole suite, browser tests included.
@@ -109,19 +109,11 @@ A dry run (Actions → Release → Run workflow, with a commit) prepares the sam
 
 ## The delivery console
 
-A household app has a deploy console because its admin is a housemate with a phone, not an engineer at a laptop. The app is mobile-first, and so is running it: promoting a version, rolling one back or freezing the pipeline is a press on a page, with the admin's password as the gate, from wherever they happen to be. Nothing in the pipeline needs a terminal.
+`/admin/deployment` is the deploy console, where the admin follows the delivery of the app. From it they preview a branch on dev, deploy `main` to staging, promote a release to production, or roll back to an earlier one.
 
-`/admin/deployment` is that console, the same page on every destination, acting through GitHub's API. It is two halves, one frame each:
-- **this copy** (`Deployment`): what the running app knows about itself without asking anyone: the commit it was built from, its destination, when it booted, whether the database and a job worker answer;
-- **the pipeline** (`Delivery::Pipeline`): what GitHub says about every destination, and the presses. This half reads the other, never the other way round, so it could one day serve another repository's pipeline from a monitor of its own. It asks GitHub each thing at most once, and only when something on the page needs it.
-
-A copy of one's own has no pipeline: nobody presses anything for it on GitHub, and its updates are a command on that machine. Its console is the first half alone, named by the release it runs, and once a day it asks GitHub's public releases for a newer one and tells each admin once, in the bell.
-
-The pipeline half shows dev's lane, with the branch there and whether its pull request is ready to merge, and main's lane: its head with its CI and image, the commits production doesn't have yet, and staging, the demo and production, each with its version, health and last attempt. Each action is a press: preview a branch on dev or stop dev, merge its pull request, run CI, deploy, restart or roll back a destination, release a held migration, freeze or unfreeze.
-
-Each kind of press is an object (`Delivery::Presses`) that says what it needs from the admin, what blocks it, and what refuses it, in its own words; its modal shows the consequences first and asks only for that. Every press is recorded with who pressed it and why, dispatched to GitHub, and followed until its run ends, when the result comes back to the bell. Anything that changes production asks for the password again, at most once every 15 minutes. A rollback and a release also want the sha typed and a reason.
-
-Every action, whoever started it, is also a **GitHub Deployment**: its ref is the version it put there, and its last status says in one line how it went. The console's DORA figures (deployment frequency, lead time, change failure rate, time to restore) are read from them.
+It has two parts:
+- **This copy** shows what the running app knows about itself: its version, its environment, when it booted, and whether the database and the job worker answer. A self-hosted copy also checks once a day for a newer release and tells the admins when it finds one.
+- **The pipeline** shows dev, staging, the demo and production. From it the admin freezes automatic deploys, deploys, promotes and rolls back, through GitHub's API with a fine-grained GitHub token. A self-hosted copy has no pipeline.
 
 ## Errors and jobs
 

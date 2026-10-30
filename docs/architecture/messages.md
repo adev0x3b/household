@@ -2,11 +2,11 @@
 
 [Documentation](../README.md) › [Architecture](README.md)
 
-Housemates talk on `/conversations`. The shape follows what Slack, Messenger and Matrix settled on, kept to what a household needs.
+Housemates talk on `/conversations`.
 
 ## Conversations
 
-There are two kinds, neither made by a form, and opening Messages makes neither, since a GET only reads:
+There are two kinds, neither made by a form, and opening Messages makes neither:
 - **The household's**, one per household, with every joined member in it (`Conversation.household_conversation`). It is made when the first member joins, and each member who joins later is let in as they join (`Profiles::Join`), history included. Anyone in it can rename it.
 - **A direct one** between two housemates, one per pair (`Conversation.direct_between`), keyed by the two ids in order, made by the first press on a housemate's name. It has no name. A stranger to it gets a 404.
 

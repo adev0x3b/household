@@ -20,7 +20,7 @@ A payment's day is marked **Paid**, or **Received** for income, from its card. A
 
 ## Payments between housemates
 
-A payment to or from a housemate is one payment with two readers. For the one who pays it is an expense; for the one who is paid it is income, on their own calendar, with the same amount and day. Each marks it from their own side, and there is never a copy to keep in step. The Finance page's **Who owes whom** adds these up into a balance per pair of housemates.
+A payment to or from a housemate is one payment with two readers. For the one who pays it is an expense; for the one who is paid it is income, on their own calendar, with the same amount and day. Each marks it from their own side. The Finance page's **Who owes whom** adds these up into a balance per pair of housemates.
 
 ## Costs attached to other things
 

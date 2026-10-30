@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Guide](README.md)
 
-The assistant is a chat that files things for you. "I paid the plumber 80 in cash", "Cobalamin 250, the test was today", "I took my metformin", "Dinner at Marco's on Friday, it cost 45", or a photo of a lab report, and the records are saved where they belong on the calendar, in the pantry or on the shelf. It is built to be useful with a small model running on your own machine, and works with Anthropic's or OpenAI's too.
+The assistant is a chat that files things for you. "I paid the plumber 80 in cash", "Cobalamin 250, the test was today", "I took my metformin", "Dinner at Marco's on Friday, it cost 45", or a photo of a lab report, and the records are saved where they belong on the calendar, in the pantry or on the shelf. It works with a small model running on your own machine, or with Anthropic's or OpenAI's.
 
 <img src="images/assistant-phone.png" width="300" alt="A new chat with the assistant on a phone: what to tell it, three examples, and the composer with its photo button">
 

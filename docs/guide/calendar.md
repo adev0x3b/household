@@ -2,7 +2,7 @@
 
 [Documentation](../README.md) › [Guide](README.md)
 
-Everything the household plans is on the calendar: a month of day cards, each listing the day's items. It is where things are added, done and changed. Home shows what needs attention and the figures; the calendar is the plan itself.
+Everything the household plans is on the calendar: a month of day cards, each listing the day's items. Items are added, done and changed there.
 
 <img src="images/calendar-phone.png" width="300" alt="The calendar on a phone: today's card with a task in progress, a dinner ordered in, a dose taken on time and a housemate's chores"> <img src="images/calendar-add-menu-phone.png" width="300" alt="The + on a day card, open: Task, Appointment, Medication, Meal, Lab result, Payment">
 
