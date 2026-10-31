@@ -103,6 +103,6 @@ group :test do
   gem "simplecov", "~> 1.3", require: false
   # Fails a test that runs N+1 queries (test/test_helper.rb); pg_query
   # fingerprints Postgres' SQL for it.
-  gem "prosopite", "~> 2.2", require: false
+  gem "prosopite", "~> 2.5", require: false
   gem "pg_query", "~> 6.2", require: false
 end
