@@ -10,7 +10,7 @@ source "https://rubygems.org"
 # Gemfile.lock holds every exact version.
 
 # The framework, and what Rails' generator adds around it.
-gem "rails", "~> 8.1.0"
+gem "rails", "~> 8.1.4"
 gem "pg"
 gem "puma"
 gem "propshaft"
@@ -40,7 +40,7 @@ gem "strong_migrations", "~> 2.8"
 
 # Signing in (Profile, by username or email) and invitations, the only way in.
 gem "devise", "~> 5.0"
-gem "devise_invitable", "~> 2.0"
+gem "devise_invitable", "~> 3.1"
 # Passwords, for Devise and for a file link that has one (UploadLink).
 gem "bcrypt", "~> 3.1"
 # Who may do what (app/policies).
@@ -103,6 +103,6 @@ group :test do
   gem "simplecov", "~> 1.3", require: false
   # Fails a test that runs N+1 queries (test/test_helper.rb); pg_query
   # fingerprints Postgres' SQL for it.
-  gem "prosopite", "~> 2.2", require: false
+  gem "prosopite", "~> 2.5", require: false
   gem "pg_query", "~> 6.2", require: false
 end
