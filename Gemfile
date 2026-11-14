@@ -10,7 +10,7 @@ source "https://rubygems.org"
 # Gemfile.lock holds every exact version.
 
 # The framework, and what Rails' generator adds around it.
-gem "rails", "~> 8.1.0"
+gem "rails", "~> 8.1.4"
 gem "pg"
 gem "puma"
 gem "propshaft"
@@ -40,7 +40,7 @@ gem "strong_migrations", "~> 2.8"
 
 # Signing in (Profile, by username or email) and invitations, the only way in.
 gem "devise", "~> 5.0"
-gem "devise_invitable", "~> 2.0"
+gem "devise_invitable", "~> 3.1"
 # Passwords, for Devise and for a file link that has one (UploadLink).
 gem "bcrypt", "~> 3.1"
 # Who may do what (app/policies).
@@ -69,7 +69,7 @@ gem "image_processing", "~> 2.2"
 gem "ruby-vips", "~> 2.3", require: false
 
 # The assistant's model providers: Ollama, Anthropic, OpenAI.
-gem "ruby_llm", "~> 2.1"
+gem "ruby_llm", "~> 2.2"
 # Notifications pushed to devices (VAPID, aes128gcm).
 gem "web-push", "~> 3.1"
 # .env in development, and in production the secrets each server makes on its
@@ -87,7 +87,7 @@ group :development, :test do
   gem "rubocop-performance", "~> 1.27", require: false
   gem "rubocop-minitest", "~> 0.41.0", require: false
   # Missing, unused and untranslated keys in config/locales (test/i18n_test.rb).
-  gem "i18n-tasks", "~> 1.1", require: false
+  gem "i18n-tasks", "~> 1.2", require: false
 end
 
 group :development do
@@ -103,6 +103,6 @@ group :test do
   gem "simplecov", "~> 1.3", require: false
   # Fails a test that runs N+1 queries (test/test_helper.rb); pg_query
   # fingerprints Postgres' SQL for it.
-  gem "prosopite", "~> 2.2", require: false
+  gem "prosopite", "~> 2.5", require: false
   gem "pg_query", "~> 6.2", require: false
 end
